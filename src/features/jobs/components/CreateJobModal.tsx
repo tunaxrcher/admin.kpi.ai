@@ -1,13 +1,22 @@
-// src/features/jobs/components/CreateJobModal.tsx
 'use client'
+
+import type React from 'react'
 
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { X, ChevronLeft, ChevronRight, Loader2, Upload } from 'lucide-react'
+import {
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  Upload,
+  Sparkles,
+  CheckCircle,
+} from 'lucide-react'
 import { useCreateJobClass, useGenerateJobLevels } from '../hooks/api'
-import { GeneratedLevel } from '../types'
+import type { GeneratedLevel } from '../types'
 import toast from 'react-hot-toast'
 
 const step1Schema = z.object({
@@ -213,80 +222,114 @@ export default function CreateJobModal({
   const isLoading =
     createJobMutation.isPending || generateLevelsMutation.isPending
 
+  const stepTitles = ['ชื่ออาชีพ', 'Level Tree', 'รายละเอียด']
+
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
-          <div className="flex items-center space-x-4">
-            <h2 className="text-xl font-semibold">สร้างอาชีพใหม่</h2>
-            <div className="flex items-center space-x-2">
-              {[1, 2, 3].map((step) => (
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="bg-white/20 rounded-full p-2">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold">สร้างอาชีพใหม่</h2>
+                <p className="text-blue-100">
+                  ขั้นตอนที่ {currentStep} จาก 3: {stepTitles[currentStep - 1]}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleClose}
+              className="text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-colors"
+              disabled={isLoading}
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          {/* Progress Steps */}
+          <div className="flex items-center justify-center mt-6 space-x-4">
+            {[1, 2, 3].map((step) => (
+              <div key={step} className="flex items-center">
                 <div
-                  key={step}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
                     step === currentStep
-                      ? 'bg-blue-500 text-white'
+                      ? 'bg-white text-blue-600 shadow-lg scale-110'
                       : step < currentStep
                         ? 'bg-green-500 text-white'
-                        : 'bg-gray-200 text-gray-600'
+                        : 'bg-white/30 text-white/70'
                   }`}
                 >
-                  {step}
+                  {step < currentStep ? (
+                    <CheckCircle className="w-5 h-5" />
+                  ) : (
+                    step
+                  )}
                 </div>
-              ))}
-            </div>
+                {step < 3 && (
+                  <div
+                    className={`w-12 h-1 mx-2 rounded-full ${step < currentStep ? 'bg-green-500' : 'bg-white/30'}`}
+                  />
+                )}
+              </div>
+            ))}
           </div>
-          <button
-            onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600"
-            disabled={isLoading}
-          >
-            <X className="w-6 h-6" />
-          </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+        <div className="p-8 overflow-y-auto max-h-[calc(95vh-200px)]">
           {/* Step 1: Job Name */}
           {currentStep === 1 && (
             <form
               onSubmit={step1Form.handleSubmit(handleStep1Submit)}
-              className="space-y-6"
+              className="space-y-8"
             >
-              <div>
-                <h3 className="text-lg font-medium mb-4">
-                  ขั้นตอนที่ 1: ชื่ออาชีพ
-                </h3>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    ชื่ออาชีพ
-                  </label>
-                  <input
-                    {...step1Form.register('name')}
-                    type="text"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="เช่น นักการตลาด, โปรแกรมเมอร์, ดีไซน์เนอร์"
-                  />
-                  {step1Form.formState.errors.name && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {step1Form.formState.errors.name.message}
-                    </p>
-                  )}
+              <div className="text-center">
+                <div className="bg-blue-50 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="w-10 h-10 text-blue-600" />
                 </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  เริ่มต้นสร้างอาชีพใหม่
+                </h3>
+                <p className="text-gray-600">
+                  ใส่ชื่ออาชีพที่คุณต้องการสร้าง ระบบจะสร้าง Level Tree
+                  ให้อัตโนมัติ
+                </p>
               </div>
 
-              <div className="flex justify-end">
+              <div className="max-w-md mx-auto">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  ชื่ออาชีพ
+                </label>
+                <input
+                  {...step1Form.register('name')}
+                  type="text"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all text-lg"
+                  placeholder="เช่น นักการตลาด, โปรแกรมเมอร์, ดีไซน์เนอร์"
+                />
+                {step1Form.formState.errors.name && (
+                  <p className="text-red-500 text-sm mt-2 flex items-center">
+                    <X className="w-4 h-4 mr-1" />
+                    {step1Form.formState.errors.name.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex justify-center">
                 <button
                   type="submit"
                   disabled={generateLevelsMutation.isPending}
-                  className="flex items-center space-x-2 bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 disabled:opacity-50"
+                  className="flex items-center space-x-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   {generateLevelsMutation.isPending && (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-5 h-5 animate-spin" />
                   )}
-                  <span>สร้าง Level Tree</span>
-                  <ChevronRight className="w-4 h-4" />
+                  <Sparkles className="w-5 h-5" />
+                  <span className="font-semibold">สร้าง Level Tree</span>
+                  <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
             </form>
@@ -298,111 +341,133 @@ export default function CreateJobModal({
               onSubmit={step2Form.handleSubmit(handleStep2Submit)}
               className="space-y-6"
             >
-              <div>
-                <h3 className="text-lg font-medium mb-4">
-                  ขั้นตอนที่ 2: ตรวจสอบและแก้ไข Level Tree
+              <div className="text-center mb-8">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  ตรวจสอบและแก้ไข Level Tree
                 </h3>
-                <p className="text-gray-600 mb-4">
-                  ระบบได้สร้าง level tree สำหรับอาชีพ "{jobName}" ให้แล้ว
-                  คุณสามารถแก้ไขได้
+                <p className="text-gray-600">
+                  ระบบได้สร้าง level tree สำหรับอาชีพ{' '}
+                  <span className="font-semibold text-blue-600">
+                    "{jobName}"
+                  </span>{' '}
+                  ให้แล้ว คุณสามารถแก้ไขได้
                 </p>
+              </div>
 
-                <div className="space-y-4">
-                  {Array.isArray(generatedLevels) &&
-                  generatedLevels.length > 0 ? (
-                    generatedLevels.map((level, index) => (
-                      <div
-                        key={level.level}
-                        className="border border-gray-200 rounded-lg p-4"
-                      >
-                        <div className="grid grid-cols-2 gap-4 mb-3">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Level {level.level} (Character Level{' '}
-                              {level.requiredCharacterLevel})
-                            </label>
-                            <input
-                              {...step2Form.register(`levels.${index}.title`)}
-                              type="text"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              placeholder="ชื่อตำแหน่ง"
-                              defaultValue={level.title}
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              คำอธิบาย
-                            </label>
-                            <input
-                              {...step2Form.register(
-                                `levels.${index}.description`,
-                              )}
-                              type="text"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              placeholder="คำอธิบายหน้าที่และความสามารถ"
-                              defaultValue={level.description || ''}
-                            />
-                          </div>
+              <div className="space-y-4">
+                {Array.isArray(generatedLevels) &&
+                generatedLevels.length > 0 ? (
+                  generatedLevels.map((level, index) => (
+                    <div
+                      key={level.level}
+                      className="bg-gradient-to-r from-gray-50 to-blue-50 border-2 border-gray-100 rounded-xl p-6 hover:shadow-md transition-all"
+                    >
+                      <div className="flex items-center mb-4">
+                        <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">
+                          {level.level}
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Persona Description (สำหรับ AI generate รูป)
+                          <h4 className="font-bold text-gray-900">
+                            Level {level.level}
+                          </h4>
+                          <p className="text-sm text-gray-600">
+                            Character Level {level.requiredCharacterLevel}{' '}
+                            required
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            ชื่อตำแหน่ง
                           </label>
-                          <textarea
-                            {...step2Form.register(
-                              `levels.${index}.personaDescription`,
-                            )}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            rows={2}
-                            placeholder="คำอธิบายลักษณะภายนอกและอุปกรณ์ (ภาษาอังกฤษ)"
-                            defaultValue={level.personaDescription || ''}
+                          <input
+                            {...step2Form.register(`levels.${index}.title`)}
+                            type="text"
+                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all"
+                            placeholder="ชื่อตำแหน่ง"
+                            defaultValue={level.title}
                           />
                         </div>
-                        <input
-                          {...step2Form.register(`levels.${index}.level`)}
-                          type="hidden"
-                          value={level.level}
-                        />
-                        <input
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            คำอธิบาย
+                          </label>
+                          <input
+                            {...step2Form.register(
+                              `levels.${index}.description`,
+                            )}
+                            type="text"
+                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all"
+                            placeholder="คำอธิบายหน้าที่และความสามารถ"
+                            defaultValue={level.description || ''}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Persona Description (สำหรับ AI generate รูป)
+                        </label>
+                        <textarea
                           {...step2Form.register(
-                            `levels.${index}.requiredCharacterLevel`,
+                            `levels.${index}.personaDescription`,
                           )}
-                          type="hidden"
-                          value={level.requiredCharacterLevel}
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all"
+                          rows={3}
+                          placeholder="คำอธิบายลักษณะภายนอกและอุปกรณ์ (ภาษาอังกฤษ)"
+                          defaultValue={level.personaDescription || ''}
                         />
                       </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <p>ไม่พบข้อมูล level tree</p>
-                      <button
-                        type="button"
-                        onClick={() => setCurrentStep(1)}
-                        className="mt-2 text-blue-500 hover:text-blue-700"
-                      >
-                        กลับไปขั้นตอนที่ 1
-                      </button>
+
+                      <input
+                        {...step2Form.register(`levels.${index}.level`)}
+                        type="hidden"
+                        value={level.level}
+                      />
+                      <input
+                        {...step2Form.register(
+                          `levels.${index}.requiredCharacterLevel`,
+                        )}
+                        type="hidden"
+                        value={level.requiredCharacterLevel}
+                      />
                     </div>
-                  )}
-                </div>
+                  ))
+                ) : (
+                  <div className="text-center py-12 bg-gray-50 rounded-xl">
+                    <div className="text-gray-400 mb-4">
+                      <X className="w-16 h-16 mx-auto" />
+                    </div>
+                    <p className="text-gray-600 mb-4">ไม่พบข้อมูล level tree</p>
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(1)}
+                      className="text-blue-600 hover:text-blue-800 font-semibold"
+                    >
+                      กลับไปขั้นตอนที่ 1
+                    </button>
+                  </div>
+                )}
               </div>
 
               {Array.isArray(generatedLevels) && generatedLevels.length > 0 && (
-                <div className="flex justify-between">
+                <div className="flex justify-between pt-6 border-t">
                   <button
                     type="button"
                     onClick={() => setCurrentStep(1)}
-                    className="flex items-center space-x-2 text-gray-600 hover:text-gray-800"
+                    className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-100 transition-all"
                   >
-                    <ChevronLeft className="w-4 h-4" />
-                    <span>ย้อนกลับ</span>
+                    <ChevronLeft className="w-5 h-5" />
+                    <span className="font-semibold">ย้อนกลับ</span>
                   </button>
                   <button
                     type="submit"
-                    className="flex items-center space-x-2 bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600"
+                    className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
                   >
-                    <span>ต่อไป</span>
-                    <ChevronRight className="w-4 h-4" />
+                    <span className="font-semibold">ต่อไป</span>
+                    <ChevronRight className="w-5 h-5" />
                   </button>
                 </div>
               )}
@@ -413,75 +478,86 @@ export default function CreateJobModal({
           {currentStep === 3 && (
             <form
               onSubmit={step3Form.handleSubmit(handleStep3Submit)}
-              className="space-y-6"
+              className="space-y-8"
             >
-              <div>
-                <h3 className="text-lg font-medium mb-4">
-                  ขั้นตอนที่ 3: รูปภาพและรายละเอียด
+              <div className="text-center mb-8">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  รูปภาพและรายละเอียด
                 </h3>
+                <p className="text-gray-600">
+                  เพิ่มรูปภาพและคำอธิบายเพิ่มเติมสำหรับอาชีพ{' '}
+                  <span className="font-semibold text-blue-600">{jobName}</span>
+                </p>
+              </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      คำอธิบายอาชีพ (ไม่บังคับ)
-                    </label>
-                    <textarea
-                      {...step3Form.register('description')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      rows={3}
-                      placeholder="คำอธิบายเกี่ยวกับอาชีพนี้"
-                    />
-                  </div>
+              <div className="max-w-2xl mx-auto space-y-6">
+                {/* <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    คำอธิบายอาชีพ (ไม่บังคับ)
+                  </label>
+                  <textarea
+                    {...step3Form.register('description')}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all"
+                    rows={4}
+                    placeholder="คำอธิบายเกี่ยวกับอาชีพนี้..."
+                  />
+                </div> */}
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      รูปภาพอาชีพ (ไม่บังคับ)
-                    </label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                      {imagePreview ? (
-                        <div className="space-y-4">
-                          <img
-                            src={imagePreview}
-                            alt="Preview"
-                            className="w-32 h-32 object-cover rounded-lg mx-auto"
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    รูปภาพอาชีพ (ใช้แสดงใน UI ตอนผู้ใช้งานสร้าง Character)
+                  </label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors">
+                    {imagePreview ? (
+                      <div className="space-y-4">
+                        <img
+                          src={imagePreview || '/placeholder.svg'}
+                          alt="Preview"
+                          className="w-40 h-40 object-cover rounded-xl mx-auto shadow-lg"
+                        />
+                        <div className="space-x-3">
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/jpg,image/png,image/webp"
+                            onChange={handleImageChange}
+                            className="hidden"
+                            id="image-upload-change"
+                            disabled={isLoading}
                           />
-                          <div className="space-x-2">
-                            <input
-                              type="file"
-                              accept="image/jpeg,image/jpg,image/png,image/webp"
-                              onChange={handleImageChange}
-                              className="hidden"
-                              id="image-upload-change"
-                              disabled={isLoading}
-                            />
-                            <label
-                              htmlFor="image-upload-change"
-                              className={`inline-block px-3 py-2 rounded-md cursor-pointer ${
-                                isLoading
-                                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                  : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                              }`}
-                            >
-                              เปลี่ยนรูป
-                            </label>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setImagePreview(null)
-                                step3Form.setValue('imageFile', undefined)
-                              }}
-                              className="text-red-500 hover:text-red-700"
-                              disabled={isLoading}
-                            >
-                              ลบรูป
-                            </button>
-                          </div>
+                          <label
+                            htmlFor="image-upload-change"
+                            className={`inline-flex items-center space-x-2 px-4 py-2 rounded-lg cursor-pointer transition-all ${
+                              isLoading
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                            }`}
+                          >
+                            <Upload className="w-4 h-4" />
+                            <span>เปลี่ยนรูป</span>
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setImagePreview(null)
+                              step3Form.setValue('imageFile', undefined)
+                            }}
+                            className="text-red-500 hover:text-red-700 px-4 py-2 rounded-lg hover:bg-red-50 transition-all"
+                            disabled={isLoading}
+                          >
+                            ลบรูป
+                          </button>
                         </div>
-                      ) : (
-                        <div className="space-y-2">
-                          <Upload className="w-12 h-12 text-gray-400 mx-auto" />
-                          <p className="text-gray-600">คลิกเพื่อเลือกรูปภาพ</p>
-                          <p className="text-sm text-gray-500">
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="bg-gray-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto">
+                          <Upload className="w-10 h-10 text-gray-400" />
+                        </div>
+                        <div>
+                          <p className="text-lg font-semibold text-gray-700 mb-2">
+                            คลิกเพื่อเลือกรูปภาพ
+                          </p>
+                          <p className="text-sm text-gray-500 mb-4">
                             รองรับ JPEG, PNG, WebP (ไม่เกิน 5MB)
                           </p>
                           <input
@@ -494,38 +570,40 @@ export default function CreateJobModal({
                           />
                           <label
                             htmlFor="image-upload"
-                            className={`inline-block px-4 py-2 rounded-md cursor-pointer ${
+                            className={`inline-flex items-center space-x-2 px-6 py-3 rounded-lg cursor-pointer transition-all ${
                               isLoading
                                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-200 hover:border-gray-300'
                             }`}
                           >
-                            เลือกไฟล์
+                            <Upload className="w-5 h-5" />
+                            <span className="font-semibold">เลือกไฟล์</span>
                           </label>
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-between">
+              <div className="flex justify-between pt-6 border-t">
                 <button
                   type="button"
                   onClick={() => setCurrentStep(2)}
-                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-800"
+                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-100 transition-all"
                   disabled={isLoading}
                 >
-                  <ChevronLeft className="w-4 h-4" />
-                  <span>ย้อนกลับ</span>
+                  <ChevronLeft className="w-5 h-5" />
+                  <span className="font-semibold">ย้อนกลับ</span>
                 </button>
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex items-center space-x-2 bg-green-500 text-white px-6 py-2 rounded-md hover:bg-green-600 disabled:opacity-50"
+                  className="flex items-center space-x-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-3 rounded-lg hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
-                  {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                  <span>สร้างอาชีพ</span>
+                  {isLoading && <Loader2 className="w-5 h-5 animate-spin" />}
+                  <CheckCircle className="w-5 h-5" />
+                  <span className="font-semibold">สร้างอาชีพ</span>
                 </button>
               </div>
             </form>
