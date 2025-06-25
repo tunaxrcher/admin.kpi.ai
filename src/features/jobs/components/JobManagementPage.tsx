@@ -80,7 +80,7 @@ export default function JobManagementPage() {
                             sum + job._count.characters,
                           0,
                         ) || 0}{' '}
-                        ตัวละครใช้งาน
+                        ผู้ใช้งาน
                       </span>
                     </div>
                   </div>
@@ -189,7 +189,7 @@ export default function JobManagementPage() {
 
                     {job._count.characters > 0 && (
                       <p className="text-xs text-orange-600 mt-3 text-center bg-orange-50 py-2 rounded-lg">
-                        ไม่สามารถลบได้เนื่องจากมีตัวละครใช้งานอยู่
+                        ไม่สามารถลบได้เนื่องจากมีผู้ใช้งานอยู่
                       </p>
                     )}
                   </div>
