@@ -40,7 +40,7 @@ const navigationConfig: NavigationTree[] = [
   {
     key: 'reports',
     path: '',
-    title: 'Report',
+    title: 'รายงาน',
     translateKey: 'nav.reports',
     icon: 'groupMenu',
     type: NAV_ITEM_TYPE_TITLE,
