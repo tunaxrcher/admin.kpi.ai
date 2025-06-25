@@ -1,12 +1,12 @@
 'use client'
 
-import Logo from '../../template/Logo'
+// import Logo from '../../template/Logo'
 import Alert from '../../ui/Alert'
 import SignInForm from './SignInForm'
 
 import ActionLink from '../../shared/ActionLink'
 import useTimeOutMessage from '../../../utils/hooks/useTimeOutMessage'
-import useTheme from '../../../utils/hooks/useTheme'
+// import useTheme from '../../../utils/hooks/useTheme'
 import type { OnSignIn } from './SignInForm'
 import type { OnOauthSignIn } from './OauthSignIn'
 
@@ -23,7 +23,7 @@ const SignIn = ({
 }: SignInProps) => {
     const [message, setMessage] = useTimeOutMessage()
 
-    const mode = useTheme((state) => state.mode)
+    // const mode = useTheme((state) => state.mode)
 
     return (
         <>
@@ -36,7 +36,7 @@ const SignIn = ({
                 /> */}
             </div>
             <div className="mb-10">
-                <h2 className="mb-2">Welcome back!</h2>
+                <h2 className="mb-2">ระบบจัดการ KPI AI</h2>
                 <p className="font-semibold heading-text">
                     Please enter your credentials to sign in!
                 </p>
