@@ -128,56 +128,83 @@ export class JobLevelService extends BaseService {
     data: GenerateLevelsRequest,
   ): Promise<GeneratedLevel[]> {
     try {
+ 
+      // const prompt = `
+      //   สร้าง level tree สำหรับอาชีพ "${data.jobName}" ในรูปแบบ JSON array ดังนี้:
+      //       [
+      //           {
+      //               "level": 1,
+      //               "requiredCharacterLevel": 1,
+      //               "title": "ชื่อตำแหน่งระดับเริ่มต้น",
+      //               "description": "คำอธิบายหน้าที่และความสามารถ",
+      //               "personaDescription": "คำอธิบายลักษณะภายนอกและอุปกรณ์ในภาษาอังกฤษ"
+      //           },
+      //           {
+      //               "level": 10,
+      //               "requiredCharacterLevel": 10,
+      //               "title": "ชื่อตำแหน่งระดับพื้นฐาน",
+      //               "description": "คำอธิบายหน้าที่และความสามารถ",
+      //               "personaDescription": "คำอธิบายลักษณะภายนอกและอุปกรณ์ในภาษาอังกฤษ"
+      //           },
+      //           {
+      //               "level": 35,
+      //               "requiredCharacterLevel": 35,
+      //               "title": "ชื่อตำแหน่งระดับกลาง",
+      //               "description": "คำอธิบายหน้าที่และความสามารถ",
+      //               "personaDescription": "คำอธิบายลักษณะภายนอกและอุปกรณ์ในภาษาอังกฤษ"
+      //           },
+      //           {
+      //               "level": 60,
+      //               "requiredCharacterLevel": 60,
+      //               "title": "ชื่อตำแหน่งระดับสูง",
+      //               "description": "คำอธิบายหน้าที่และความสามารถ",
+      //               "personaDescription": "คำอธิบายลักษณะภายนอกและอุปกรณ์ในภาษาอังกฤษ"
+      //           },
+      //           {
+      //               "level": 80,
+      //               "requiredCharacterLevel": 80,
+      //               "title": "ชื่อตำแหน่งระดับผู้นำ",
+      //               "description": "คำอธิบายหน้าที่และความสามารถ",
+      //               "personaDescription": "คำอธิบายลักษณะภายนอกและอุปกรณ์ในภาษาอังกฤษ"
+      //           },
+      //           {
+      //               "level": 99,
+      //               "requiredCharacterLevel": 99,
+      //               "title": "ชื่อตำแหน่งระดับปรมาจารย์",
+      //               "description": "คำอธิบายหน้าที่และความสามารถ",
+      //               "personaDescription": "คำอธิบายลักษณะภายนอกและอุปกรณ์ในภาษาอังกฤษ"
+      //           }
+      //       ]
+
+      //       ตอบกลับเป็น JSON array เท่านั้น ไม่ต้องมีข้อความอื่น
+      //   `
+
       const prompt = `
-        สร้าง level tree สำหรับอาชีพ "${data.jobName}" ในรูปแบบ JSON array ดังนี้:
-            [
-                {
-                    "level": 1,
-                    "requiredCharacterLevel": 1,
-                    "title": "ชื่อตำแหน่งระดับเริ่มต้น",
-                    "description": "คำอธิบายหน้าที่และความสามารถ",
-                    "personaDescription": "คำอธิบายลักษณะภายนอกและอุปกรณ์ในภาษาอังกฤษ"
-                },
-                {
-                    "level": 10,
-                    "requiredCharacterLevel": 10,
-                    "title": "ชื่อตำแหน่งระดับพื้นฐาน",
-                    "description": "คำอธิบายหน้าที่และความสามารถ",
-                    "personaDescription": "คำอธิบายลักษณะภายนอกและอุปกรณ์ในภาษาอังกฤษ"
-                },
-                {
-                    "level": 35,
-                    "requiredCharacterLevel": 35,
-                    "title": "ชื่อตำแหน่งระดับกลาง",
-                    "description": "คำอธิบายหน้าที่และความสามารถ",
-                    "personaDescription": "คำอธิบายลักษณะภายนอกและอุปกรณ์ในภาษาอังกฤษ"
-                },
-                {
-                    "level": 60,
-                    "requiredCharacterLevel": 60,
-                    "title": "ชื่อตำแหน่งระดับสูง",
-                    "description": "คำอธิบายหน้าที่และความสามารถ",
-                    "personaDescription": "คำอธิบายลักษณะภายนอกและอุปกรณ์ในภาษาอังกฤษ"
-                },
-                {
-                    "level": 80,
-                    "requiredCharacterLevel": 80,
-                    "title": "ชื่อตำแหน่งระดับผู้นำ",
-                    "description": "คำอธิบายหน้าที่และความสามารถ",
-                    "personaDescription": "คำอธิบายลักษณะภายนอกและอุปกรณ์ในภาษาอังกฤษ"
-                },
-                {
-                    "level": 99,
-                    "requiredCharacterLevel": 99,
-                    "title": "ชื่อตำแหน่งระดับปรมาจารย์",
-                    "description": "คำอธิบายหน้าที่และความสามารถ",
-                    "personaDescription": "คำอธิบายลักษณะภายนอกและอุปกรณ์ในภาษาอังกฤษ"
-                }
-            ]
+        คุณคือนักออกแบบเกม RPG ที่มีความเชี่ยวชาญด้านการวางระบบเลเวลและพัฒนาตัวละคร
 
-            ตอบกลับเป็น JSON array เท่านั้น ไม่ต้องมีข้อความอื่น
-        `
+        กรุณาสร้าง level tree สำหรับอาชีพ "${data.jobName}" โดยแบ่งเป็น 6 ระดับตามนี้:
 
+        - Level 1: ระดับเริ่มต้น
+        - Level 10: ระดับพื้นฐาน
+        - Level 35: ระดับกลาง
+        - Level 60: ระดับสูง
+        - Level 80: ระดับผู้นำ
+        - Level 99: ระดับปรมาจารย์
+
+        สำหรับแต่ละระดับ ให้แสดงข้อมูลเป็น JSON object ที่มี field ดังนี้:
+        - "level": หมายเลขเลเวล (เช่น 1, 10, 35, ...)
+        - "requiredCharacterLevel": เลเวลของตัวละครที่ต้องใช้ในการปลดล็อก (เท่ากับ level)
+        - "title": ชื่อตำแหน่งในสายงานแม่บ้านในระดับนั้น (ควรสมจริงและสอดคล้องกับความสามารถ)
+        - "description": อธิบายหน้าที่และความสามารถของตำแหน่งนี้ (เน้นภาษาไทย)
+        - "personaDescription": อธิบายรูปลักษณ์ภายนอก ชุด อุปกรณ์ หรือสิ่งของที่ใช้ในงาน (เป็นภาษาอังกฤษ)
+
+        **รูปแบบการตอบกลับ:**
+        - ตอบกลับเฉพาะ JSON array เท่านั้น
+        - ห้ามมีคำอธิบายเพิ่มเติมก่อนหรือหลัง JSON
+        - อย่าใส่ข้อความอธิบายอื่น ๆ เช่น “แน่นอนครับ...” หรือ “นี่คือตัวอย่าง...”
+      `
+
+        console.log(prompt)
       const response = await fetch(
         'https://api.openai.com/v1/chat/completions',
         {
@@ -187,7 +214,7 @@ export class JobLevelService extends BaseService {
             Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
           },
           body: JSON.stringify({
-            model: 'gpt-4-mini',
+            model: 'gpt-3.5-turbo',
             messages: [{ role: 'user', content: prompt }],
             temperature: 0.7,
           }),

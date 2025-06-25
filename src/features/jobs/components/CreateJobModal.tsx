@@ -288,9 +288,9 @@ export default function CreateJobModal({
               className="space-y-8"
             >
               <div className="text-center">
-                <div className="bg-blue-50 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                {/* <div className="bg-blue-50 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
                   <Sparkles className="w-10 h-10 text-blue-600" />
-                </div>
+                </div> */}
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">
                   เริ่มต้นสร้างอาชีพใหม่
                 </h3>
@@ -301,9 +301,9 @@ export default function CreateJobModal({
               </div>
 
               <div className="max-w-md mx-auto">
-                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                {/* <label className="block text-sm font-semibold text-gray-700 mb-3">
                   ชื่ออาชีพ
-                </label>
+                </label> */}
                 <input
                   {...step1Form.register('name')}
                   type="text"
