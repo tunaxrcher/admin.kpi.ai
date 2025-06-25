@@ -49,7 +49,7 @@ const navigationConfig: NavigationTree[] = [
       {
         key: 'reports.rewards',
         path: '',
-        title: 'รางวัล',
+        title: 'รางวัล (In Dev)',
         translateKey: 'nav.report.rewards',
         icon: 'sharedComponentDoc',
         type: NAV_ITEM_TYPE_ITEM,
@@ -59,7 +59,7 @@ const navigationConfig: NavigationTree[] = [
       {
         key: 'reports.employee',
         path: '',
-        title: 'บุคคลากร',
+        title: 'บุคคลากร (In Dev)',
         translateKey: 'nav.reports.employee',
         icon: 'utilsDoc',
         type: NAV_ITEM_TYPE_ITEM,
