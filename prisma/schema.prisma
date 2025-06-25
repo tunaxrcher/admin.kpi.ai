@@ -1,0 +1,619 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int                    @id @default(autoincrement())
+  email             String                 @unique
+  username          String                 @unique
+  password          String?
+  name              String
+  avatar            String?                @db.Text
+  bio               String?                @db.Text
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  character         Character?
+  achievements      CharacterAchievement[]
+  comments          Comment[]
+  feedItems         FeedItem[]
+  likes             Like[]
+  notifications     Notification[]
+  questStreak       QuestStreak?
+  questTokens       QuestToken[]
+  rankings          Ranking[]
+  replyComments     ReplyComment[]
+  stories           Story[]
+  storyViews        StoryView[]
+  tokenPurchases    TokenPurchase[]
+  tokenTransactions TokenTransaction[]
+  userToken         UserToken?
+}
+
+model JobClass {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String?
+  imageUrl    String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  characters  Character[]
+  levels      JobLevel[]
+  rankings    Ranking[]
+}
+
+model JobLevel {
+  id                     Int         @id @default(autoincrement())
+  level                  Int
+  requiredCharacterLevel Int
+  title                  String
+  description            String?     @db.Text
+  imageUrl               String?
+  personaDescription     String?     @db.Text
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+  jobClassId             Int
+  characters             Character[]
+  jobClass               JobClass    @relation(fields: [jobClassId], references: [id], onDelete: Cascade)
+
+  @@unique([jobClassId, level])
+}
+
+model Character {
+  id                 Int                    @id @default(autoincrement())
+  name               String
+  level              Int                    @default(1)
+  currentXP          Int                    @default(0)
+  nextLevelXP        Int                    @default(1000)
+  totalXP            Int                    @default(0)
+  statPoints         Int                    @default(0)
+  statAGI            Int                    @default(10)
+  statSTR            Int                    @default(10)
+  statDEX            Int                    @default(10)
+  statVIT            Int                    @default(10)
+  statINT            Int                    @default(10)
+  currentPortraitUrl String?
+  customPortrait     Boolean                @default(false)
+  originalFaceImage  String?
+  generatedPortraits Json?
+  levelHistory       Json?
+  personaTraits      String?                @db.Text
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  userId             Int                    @unique
+  jobClassId         Int
+  jobLevelId         Int
+  activeTokenBoost   Float                  @default(1)
+  tokenBoostExpiry   DateTime?
+  assignedQuests     AssignedQuest[]
+  jobClass           JobClass               @relation(fields: [jobClassId], references: [id])
+  currentJobLevel    JobLevel               @relation(fields: [jobLevelId], references: [id])
+  user               User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievements       CharacterAchievement[]
+  levelHistories     LevelHistory[]
+  questSubmissions   QuestSubmission[]
+  questTokens        QuestToken[]
+  rankings           Ranking[]
+  tokenPurchases     TokenPurchase[]
+  rewardPurchases    RewardPurchase[]
+  gachaHistories     GachaHistory[]
+  rewardStats        UserRewardStats?
+
+  @@index([jobClassId], map: "Character_jobClassId_fkey")
+  @@index([jobLevelId], map: "Character_jobLevelId_fkey")
+}
+
+model LevelHistory {
+  id          Int        @id @default(autoincrement())
+  characterId Int
+  levelFrom   Int
+  levelTo     Int
+  agiGained   Int
+  strGained   Int
+  dexGained   Int
+  vitGained   Int
+  intGained   Int
+  reasoning   String?    @db.Text
+  recordedAt  DateTime   @default(now())
+  feedItems   FeedItem[]
+  character   Character  @relation(fields: [characterId], references: [id])
+
+  @@index([characterId], map: "LevelHistory_characterId_fkey")
+}
+
+model CharacterAchievement {
+  id            Int         @id @default(autoincrement())
+  earnedOn      DateTime    @default(now())
+  characterId   Int
+  achievementId Int
+  userId        Int
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
+  character     Character   @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id])
+  feedItems     FeedItem[]
+
+  @@unique([characterId, achievementId])
+  @@index([achievementId], map: "CharacterAchievement_achievementId_fkey")
+  @@index([userId], map: "CharacterAchievement_userId_fkey")
+}
+
+model Achievement {
+  id          Int                    @id @default(autoincrement())
+  name        String
+  description String
+  icon        String
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  characters  CharacterAchievement[]
+}
+
+model LevelRequirement {
+  id         Int      @id @default(autoincrement())
+  level      Int      @unique
+  requiredXP Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
+}
+
+model FeedItem {
+  id                Int                   @id @default(autoincrement())
+  content           String                @db.Text
+  type              String
+  post              String?               @db.Text
+  mediaType         EnumMediaType         @default(text)
+  mediaUrl          String?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  questSubmissionId Int?
+  levelHistoryId    Int?
+  achievementId     Int?
+  userId            Int
+  comments          Comment[]
+  achievement       CharacterAchievement? @relation(fields: [achievementId], references: [id])
+  levelHistory      LevelHistory?         @relation(fields: [levelHistoryId], references: [id])
+  questSubmission   QuestSubmission?      @relation(fields: [questSubmissionId], references: [id])
+  user              User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes             Like[]
+
+  @@index([achievementId], map: "FeedItem_achievementId_fkey")
+  @@index([levelHistoryId], map: "FeedItem_levelHistoryId_fkey")
+  @@index([questSubmissionId], map: "FeedItem_questSubmissionId_fkey")
+  @@index([userId], map: "FeedItem_userId_fkey")
+}
+
+model Story {
+  id           Int           @id @default(autoincrement())
+  content      String?       @db.Text
+  type         EnumMediaType @default(text)
+  mediaUrl     String?
+  thumbnailUrl String?
+  text         String?       @db.Text
+  expiresAt    DateTime
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  userId       Int
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  views        StoryView[]
+
+  @@index([userId], map: "Story_userId_fkey")
+}
+
+model StoryView {
+  id       Int      @id @default(autoincrement())
+  viewedAt DateTime @default(now())
+  storyId  Int
+  userId   Int
+  story    Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([storyId, userId])
+  @@index([userId], map: "StoryView_userId_fkey")
+}
+
+model Like {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  feedItemId Int
+  userId     Int
+  feedItem   FeedItem @relation(fields: [feedItemId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([feedItemId, userId])
+  @@index([userId], map: "Like_userId_fkey")
+}
+
+model Comment {
+  id         Int            @id @default(autoincrement())
+  content    String         @db.Text
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  feedItemId Int
+  userId     Int
+  feedItem   FeedItem       @relation(fields: [feedItemId], references: [id], onDelete: Cascade)
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  replies    ReplyComment[]
+
+  @@index([feedItemId], map: "Comment_feedItemId_fkey")
+  @@index([userId], map: "Comment_userId_fkey")
+}
+
+model ReplyComment {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  commentId Int
+  userId    Int
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([commentId], map: "ReplyComment_commentId_fkey")
+  @@index([userId], map: "ReplyComment_userId_fkey")
+}
+
+model Quest {
+  id               Int               @id @default(autoincrement())
+  title            String
+  description      String?           @db.Text
+  type             String
+  difficultyLevel  Int
+  xpReward         Int
+  imageUrl         String?
+  isActive         Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  baseTokenReward  Int               @default(10)
+  maxTokenReward   Int?
+  jobClassId       Int?
+  tokenMultiplier  Float             @default(1)
+  assignedQuests   AssignedQuest[]
+  questSubmissions QuestSubmission[]
+  questTokens      QuestToken[]
+}
+
+model AssignedQuest {
+  id          Int              @id @default(autoincrement())
+  assignedAt  DateTime         @default(now())
+  expiresAt   DateTime?
+  status      EnumQuestStatus  @default(active)
+  questId     Int
+  characterId Int
+  character   Character        @relation(fields: [characterId], references: [id])
+  quest       Quest            @relation(fields: [questId], references: [id])
+  submission  QuestSubmission?
+
+  // @@unique([questId, characterId])
+  @@index([characterId], map: "AssignedQuest_characterId_fkey")
+}
+
+model QuestSubmission {
+  id                     Int           @id @default(autoincrement())
+  mediaType              EnumMediaType
+  mediaUrl               String?
+  description            String?       @db.Text
+  tags                   Json?
+  ratingAGI              Int?
+  ratingSTR              Int?
+  ratingDEX              Int?
+  ratingVIT              Int?
+  ratingINT              Int?
+  xpEarned               Int
+  tokensEarned           Int           @default(0) // จำนวน token ที่ได้รับ
+  tokenMultiplier        Float         @default(1) // ตัวคูณที่ใช้
+  bonusTokens            Int           @default(0) // token โบนัส
+  feedback               String?       @db.Text
+  score                  Int?
+  submittedAt            DateTime      @default(now())
+  mediaTranscript        String?       @db.Text
+  mediaRevisedTranscript String?       @db.Text
+  mediaAnalysis          String?       @db.Text
+  characterId            Int
+  questId                Int
+  assignedQuestId        Int           @unique
+
+  feedItems     FeedItem[]
+  character     Character     @relation(fields: [characterId], references: [id])
+  quest         Quest         @relation(fields: [questId], references: [id])
+  assignedQuest AssignedQuest @relation(fields: [assignedQuestId], references: [id])
+
+  @@index([characterId], map: "QuestSubmission_characterId_fkey")
+  @@index([questId], map: "QuestSubmission_questId_fkey")
+}
+
+model Ranking {
+  id          Int        @id @default(autoincrement())
+  score       Int
+  position    Int?
+  updatedAt   DateTime   @updatedAt
+  jobClassId  Int
+  userId      Int?
+  characterId Int?
+  character   Character? @relation(fields: [characterId], references: [id])
+  jobClass    JobClass   @relation(fields: [jobClassId], references: [id])
+  user        User?      @relation(fields: [userId], references: [id])
+
+  @@index([characterId], map: "Ranking_characterId_fkey")
+  @@index([jobClassId], map: "Ranking_jobClassId_fkey")
+  @@index([userId], map: "Ranking_userId_fkey")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  type      String
+  title     String
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "Notification_userId_fkey")
+}
+
+model UserToken {
+  id                Int                @id @default(autoincrement())
+  userId            Int                @unique
+  currentTokens     Int                @default(0)
+  totalEarnedTokens Int                @default(0)
+  totalSpentTokens  Int                @default(0)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  questTokens       QuestToken[]
+  tokenTransactions TokenTransaction[]
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model QuestToken {
+  id           Int       @id @default(autoincrement())
+  userId       Int
+  questId      Int
+  characterId  Int
+  tokensEarned Int
+  bonusTokens  Int       @default(0)
+  multiplier   Float     @default(1)
+  completedAt  DateTime  @default(now())
+  character    Character @relation(fields: [characterId], references: [id])
+  quest        Quest     @relation(fields: [questId], references: [id])
+
+  userToken UserToken @relation(fields: [userId], references: [userId], map: "QuestToken_userId_userToken_fkey")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade, map: "QuestToken_userId_user_fkey")
+
+  @@index([completedAt])
+  @@index([userId, questId])
+  @@index([characterId], map: "QuestToken_characterId_fkey")
+  @@index([questId], map: "QuestToken_questId_fkey")
+}
+
+model TokenTransaction {
+  id            Int                      @id @default(autoincrement())
+  userId        Int
+  amount        Int
+  type          EnumTokenTransactionType
+  description   String?
+  referenceId   Int?
+  referenceType String?
+  balanceBefore Int
+  balanceAfter  Int
+  createdAt     DateTime                 @default(now())
+
+  userToken UserToken @relation(fields: [userId], references: [userId], map: "TokenTransaction_userId_userToken_fkey")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade, map: "TokenTransaction_userId_user_fkey")
+
+  @@index([userId], map: "TokenTransaction_userId_userToken_fkey")
+}
+
+model TokenShopItem {
+  id                 Int                   @id @default(autoincrement())
+  name               String
+  description        String?               @db.Text
+  category           String
+  itemType           EnumTokenShopItemType
+  price              Int
+  imageUrl           String?
+  metadata           Json?
+  stock              Int?
+  isActive           Boolean               @default(true)
+  validFrom          DateTime?
+  validUntil         DateTime?
+  minLevel           Int?
+  maxPurchasePerUser Int?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  purchases          TokenPurchase[]
+}
+
+model TokenPurchase {
+  id          Int                @id @default(autoincrement())
+  userId      Int
+  shopItemId  Int
+  quantity    Int                @default(1)
+  totalPrice  Int
+  status      EnumPurchaseStatus @default(pending)
+  appliedAt   DateTime?
+  expiresAt   DateTime?
+  purchasedAt DateTime           @default(now())
+  characterId Int
+  character   Character          @relation(fields: [characterId], references: [id])
+  shopItem    TokenShopItem      @relation(fields: [shopItemId], references: [id])
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([characterId], map: "TokenPurchase_characterId_fkey")
+  @@index([shopItemId], map: "TokenPurchase_shopItemId_fkey")
+  @@index([userId], map: "TokenPurchase_userId_fkey")
+}
+
+model QuestStreak {
+  id                Int       @id @default(autoincrement())
+  userId            Int       @unique
+  currentStreak     Int       @default(0)
+  longestStreak     Int       @default(0)
+  lastCompletedDate DateTime? @db.Date
+  weeklyQuests      Int       @default(0)
+  monthlyQuests     Int       @default(0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TokenMultiplierEvent {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?  @db.Text
+  multiplier  Float
+  questTypes  Json
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum EnumQuestStatus {
+  active
+  completed
+  failed
+  expired
+}
+
+enum EnumMediaType {
+  text
+  image
+  video
+}
+
+enum EnumTokenTransactionType {
+  quest_completion
+  streak_bonus
+  weekly_bonus
+  monthly_bonus
+  achievement_reward
+  level_up_reward
+  first_quest_bonus
+  perfect_rating_bonus
+  shop_purchase
+  admin_grant
+  admin_deduct
+  event_reward
+  referral_bonus
+}
+
+enum EnumTokenShopItemType {
+  xp_boost
+  token_boost
+  stat_reset
+  stat_boost
+  portrait_unlock
+  title_unlock
+  cosmetic
+  consumable
+  quest_skip
+  quest_refresh
+}
+
+enum EnumPurchaseStatus {
+  pending
+  completed
+  cancelled
+  refunded
+  expired
+}
+
+model RewardItem {
+  id               Int              @id @default(autoincrement())
+  name             String
+  subtitle         String?
+  description      String?          @db.Text
+  category         String // 'voucher', 'leave', 'gadget', 'vehicle'
+  itemType         String // 'gift_card', 'day_off', 'smartwatch', 'scooter'
+  icon             String?
+  imageUrl         String?
+  color            String? // gradient color class
+  tokenCost        Int // ราคาสำหรับซื้อตรง
+  gachaCost        Int              @default(50) // ราคาต่อครั้งสำหรับ gacha
+  stock            Int? // null = unlimited
+  isActive         Boolean          @default(true)
+  rarity           EnumRewardRarity @default(common)
+  gachaProbability Float            @default(0.1) // 0-1 probability
+  metadata         Json? // เก็บข้อมูลเพิ่มเติม เช่น gift card value
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  purchases      RewardPurchase[]
+  gachaHistories GachaHistory[]
+}
+
+model RewardPurchase {
+  id           Int              @id @default(autoincrement())
+  characterId  Int
+  rewardItemId Int
+  purchaseType EnumPurchaseType // 'direct' หรือ 'gacha'
+  tokenSpent   Int
+  quantity     Int              @default(1)
+  status       EnumRewardStatus @default(pending)
+  claimedAt    DateTime?
+  expiresAt    DateTime?
+  metadata     Json? // เก็บข้อมูล code, serial number etc.
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  character  Character  @relation(fields: [characterId], references: [id])
+  rewardItem RewardItem @relation(fields: [rewardItemId], references: [id])
+
+  @@index([characterId])
+  @@index([rewardItemId])
+}
+
+model GachaHistory {
+  id           Int      @id @default(autoincrement())
+  characterId  Int
+  rewardItemId Int? // null = ไม่ได้รางวัล
+  sessionId    String // group gacha pulls ที่เกิดพร้อมกัน
+  pullNumber   Int // ลำดับที่ดึงใน session (1-10)
+  tokenSpent   Int
+  isWin        Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  character  Character   @relation(fields: [characterId], references: [id])
+  rewardItem RewardItem? @relation(fields: [rewardItemId], references: [id])
+
+  @@index([characterId])
+  @@index([sessionId])
+}
+
+model UserRewardStats {
+  id               Int       @id @default(autoincrement())
+  characterId      Int       @unique
+  totalGachaPulls  Int       @default(0)
+  totalGachaWins   Int       @default(0)
+  totalTokensSpent Int       @default(0)
+  lastGachaAt      DateTime?
+  luckyStreak      Int       @default(0) // จำนวนครั้งที่ไม่ได้รางวัล (pity system)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  character Character @relation(fields: [characterId], references: [id])
+}
+
+enum EnumRewardRarity {
+  common
+  uncommon
+  rare
+  epic
+  legendary
+}
+
+enum EnumPurchaseType {
+  direct
+  gacha
+}
+
+enum EnumRewardStatus {
+  pending
+  claimed
+  expired
+  cancelled
+}
