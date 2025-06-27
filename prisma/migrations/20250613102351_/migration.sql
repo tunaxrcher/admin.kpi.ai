@@ -1,4 +1,0 @@
--- AlterTable
-ALTER TABLE `QuestSubmission` ADD COLUMN `bonusTokens` INTEGER NOT NULL DEFAULT 0,
-    ADD COLUMN `tokenMultiplier` DOUBLE NOT NULL DEFAULT 1,
-    ADD COLUMN `tokensEarned` INTEGER NOT NULL DEFAULT 0;
