@@ -7,7 +7,7 @@ import type { NavigationTree } from '../../@types/navigation'
 
 const navigationConfig: NavigationTree[] = [
   {
-    key: 'home',
+    key: 'ai',
     path: '/ai',
     title: 'Home',
     translateKey: 'nav.home',

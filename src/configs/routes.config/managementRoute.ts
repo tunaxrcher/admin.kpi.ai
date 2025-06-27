@@ -6,6 +6,10 @@ const managementRoute: Routes = {
         key: 'management.jobs',
         authority: [ADMIN, USER],
     },
+    '/management/characters': {
+        key: 'management.characters',
+        authority: [ADMIN, USER],
+    },
 }
 
 export default managementRoute
