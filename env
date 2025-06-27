@@ -1,0 +1,28 @@
+# DATABASE
+DATABASE_URL=""
+
+# Authentication Secret
+AUTH_SECRET=
+
+# Base URL for NextAuth callbacks
+NEXTAUTH_URL=
+
+AUTH_TRUST_HOST=
+
+# OAuth Provider (Google)
+GOOGLE_AUTH_CLIENT_ID=
+GOOGLE_AUTH_CLIENT_SECRET=
+
+# OAuth Provider (Github)
+GITHUB_AUTH_CLIENT_ID=
+GITHUB_AUTH_CLIENT_SECRET=
+
+# Storage configuration for DigitalOcean Spaces
+DO_SPACES_ENDPOINT=""
+DO_SPACES_KEY=""
+DO_SPACES_SECRET=""
+DO_SPACES_BUCKET=""
+DO_SPACES_REGION=""
+#DO_SPACES_FULL_ENDPOINT=""
+
+OPENAI_API_KEY=
