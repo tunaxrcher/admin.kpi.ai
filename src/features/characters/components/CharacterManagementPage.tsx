@@ -8,7 +8,6 @@ import {
   Input,
   Select,
   Button,
-  Badge,
   Avatar,
   Dialog,
   Form,
@@ -176,7 +175,7 @@ const CharacterManagementPage = () => {
             </Tr>
           </THead>
           <TBody>
-            {charactersData?.characters.map((character) => (
+            {charactersData?.characters.map((character: any) => (
               <Tr key={character.id}>
                 <Td>
                   <div className="flex items-center gap-3">
@@ -200,7 +199,7 @@ const CharacterManagementPage = () => {
                     </div>
                   </div>
                 </Td>
-                <Td className='text-white'>{character.jobClass.name}</Td>
+                <Td className="text-white">{character.jobClass.name}</Td>
                 {/* <Td>
                   <div>
                     <div className="font-medium">Lv. {character.level}</div>
@@ -209,8 +208,8 @@ const CharacterManagementPage = () => {
                     </div>
                   </div>
                 </Td> */}
-                <Td className='text-white'>{character.workStartTime || '-'}</Td>
-                <Td className='text-white'>{character.workEndTime || '-'}</Td>
+                <Td className="text-white">{character.workStartTime || '-'}</Td>
+                <Td className="text-white">{character.workEndTime || '-'}</Td>
                 <Td className="text-right font-medium text-white">
                   {formatSalary(character.salary)}
                 </Td>
