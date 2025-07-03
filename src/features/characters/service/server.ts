@@ -1,6 +1,6 @@
 import { BaseService } from '../../../lib/services/server/baseService'
 import { characterRepository } from '../repository'
-import { CharacterFilters, UpdateCharacterWorkSettingsRequest } from '../types'
+import { CharacterFilters, UpdateCharacterWorkSettingsRequest, UpdateCharacterJobRequest } from '../types'
 
 export class CharacterService extends BaseService {
   private static instance: CharacterService
@@ -43,6 +43,36 @@ export class CharacterService extends BaseService {
     }
 
     return await characterRepository.updateWorkSettings(id, data)
+  }
+
+  async updateJob(
+    id: number,
+    data: UpdateCharacterJobRequest,
+  ) {
+    // Get character first to validate character level
+    const character = await characterRepository.getCharacterById(id)
+    if (!character) {
+      throw new Error('ไม่พบข้อมูลบุคลากร')
+    }
+
+    // Get job level details to validate requirements
+    const jobLevel = await characterRepository.getJobLevelById(data.jobLevelId)
+
+    if (!jobLevel) {
+      throw new Error('ไม่พบข้อมูลระดับอาชีพ')
+    }
+
+    // Validate if job level belongs to the selected job class
+    if (jobLevel.jobClassId !== data.jobClassId) {
+      throw new Error('ระดับอาชีพไม่ตรงกับอาชีพที่เลือก')
+    }
+
+    // Validate if character level meets job level requirements
+    if (character.level < jobLevel.requiredCharacterLevel) {
+      throw new Error(`ต้องมีระดับตัวละครอย่างน้อย ${jobLevel.requiredCharacterLevel} เพื่อใช้งานระดับอาชีพนี้`)
+    }
+
+    return await characterRepository.updateJob(id, data)
   }
 
   private isValidTimeFormat(time: string): boolean {

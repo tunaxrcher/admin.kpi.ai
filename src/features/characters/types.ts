@@ -12,6 +12,11 @@ export interface UpdateCharacterWorkSettingsRequest {
   salary?: number | null
 }
 
+export interface UpdateCharacterJobRequest {
+  jobClassId: number
+  jobLevelId: number
+}
+
 export interface CharacterFilters {
   jobClassId?: number
   search?: string

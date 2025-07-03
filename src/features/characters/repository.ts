@@ -1,5 +1,5 @@
 import { BaseRepository } from '../../lib/repository/baseRepository'
-import { CharacterFilters, UpdateCharacterWorkSettingsRequest } from './types'
+import { CharacterFilters, UpdateCharacterWorkSettingsRequest, UpdateCharacterJobRequest } from './types'
 
 export class CharacterRepository extends BaseRepository<any> {
   private static instance: CharacterRepository
@@ -92,6 +92,31 @@ export class CharacterRepository extends BaseRepository<any> {
         workStartTime: data.workStartTime,
         workEndTime: data.workEndTime,
         salary: data.salary,
+      },
+      include: {
+        user: true,
+        jobClass: true,
+        currentJobLevel: true,
+      },
+    })
+  }
+
+  async getJobLevelById(id: number) {
+    return await this.prisma.jobLevel.findUnique({
+      where: { id },
+      include: { jobClass: true },
+    })
+  }
+
+  async updateJob(
+    id: number,
+    data: UpdateCharacterJobRequest,
+  ) {
+    return await this.prisma.character.update({
+      where: { id },
+      data: {
+        jobClassId: data.jobClassId,
+        jobLevelId: data.jobLevelId,
       },
       include: {
         user: true,

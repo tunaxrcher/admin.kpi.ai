@@ -1,5 +1,5 @@
 import { BaseService } from '../../../lib/services/client/baseService'
-import { CharacterFilters, UpdateCharacterWorkSettingsRequest } from '../types'
+import { CharacterFilters, UpdateCharacterWorkSettingsRequest, UpdateCharacterJobRequest } from '../types'
 
 export class CharacterService extends BaseService {
   private static instance: CharacterService
@@ -53,6 +53,24 @@ export class CharacterService extends BaseService {
     if (!response.ok) {
       const error = await response.json()
       throw new Error(error.message || 'Failed to update work settings')
+    }
+    
+    return response.json()
+  }
+
+  async updateJob(
+    id: number,
+    data: UpdateCharacterJobRequest,
+  ) {
+    const response = await fetch(`/api/characters/${id}/job`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.message || 'Failed to update character job')
     }
     
     return response.json()

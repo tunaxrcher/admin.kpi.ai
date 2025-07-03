@@ -1,7 +1,7 @@
 import React from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { characterService } from '../service/client'
-import { CharacterFilters, UpdateCharacterWorkSettingsRequest } from '../types'
+import { CharacterFilters, UpdateCharacterWorkSettingsRequest, UpdateCharacterJobRequest } from '../types'
 import toast from '../../../components/ui/toast'
 import Notification from '../../../components/ui/Notification'
 
@@ -59,6 +59,39 @@ export const useUpdateCharacterWorkSettings = () => {
       toast.push(
         <Notification title="เกิดข้อผิดพลาด" type="danger">
           {error.message || 'ไม่สามารถอัพเดทการตั้งค่าการทำงานได้'}
+        </Notification>
+      )
+    },
+  })
+}
+
+// Update character job
+export const useUpdateCharacterJob = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: number
+      data: UpdateCharacterJobRequest
+    }) => characterService.updateJob(id, data),
+    onSuccess: (data, variables) => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all })
+      queryClient.setQueryData(QUERY_KEYS.detail(variables.id), data)
+      
+      toast.push(
+        <Notification title="สำเร็จ" type="success">
+          อัพเดทอาชีพเรียบร้อยแล้ว
+        </Notification>
+      )
+    },
+    onError: (error: Error) => {
+      toast.push(
+        <Notification title="เกิดข้อผิดพลาด" type="danger">
+          {error.message || 'ไม่สามารถอัพเดทอาชีพได้'}
         </Notification>
       )
     },

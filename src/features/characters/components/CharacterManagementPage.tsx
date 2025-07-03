@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Card,
   Table,
@@ -13,14 +13,16 @@ import {
   Form,
   FormItem,
 } from '../../../components/ui'
-import { HiOutlinePencil, HiOutlineSearch } from 'react-icons/hi'
+import { HiOutlinePencil, HiOutlineSearch, HiOutlineBriefcase } from 'react-icons/hi'
 import {
   useCharacters,
   useUpdateCharacterWorkSettings,
+  useUpdateCharacterJob,
 } from '../hooks/useCharacters'
 import {
   CharacterWithRelations,
   UpdateCharacterWorkSettingsRequest,
+  UpdateCharacterJobRequest,
 } from '../types'
 import { useJobClasses } from '../../jobs/hooks/api'
 
@@ -34,15 +36,22 @@ const CharacterManagementPage = () => {
   const [selectedCharacter, setSelectedCharacter] =
     useState<CharacterWithRelations | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isJobEditDialogOpen, setIsJobEditDialogOpen] = useState(false)
   const [workSettings, setWorkSettings] = useState({
     workStartTime: '',
     workEndTime: '',
     salary: '',
   })
+  const [jobSettings, setJobSettings] = useState({
+    jobClassId: 0,
+    jobLevelId: 0,
+  })
+  const [availableJobLevels, setAvailableJobLevels] = useState<any[]>([])
 
   const { data: charactersData, isLoading, error } = useCharacters(filters)
   const { data: jobClasses, isLoading: jobClassesLoading } = useJobClasses()
   const updateWorkSettings = useUpdateCharacterWorkSettings()
+  const updateCharacterJob = useUpdateCharacterJob()
 
   // Debug log
   console.log('jobClasses:', jobClasses)
@@ -68,6 +77,59 @@ const CharacterManagementPage = () => {
     setIsEditDialogOpen(true)
   }
 
+  const handleJobEdit = (character: CharacterWithRelations) => {
+    setSelectedCharacter(character)
+    setJobSettings({
+      jobClassId: character.jobClassId,
+      jobLevelId: character.jobLevelId,
+    })
+    setIsJobEditDialogOpen(true)
+    // Load available job levels for current job class
+    fetchJobLevels(character.jobClassId, character.level, character.currentJobLevel.level)
+  }
+
+  const fetchJobLevels = async (jobClassId: number, characterLevel: number, currentJobLevel?: number) => {
+    try {
+      let url = `/api/jobs/${jobClassId}/levels?characterLevel=${characterLevel}`
+      if (currentJobLevel !== undefined) {
+        url += `&currentJobLevel=${currentJobLevel}`
+      }
+      const response = await fetch(url)
+      if (response.ok) {
+        const levels = await response.json()
+        setAvailableJobLevels(levels)
+      }
+    } catch (error) {
+      console.error('Error fetching job levels:', error)
+      setAvailableJobLevels([])
+    }
+  }
+
+  const handleJobClassChange = async (jobClassId: number) => {
+    if (selectedCharacter) {
+      try {
+        // Fetch available job levels and auto-select the appropriate one
+        const response = await fetch(`/api/jobs/${jobClassId}/levels?characterLevel=${selectedCharacter.level}&currentJobLevel=${selectedCharacter.currentJobLevel.level}`)
+        if (response.ok) {
+          const levels = await response.json()
+          // Auto-select the lowest available level (which will be >= current level)
+          const selectedLevel = levels.length > 0 ? levels[0] : null
+          
+          setJobSettings(prev => ({ 
+            ...prev, 
+            jobClassId, 
+            jobLevelId: selectedLevel ? selectedLevel.id : 0 
+          }))
+          setAvailableJobLevels(levels)
+        }
+      } catch (error) {
+        console.error('Error fetching job levels:', error)
+        setJobSettings(prev => ({ ...prev, jobClassId, jobLevelId: 0 }))
+        setAvailableJobLevels([])
+      }
+    }
+  }
+
   const handleSaveWorkSettings = (e: React.FormEvent) => {
     e.preventDefault()
     if (selectedCharacter) {
@@ -84,6 +146,28 @@ const CharacterManagementPage = () => {
             setIsEditDialogOpen(false)
             setSelectedCharacter(null)
             setWorkSettings({ workStartTime: '', workEndTime: '', salary: '' })
+          },
+        },
+      )
+    }
+  }
+
+  const handleSaveJob = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (selectedCharacter && jobSettings.jobClassId && jobSettings.jobLevelId) {
+      const data: UpdateCharacterJobRequest = {
+        jobClassId: jobSettings.jobClassId,
+        jobLevelId: jobSettings.jobLevelId,
+      }
+
+      updateCharacterJob.mutate(
+        { id: selectedCharacter.id, data },
+        {
+          onSuccess: () => {
+            setIsJobEditDialogOpen(false)
+            setSelectedCharacter(null)
+            setJobSettings({ jobClassId: 0, jobLevelId: 0 })
+            setAvailableJobLevels([])
           },
         },
       )
@@ -167,7 +251,7 @@ const CharacterManagementPage = () => {
             <Tr>
               <Th>บุคลากร</Th>
               <Th>อาชีพ</Th>
-              {/* <Th>ระดับ</Th> */}
+              <Th>ระดับอาชีพ</Th>
               <Th>เวลาเข้างาน</Th>
               <Th>เวลาออกงาน</Th>
               <Th className="text-right">เงินเดือน</Th>
@@ -200,14 +284,7 @@ const CharacterManagementPage = () => {
                   </div>
                 </Td>
                 <Td className="text-white">{character.jobClass.name}</Td>
-                {/* <Td>
-                  <div>
-                    <div className="font-medium">Lv. {character.level}</div>
-                    <div className="text-sm text-white-500">
-                      {character.currentJobLevel.title}
-                    </div>
-                  </div>
-                </Td> */}
+                <Td className="text-white">{character.currentJobLevel.title}</Td>
                 <Td className="text-white">{character.workStartTime || '-'}</Td>
                 <Td className="text-white">{character.workEndTime || '-'}</Td>
                 <Td className="text-right font-medium text-white">
@@ -219,6 +296,13 @@ const CharacterManagementPage = () => {
                     variant="plain"
                     icon={<HiOutlinePencil />}
                     onClick={() => handleEdit(character)}
+                  />
+                  <Button
+                    size="sm"
+                    variant="plain"
+                    icon={<HiOutlineBriefcase />}
+                    onClick={() => handleJobEdit(character)}
+                    className="ml-2"
                   />
                 </Td>
               </Tr>
@@ -304,6 +388,83 @@ const CharacterManagementPage = () => {
                 variant="solid"
                 type="submit"
                 loading={updateWorkSettings.isPending}
+              >
+                บันทึก
+              </Button>
+            </div>
+          </Form>
+        )}
+      </Dialog>
+
+      {/* Job Edit Dialog */}
+      <Dialog
+        isOpen={isJobEditDialogOpen}
+        onClose={() => {
+          setIsJobEditDialogOpen(false)
+          setSelectedCharacter(null)
+          setJobSettings({ jobClassId: 0, jobLevelId: 0 })
+          setAvailableJobLevels([])
+        }}
+        onRequestClose={() => {
+          setIsJobEditDialogOpen(false)
+          setSelectedCharacter(null)
+          setJobSettings({ jobClassId: 0, jobLevelId: 0 })
+          setAvailableJobLevels([])
+        }}
+      >
+        <h5 className="mb-4">แก้ไขอาชีพ</h5>
+        {selectedCharacter && (
+          <Form onSubmit={handleSaveJob}>
+            <FormItem label="ชื่อบุคลากร" className="mb-4">
+              <Input value={selectedCharacter.name} disabled />
+            </FormItem>
+            <FormItem label="ระดับตัวละคร" className="mb-4">
+              <Input value={`Level ${selectedCharacter.level}`} disabled />
+            </FormItem>
+            <hr />
+
+            <FormItem label="อาชีพ" className="mt-4 mb-4">
+              <Select
+                placeholder="เลือกอาชีพ"
+                value={
+                  jobSettings.jobClassId
+                    ? {
+                        value: jobSettings.jobClassId,
+                        label: jobClasses?.find(
+                          (j: any) => j.id === jobSettings.jobClassId,
+                        )?.name,
+                      }
+                    : null
+                }
+                onChange={(option) => handleJobClassChange(option?.value || 0)}
+                options={
+                  jobClasses?.map((jobClass: any) => ({
+                    value: jobClass.id,
+                    label: jobClass.name,
+                  })) || []
+                }
+              />
+            </FormItem>
+
+            <FormItem label="ระดับอาชีพ" className="mb-6">
+              <Input 
+                value={
+                  jobSettings.jobLevelId && availableJobLevels.length > 0
+                    ? `${availableJobLevels.find((l: any) => l.id === jobSettings.jobLevelId)?.title || ''} (ต้องการ Level ${availableJobLevels.find((l: any) => l.id === jobSettings.jobLevelId)?.requiredCharacterLevel || ''})`
+                    : 'เลือกอาชีพก่อน'
+                } 
+                disabled 
+                placeholder="ระบบจะเลือกระดับที่เหมาะสมให้อัตโนมัติ"
+              />
+            </FormItem>
+
+            <div className="">
+              <Button
+                className="w-full"
+                variant="solid"
+                type="submit"
+                loading={updateCharacterJob.isPending}
+                disabled={!jobSettings.jobClassId || !jobSettings.jobLevelId}
               >
                 บันทึก
               </Button>
