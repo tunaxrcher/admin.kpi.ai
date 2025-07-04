@@ -4,7 +4,7 @@ import { characterService } from '../../../features/characters/service/server'
 
 export const GET = withErrorHandling(async (request: NextRequest) => {
   console.log(`[API] GET All Characters`)
-  
+
   const searchParams = request.nextUrl.searchParams
   const filters = {
     jobClassId: searchParams.get('jobClassId')
@@ -12,7 +12,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
       : undefined,
     search: searchParams.get('search') || undefined,
   }
-  
+
   const result = await characterService.getAllCharacters(filters)
   return NextResponse.json(result)
-}) 
+})

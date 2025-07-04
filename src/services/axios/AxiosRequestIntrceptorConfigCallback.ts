@@ -1,10 +1,10 @@
 import type { InternalAxiosRequestConfig } from 'axios'
 
 const AxiosRequestIntrceptorConfigCallback = (
-    config: InternalAxiosRequestConfig,
+  config: InternalAxiosRequestConfig,
 ) => {
-    /** handle config mutatation here before request to server */
-    return config
+  /** handle config mutatation here before request to server */
+  return config
 }
 
 export default AxiosRequestIntrceptorConfigCallback

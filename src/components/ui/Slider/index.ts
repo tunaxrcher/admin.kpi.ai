@@ -6,9 +6,9 @@ export type { SliderProps } from './Slider'
 export type { RangeSliderProps } from './RangeSlider'
 
 type CompoundedComponent = ForwardRefExoticComponent<
-    SliderProps & RefAttributes<HTMLSpanElement>
+  SliderProps & RefAttributes<HTMLSpanElement>
 > & {
-    Range: typeof RangeSlider
+  Range: typeof RangeSlider
 }
 
 const Slider = _Slider as CompoundedComponent

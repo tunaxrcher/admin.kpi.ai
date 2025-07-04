@@ -10,7 +10,7 @@ export function cn(...inputs: ClassValue[]) {
  */
 export function handleImageError(
   event: React.SyntheticEvent<HTMLImageElement, Event>,
-  fallbackSrc: string = '/placeholder-image.png'
+  fallbackSrc: string = '/placeholder-image.png',
 ) {
   const img = event.target as HTMLImageElement
   if (img.src !== fallbackSrc) {

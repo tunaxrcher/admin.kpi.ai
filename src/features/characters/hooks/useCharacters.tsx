@@ -1,7 +1,12 @@
 import React from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { characterService } from '../service/client'
-import { CharacterFilters, UpdateCharacterWorkSettingsRequest, UpdateCharacterJobRequest, DeductXenyRequest } from '../types'
+import {
+  CharacterFilters,
+  UpdateCharacterWorkSettingsRequest,
+  UpdateCharacterJobRequest,
+  DeductXenyRequest,
+} from '../types'
 import toast from '../../../components/ui/toast'
 import Notification from '../../../components/ui/Notification'
 
@@ -48,18 +53,18 @@ export const useUpdateCharacterWorkSettings = () => {
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all })
       queryClient.setQueryData(QUERY_KEYS.detail(variables.id), data)
-      
+
       toast.push(
         <Notification title="สำเร็จ" type="success">
           อัพเดทการตั้งค่าการทำงานเรียบร้อยแล้ว
-        </Notification>
+        </Notification>,
       )
     },
     onError: (error: Error) => {
       toast.push(
         <Notification title="เกิดข้อผิดพลาด" type="danger">
           {error.message || 'ไม่สามารถอัพเดทการตั้งค่าการทำงานได้'}
-        </Notification>
+        </Notification>,
       )
     },
   })
@@ -81,18 +86,18 @@ export const useUpdateCharacterJob = () => {
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all })
       queryClient.setQueryData(QUERY_KEYS.detail(variables.id), data)
-      
+
       toast.push(
         <Notification title="สำเร็จ" type="success">
           อัพเดทอาชีพเรียบร้อยแล้ว
-        </Notification>
+        </Notification>,
       )
     },
     onError: (error: Error) => {
       toast.push(
         <Notification title="เกิดข้อผิดพลาด" type="danger">
           {error.message || 'ไม่สามารถอัพเดทอาชีพได้'}
-        </Notification>
+        </Notification>,
       )
     },
   })
@@ -103,30 +108,25 @@ export const useDeductXeny = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: number
-      data: DeductXenyRequest
-    }) => characterService.deductXeny(id, data),
+    mutationFn: ({ id, data }: { id: number; data: DeductXenyRequest }) =>
+      characterService.deductXeny(id, data),
     onSuccess: (data, variables) => {
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all })
       queryClient.setQueryData(QUERY_KEYS.detail(variables.id), data)
-      
+
       toast.push(
         <Notification title="สำเร็จ" type="success">
           หัก Xeny เรียบร้อยแล้ว
-        </Notification>
+        </Notification>,
       )
     },
     onError: (error: Error) => {
       toast.push(
         <Notification title="เกิดข้อผิดพลาด" type="danger">
           {error.message || 'ไม่สามารถหัก Xeny ได้'}
-        </Notification>
+        </Notification>,
       )
     },
   })
-} 
+}

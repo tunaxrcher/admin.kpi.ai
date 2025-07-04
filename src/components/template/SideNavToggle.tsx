@@ -5,23 +5,23 @@ import NavToggle from '../shared/NavToggle'
 import type { CommonProps } from '../../@types/common'
 
 const _SideNavToggle = ({ className }: CommonProps) => {
-    const { layout, setSideNavCollapse } = useTheme((state) => state)
+  const { layout, setSideNavCollapse } = useTheme((state) => state)
 
-    const sideNavCollapse = layout.sideNavCollapse
+  const sideNavCollapse = layout.sideNavCollapse
 
-    const onCollapse = () => {
-        setSideNavCollapse(!sideNavCollapse)
-    }
+  const onCollapse = () => {
+    setSideNavCollapse(!sideNavCollapse)
+  }
 
-    return (
-        <div
-            className={classNames('hidden lg:block', className)}
-            role="button"
-            onClick={onCollapse}
-        >
-            <NavToggle className="text-2xl" toggled={sideNavCollapse} />
-        </div>
-    )
+  return (
+    <div
+      className={classNames('hidden lg:block', className)}
+      role="button"
+      onClick={onCollapse}
+    >
+      <NavToggle className="text-2xl" toggled={sideNavCollapse} />
+    </div>
+  )
 }
 
 const SideNavToggle = withHeaderItem(_SideNavToggle)

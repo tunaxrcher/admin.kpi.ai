@@ -12,95 +12,87 @@ import useChatSend from '../_hooks/useChatSend'
 import type { ScrollBarRef } from '../../../../components/view/ChatBox'
 
 const ChatView = () => {
-    const scrollRef = useRef<ScrollBarRef>(null)
-    const { selectedConversation, chatHistory, isTyping, disabledChatFresh } =
-        usGenerativeChatStore()
-    const { handleSend } = useChatSend()
+  const scrollRef = useRef<ScrollBarRef>(null)
+  const { selectedConversation, chatHistory, isTyping, disabledChatFresh } =
+    usGenerativeChatStore()
+  const { handleSend } = useChatSend()
 
-    const scrollToBottom = () => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+  const scrollToBottom = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [selectedConversation, chatHistory])
+
+  const messageList = useMemo(() => {
+    const chat = chatHistory.find((chat) => chat.id === selectedConversation)
+    return chat?.conversation || []
+  }, [selectedConversation, chatHistory])
+
+  const handleInputChange = async ({
+    value,
+  }: {
+    value: string
+    attachments?: File[]
+  }) => {
+    await handleSend(value)
+  }
+
+  const handleFinish = (id: string) => {
+    disabledChatFresh(id)
+    scrollToBottom()
+  }
+
+  return (
+    <Card className="flex-1 h-full" bodyClass="h-full">
+      <ChatMobileNav />
+      <ChatBox
+        ref={scrollRef}
+        messageList={messageList}
+        placeholder="พิมพ์ที่นี่..."
+        showMessageList={Boolean(selectedConversation)}
+        showAvatar={true}
+        avatarGap={true}
+        containerClass="h-[calc(100%-30px)] xl:h-full"
+        messageListClass="h-[calc(100%-100px)] xl:h-[calc(100%-70px)]"
+        typing={
+          isTyping
+            ? {
+                id: 'ai',
+                name: 'Chat AI',
+                avatarImageUrl: '/img/thumbs/ai.jpg',
+              }
+            : false
         }
-    }
+        customRenderer={(message) => {
+          if (message.sender.id === 'ai') {
+            return (
+              <ChatCustomContent
+                content={message.content as string}
+                triggerTyping={message.fresh ? message.fresh : false}
+                onFinish={() => handleFinish(message.id)}
+              />
+            )
+          }
 
-    useEffect(() => {
-        scrollToBottom()
-    }, [selectedConversation, chatHistory])
+          return message.content
+        }}
+        customAction={(message) => {
+          if (message.sender.id === 'ai') {
+            return <ChatCustomAction content={message.content as string} />
+          }
 
-    const messageList = useMemo(() => {
-        const chat = chatHistory.find(
-            (chat) => chat.id === selectedConversation,
-        )
-        return chat?.conversation || []
-    }, [selectedConversation, chatHistory])
-
-    const handleInputChange = async ({
-        value,
-    }: {
-        value: string
-        attachments?: File[]
-    }) => {
-        await handleSend(value)
-    }
-
-    const handleFinish = (id: string) => {
-        disabledChatFresh(id)
-        scrollToBottom()
-    }
-
-    return (
-        <Card className="flex-1 h-full" bodyClass="h-full">
-            <ChatMobileNav />
-            <ChatBox
-                ref={scrollRef}
-                messageList={messageList}
-                placeholder="พิมพ์ที่นี่..."
-                showMessageList={Boolean(selectedConversation)}
-                showAvatar={true}
-                avatarGap={true}
-                containerClass="h-[calc(100%-30px)] xl:h-full"
-                messageListClass="h-[calc(100%-100px)] xl:h-[calc(100%-70px)]"
-                typing={
-                    isTyping
-                        ? {
-                              id: 'ai',
-                              name: 'Chat AI',
-                              avatarImageUrl: '/img/thumbs/ai.jpg',
-                          }
-                        : false
-                }
-                customRenderer={(message) => {
-                    if (message.sender.id === 'ai') {
-                        return (
-                            <ChatCustomContent
-                                content={message.content as string}
-                                triggerTyping={
-                                    message.fresh ? message.fresh : false
-                                }
-                                onFinish={() => handleFinish(message.id)}
-                            />
-                        )
-                    }
-
-                    return message.content
-                }}
-                customAction={(message) => {
-                    if (message.sender.id === 'ai') {
-                        return (
-                            <ChatCustomAction
-                                content={message.content as string}
-                            />
-                        )
-                    }
-
-                    return null
-                }}
-                onInputChange={handleInputChange}
-            >
-                {!selectedConversation && <ChatLandingView />}
-            </ChatBox>
-        </Card>
-    )
+          return null
+        }}
+        onInputChange={handleInputChange}
+      >
+        {!selectedConversation && <ChatLandingView />}
+      </ChatBox>
+    </Card>
+  )
 }
 
 export default ChatView

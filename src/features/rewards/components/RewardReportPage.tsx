@@ -16,7 +16,7 @@ const RewardReportPage: React.FC = () => {
   const { data, isLoading, error } = useRewardReportData(filters)
 
   const handleFilterChange = (newFilters: Partial<RewardFilters>) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       ...newFilters,
       page: 1, // Reset to first page when filters change
@@ -24,7 +24,7 @@ const RewardReportPage: React.FC = () => {
   }
 
   const handlePageChange = (page: number) => {
-    setFilters(prev => ({ ...prev, page }))
+    setFilters((prev) => ({ ...prev, page }))
   }
 
   const handleRefresh = () => {
@@ -48,16 +48,12 @@ const RewardReportPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-
-      
       {/* Header */}
 
       <div className="mb-6 flex justify-between items-start">
         <div>
           <h2 className="text-2xl font-bold">รายงาน</h2>
-          <p className="text-gray-600">
-            รางวัลที่ได้รับจากการสุ่มตู้กาชา
-          </p>
+          <p className="text-gray-600">รางวัลที่ได้รับจากการสุ่มตู้กาชา</p>
         </div>
 
         <Button
@@ -70,7 +66,6 @@ const RewardReportPage: React.FC = () => {
         </Button>
       </div>
 
-      
       {/* Summary */}
       {data && <RewardSummary summary={data.summary} />}
 
@@ -84,41 +79,54 @@ const RewardReportPage: React.FC = () => {
         </Card>
       )} */}
 
-
-              {/* Filters */}
-        <Card>
-          <div className="">
-            <div className="flex justify-center">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl">
-                <div>
-                  <Input
-                    placeholder="ชื่อ Character, User, รางวัล..."
-                    value={filters.search || ''}
-                    onChange={(e) => handleFilterChange({ search: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <DatePicker
-                    placeholder="เลือกวันที่"
-                    value={filters.startDate ? new Date(filters.startDate) : undefined}
-                    onChange={(date) => handleFilterChange({ 
-                      startDate: date ? date.toISOString().split('T')[0] : undefined 
-                    })}
-                  />
-                </div>
-                <div>
-                  <DatePicker
-                    placeholder="เลือกวันที่"
-                    value={filters.endDate ? new Date(filters.endDate) : undefined}
-                    onChange={(date) => handleFilterChange({ 
-                      endDate: date ? date.toISOString().split('T')[0] : undefined 
-                    })}
-                  />
-                </div>
+      {/* Filters */}
+      <Card>
+        <div className="">
+          <div className="flex justify-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl">
+              <div>
+                <Input
+                  placeholder="ชื่อ Character, User, รางวัล..."
+                  value={filters.search || ''}
+                  onChange={(e) =>
+                    handleFilterChange({ search: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <DatePicker
+                  placeholder="เลือกวันที่"
+                  value={
+                    filters.startDate ? new Date(filters.startDate) : undefined
+                  }
+                  onChange={(date) =>
+                    handleFilterChange({
+                      startDate: date
+                        ? date.toISOString().split('T')[0]
+                        : undefined,
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <DatePicker
+                  placeholder="เลือกวันที่"
+                  value={
+                    filters.endDate ? new Date(filters.endDate) : undefined
+                  }
+                  onChange={(date) =>
+                    handleFilterChange({
+                      endDate: date
+                        ? date.toISOString().split('T')[0]
+                        : undefined,
+                    })
+                  }
+                />
               </div>
             </div>
           </div>
-        </Card>
+        </div>
+      </Card>
 
       {/* Gacha History */}
       <Card>
@@ -138,4 +146,4 @@ const RewardReportPage: React.FC = () => {
   )
 }
 
-export default RewardReportPage 
+export default RewardReportPage

@@ -24,7 +24,7 @@ class S3UploadService {
 
   async uploadFile(
     file: File,
-    folder: string = 'quest-submissions'
+    folder: string = 'quest-submissions',
   ): Promise<UploadResponse> {
     try {
       const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(2)}-${file.name}`
@@ -60,7 +60,7 @@ class S3UploadService {
     buffer: Buffer,
     fileName: string,
     contentType: string,
-    folder: string = 'quest-submissions'
+    folder: string = 'quest-submissions',
   ): Promise<UploadResponse> {
     try {
       const key = `${folder}/${Date.now()}-${fileName}`

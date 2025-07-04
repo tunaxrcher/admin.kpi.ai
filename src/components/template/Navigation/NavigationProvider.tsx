@@ -6,18 +6,18 @@ import type { NavigationTree } from '../../../@types/navigation'
 import type { CommonProps } from '../../../@types/common'
 
 interface NavigationProviderProps extends CommonProps {
-    navigationTree: NavigationTree[]
+  navigationTree: NavigationTree[]
 }
 
 const NavigationProvider = ({
-    navigationTree,
-    children,
+  navigationTree,
+  children,
 }: NavigationProviderProps) => {
-    return (
-        <NavigationContext.Provider value={{ navigationTree }}>
-            {children}
-        </NavigationContext.Provider>
-    )
+  return (
+    <NavigationContext.Provider value={{ navigationTree }}>
+      {children}
+    </NavigationContext.Provider>
+  )
 }
 
 export default NavigationProvider

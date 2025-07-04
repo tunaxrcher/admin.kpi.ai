@@ -15,45 +15,47 @@ export class RewardService extends BaseService {
     return RewardService.instance
   }
 
-  async getRewardReportData(filters?: RewardFilters): Promise<RewardReportData> {
+  async getRewardReportData(
+    filters?: RewardFilters,
+  ): Promise<RewardReportData> {
     const params = new URLSearchParams()
-    
+
     if (filters?.characterId) {
       params.append('characterId', filters.characterId.toString())
     }
-    
+
     if (filters?.search) {
       params.append('search', filters.search)
     }
-    
+
     if (filters?.startDate) {
       params.append('startDate', filters.startDate)
     }
-    
+
     if (filters?.endDate) {
       params.append('endDate', filters.endDate)
     }
-    
+
     if (filters?.page) {
       params.append('page', filters.page.toString())
     }
-    
+
     if (filters?.limit) {
       params.append('limit', filters.limit.toString())
     }
-    
+
     const queryString = params.toString()
     const url = `/api/reports/rewards${queryString ? `?${queryString}` : ''}`
-    
+
     const response = await fetch(url)
     if (!response.ok) {
       const error = await response.json()
       throw new Error(error.message || 'Failed to fetch reward report data')
     }
-    
+
     const result = await response.json()
     return result.data
   }
 }
 
-export const rewardService = RewardService.getInstance() 
+export const rewardService = RewardService.getInstance()

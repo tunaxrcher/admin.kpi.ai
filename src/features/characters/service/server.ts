@@ -1,6 +1,11 @@
 import { BaseService } from '../../../lib/services/server/baseService'
 import { characterRepository } from '../repository'
-import { CharacterFilters, UpdateCharacterWorkSettingsRequest, UpdateCharacterJobRequest, DeductXenyRequest } from '../types'
+import {
+  CharacterFilters,
+  UpdateCharacterWorkSettingsRequest,
+  UpdateCharacterJobRequest,
+  DeductXenyRequest,
+} from '../types'
 
 export class CharacterService extends BaseService {
   private static instance: CharacterService
@@ -32,7 +37,7 @@ export class CharacterService extends BaseService {
     if (data.workStartTime && !this.isValidTimeFormat(data.workStartTime)) {
       throw new Error('รูปแบบเวลาเข้างานไม่ถูกต้อง (ต้องเป็น HH:mm)')
     }
-    
+
     if (data.workEndTime && !this.isValidTimeFormat(data.workEndTime)) {
       throw new Error('รูปแบบเวลาออกงานไม่ถูกต้อง (ต้องเป็น HH:mm)')
     }
@@ -45,10 +50,7 @@ export class CharacterService extends BaseService {
     return await characterRepository.updateWorkSettings(id, data)
   }
 
-  async updateJob(
-    id: number,
-    data: UpdateCharacterJobRequest,
-  ) {
+  async updateJob(id: number, data: UpdateCharacterJobRequest) {
     // Get character first to validate character level
     const character = await characterRepository.getCharacterById(id)
     if (!character) {
@@ -69,16 +71,15 @@ export class CharacterService extends BaseService {
 
     // Validate if character level meets job level requirements
     if (character.level < jobLevel.requiredCharacterLevel) {
-      throw new Error(`ต้องมีระดับตัวละครอย่างน้อย ${jobLevel.requiredCharacterLevel} เพื่อใช้งานระดับอาชีพนี้`)
+      throw new Error(
+        `ต้องมีระดับตัวละครอย่างน้อย ${jobLevel.requiredCharacterLevel} เพื่อใช้งานระดับอาชีพนี้`,
+      )
     }
 
     return await characterRepository.updateJob(id, data)
   }
 
-  async deductXeny(
-    characterId: number,
-    data: DeductXenyRequest,
-  ) {
+  async deductXeny(characterId: number, data: DeductXenyRequest) {
     // Validate inputs
     if (data.amount <= 0) {
       throw new Error('จำนวน Xeny ที่จะหักต้องมากกว่า 0')
@@ -94,7 +95,11 @@ export class CharacterService extends BaseService {
       throw new Error('ไม่พบข้อมูลบุคลากร')
     }
 
-    return await characterRepository.deductXeny(characterId, character.userId, data)
+    return await characterRepository.deductXeny(
+      characterId,
+      character.userId,
+      data,
+    )
   }
 
   private isValidTimeFormat(time: string): boolean {
@@ -103,4 +108,4 @@ export class CharacterService extends BaseService {
   }
 }
 
-export const characterService = CharacterService.getInstance() 
+export const characterService = CharacterService.getInstance()

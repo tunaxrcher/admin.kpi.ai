@@ -8,28 +8,28 @@ import appConfig from '../../configs/app.config'
 import { usePathname } from 'next/navigation'
 
 const HorizontalNav = ({
-    translationSetup = appConfig.activeNavTranslation,
+  translationSetup = appConfig.activeNavTranslation,
 }: {
-    translationSetup?: boolean
+  translationSetup?: boolean
 }) => {
-    const pathname = usePathname()
+  const pathname = usePathname()
 
-    const route = queryRoute(pathname)
+  const route = queryRoute(pathname)
 
-    const currentRouteKey = route?.key || ''
+  const currentRouteKey = route?.key || ''
 
-    const { session } = useCurrentSession()
+  const { session } = useCurrentSession()
 
-    const { navigationTree } = useNavigation()
+  const { navigationTree } = useNavigation()
 
-    return (
-        <HorizontalMenuContent
-            navigationTree={navigationTree}
-            routeKey={currentRouteKey}
-            userAuthority={session?.user?.authority || []}
-            translationSetup={translationSetup}
-        />
-    )
+  return (
+    <HorizontalMenuContent
+      navigationTree={navigationTree}
+      routeKey={currentRouteKey}
+      userAuthority={session?.user?.authority || []}
+      translationSetup={translationSetup}
+    />
+  )
 }
 
 export default HorizontalNav

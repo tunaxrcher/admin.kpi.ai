@@ -18,7 +18,7 @@ export class NotFoundError extends ApiError {
 export class ValidationError extends ApiError {
   constructor(
     message: string = 'Validation failed',
-    public details?: any
+    public details?: any,
   ) {
     super(message, 400)
     this.name = 'ValidationError'

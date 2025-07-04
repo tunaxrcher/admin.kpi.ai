@@ -5,17 +5,17 @@ import Link from 'next/link'
 import type { Mode } from '../../@types/theme'
 
 const HeaderLogo = ({ mode }: { mode?: Mode }) => {
-    const defaultMode = useTheme((state) => state.mode)
+  const defaultMode = useTheme((state) => state.mode)
 
-    return (
-        <Link href={appConfig.authenticatedEntryPath}>
-            <Logo
-                imgClass="max-h-10"
-                mode={mode || defaultMode}
-                className="hidden lg:block"
-            />
-        </Link>
-    )
+  return (
+    <Link href={appConfig.authenticatedEntryPath}>
+      <Logo
+        imgClass="max-h-10"
+        mode={mode || defaultMode}
+        className="hidden lg:block"
+      />
+    </Link>
+  )
 }
 
 export default HeaderLogo

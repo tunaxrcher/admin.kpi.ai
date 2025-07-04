@@ -1,5 +1,10 @@
 import { BaseRepository } from '../../lib/repository/baseRepository'
-import { CharacterFilters, UpdateCharacterWorkSettingsRequest, UpdateCharacterJobRequest, DeductXenyRequest } from './types'
+import {
+  CharacterFilters,
+  UpdateCharacterWorkSettingsRequest,
+  UpdateCharacterJobRequest,
+  DeductXenyRequest,
+} from './types'
 
 export class CharacterRepository extends BaseRepository<any> {
   private static instance: CharacterRepository
@@ -42,11 +47,11 @@ export class CharacterRepository extends BaseRepository<any> {
 
   async getAllCharactersWithRelations(filters?: CharacterFilters) {
     const where: any = {}
-    
+
     if (filters?.jobClassId) {
       where.jobClassId = filters.jobClassId
     }
-    
+
     if (filters?.search) {
       where.OR = [
         { name: { contains: filters.search } },
@@ -108,10 +113,7 @@ export class CharacterRepository extends BaseRepository<any> {
     })
   }
 
-  async updateJob(
-    id: number,
-    data: UpdateCharacterJobRequest,
-  ) {
+  async updateJob(id: number, data: UpdateCharacterJobRequest) {
     return await this.prisma.character.update({
       where: { id },
       data: {
@@ -142,9 +144,9 @@ export class CharacterRepository extends BaseRepository<any> {
 
     if (result === 0) {
       // Check if user exists or has insufficient Xeny
-      const userXeny = await this.prisma.$queryRaw`
+      const userXeny = (await this.prisma.$queryRaw`
         SELECT currentXeny FROM UserXeny WHERE userId = ${userId}
-      ` as any[]
+      `) as any[]
 
       if (userXeny.length === 0) {
         // Create UserXeny if not exists
@@ -154,7 +156,9 @@ export class CharacterRepository extends BaseRepository<any> {
         `
         throw new Error('Xeny ไม่เพียงพอ (มีอยู่ 0 Xeny)')
       } else {
-        throw new Error(`Xeny ไม่เพียงพอ (มีอยู่ ${userXeny[0].currentXeny} Xeny)`)
+        throw new Error(
+          `Xeny ไม่เพียงพอ (มีอยู่ ${userXeny[0].currentXeny} Xeny)`,
+        )
       }
     }
 
@@ -171,4 +175,4 @@ export class CharacterRepository extends BaseRepository<any> {
   }
 }
 
-export const characterRepository = CharacterRepository.getInstance() 
+export const characterRepository = CharacterRepository.getInstance()

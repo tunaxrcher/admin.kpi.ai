@@ -12,61 +12,58 @@ import type { ScrollBarRef } from './types'
 export type MessageList = MessageListProps['list']
 
 export type ChatBoxProps = {
-    messageList: MessageList
-    header?: ChatContainerProps['header']
-    showMessageList?: boolean
-    children?: ReactNode
-    containerClass?: string
-    ref?: Ref<ScrollBarRef>
+  messageList: MessageList
+  header?: ChatContainerProps['header']
+  showMessageList?: boolean
+  children?: ReactNode
+  containerClass?: string
+  ref?: Ref<ScrollBarRef>
 } & Omit<MessageListProps, 'list'> &
-    ChatInputProps
+  ChatInputProps
 
 const ChatBox = (props: ChatBoxProps) => {
-    const {
-        messageList,
-        showMessageList = true,
-        children,
-        header,
-        placeholder,
-        onInputChange,
-        showAvatar,
-        avatarGap,
-        customRenderer,
-        customAction,
-        bubbleClass,
-        typing,
-        messageListClass,
-        containerClass,
-        ref,
-    } = props
+  const {
+    messageList,
+    showMessageList = true,
+    children,
+    header,
+    placeholder,
+    onInputChange,
+    showAvatar,
+    avatarGap,
+    customRenderer,
+    customAction,
+    bubbleClass,
+    typing,
+    messageListClass,
+    containerClass,
+    ref,
+  } = props
 
-    return (
-        <ChatContainer
-            className={containerClass}
-            header={header}
-            input={
-                <ChatInput
-                    placeholder={placeholder}
-                    onInputChange={onInputChange}
-                />
-            }
-        >
-            {showMessageList && (
-                <MessageList
-                    ref={ref}
-                    list={messageList}
-                    showAvatar={showAvatar}
-                    avatarGap={avatarGap}
-                    customRenderer={customRenderer}
-                    customAction={customAction}
-                    typing={typing}
-                    messageListClass={messageListClass}
-                    bubbleClass={bubbleClass}
-                />
-            )}
-            {children}
-        </ChatContainer>
-    )
+  return (
+    <ChatContainer
+      className={containerClass}
+      header={header}
+      input={
+        <ChatInput placeholder={placeholder} onInputChange={onInputChange} />
+      }
+    >
+      {showMessageList && (
+        <MessageList
+          ref={ref}
+          list={messageList}
+          showAvatar={showAvatar}
+          avatarGap={avatarGap}
+          customRenderer={customRenderer}
+          customAction={customAction}
+          typing={typing}
+          messageListClass={messageListClass}
+          bubbleClass={bubbleClass}
+        />
+      )}
+      {children}
+    </ChatContainer>
+  )
 }
 
 export default ChatBox

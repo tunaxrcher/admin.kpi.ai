@@ -12,11 +12,11 @@ export type { TabNavProps } from './TabNav'
 export type { TabContentProps } from './TabContent'
 
 type CompoundedComponent = ForwardRefExoticComponent<
-    TabsProps & RefAttributes<HTMLHtmlElement>
+  TabsProps & RefAttributes<HTMLHtmlElement>
 > & {
-    TabList: typeof TabList
-    TabNav: typeof TabNav
-    TabContent: typeof TabContent
+  TabList: typeof TabList
+  TabNav: typeof TabNav
+  TabContent: typeof TabContent
 }
 
 const Tabs = _Tabs as CompoundedComponent

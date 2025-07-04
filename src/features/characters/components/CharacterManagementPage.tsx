@@ -14,7 +14,13 @@ import {
   FormItem,
   Dropdown,
 } from '../../../components/ui'
-import { HiOutlinePencil, HiOutlineSearch, HiOutlineBriefcase, HiOutlineMinus, HiOutlineDotsVertical } from 'react-icons/hi'
+import {
+  HiOutlinePencil,
+  HiOutlineSearch,
+  HiOutlineBriefcase,
+  HiOutlineMinus,
+  HiOutlineDotsVertical,
+} from 'react-icons/hi'
 import {
   useCharacters,
   useUpdateCharacterWorkSettings,
@@ -94,10 +100,18 @@ const CharacterManagementPage = () => {
     })
     setIsJobEditDialogOpen(true)
     // Load available job levels for current job class
-    fetchJobLevels(character.jobClassId, character.level, character.currentJobLevel.level)
+    fetchJobLevels(
+      character.jobClassId,
+      character.level,
+      character.currentJobLevel.level,
+    )
   }
 
-  const fetchJobLevels = async (jobClassId: number, characterLevel: number, currentJobLevel?: number) => {
+  const fetchJobLevels = async (
+    jobClassId: number,
+    characterLevel: number,
+    currentJobLevel?: number,
+  ) => {
     try {
       let url = `/api/jobs/${jobClassId}/levels?characterLevel=${characterLevel}`
       if (currentJobLevel !== undefined) {
@@ -118,22 +132,24 @@ const CharacterManagementPage = () => {
     if (selectedCharacter) {
       try {
         // Fetch available job levels and auto-select the appropriate one
-        const response = await fetch(`/api/jobs/${jobClassId}/levels?characterLevel=${selectedCharacter.level}&currentJobLevel=${selectedCharacter.currentJobLevel.level}`)
+        const response = await fetch(
+          `/api/jobs/${jobClassId}/levels?characterLevel=${selectedCharacter.level}&currentJobLevel=${selectedCharacter.currentJobLevel.level}`,
+        )
         if (response.ok) {
           const levels = await response.json()
           // Auto-select the lowest available level (which will be >= current level)
           const selectedLevel = levels.length > 0 ? levels[0] : null
-          
-          setJobSettings(prev => ({ 
-            ...prev, 
-            jobClassId, 
-            jobLevelId: selectedLevel ? selectedLevel.id : 0 
+
+          setJobSettings((prev) => ({
+            ...prev,
+            jobClassId,
+            jobLevelId: selectedLevel ? selectedLevel.id : 0,
           }))
           setAvailableJobLevels(levels)
         }
       } catch (error) {
         console.error('Error fetching job levels:', error)
-        setJobSettings(prev => ({ ...prev, jobClassId, jobLevelId: 0 }))
+        setJobSettings((prev) => ({ ...prev, jobClassId, jobLevelId: 0 }))
         setAvailableJobLevels([])
       }
     }
@@ -337,7 +353,9 @@ const CharacterManagementPage = () => {
                   </div>
                 </Td>
                 <Td className="text-white">{character.jobClass.name}</Td>
-                <Td className="text-white">{character.currentJobLevel.title}</Td>
+                <Td className="text-white">
+                  {character.currentJobLevel.title}
+                </Td>
                 <Td className="text-white">
                   {character.user.userXeny?.currentXeny || 0} Xeny
                 </Td>
@@ -521,13 +539,13 @@ const CharacterManagementPage = () => {
             </FormItem>
 
             <FormItem label="ระดับอาชีพ" className="mb-6">
-              <Input 
+              <Input
                 value={
                   jobSettings.jobLevelId && availableJobLevels.length > 0
                     ? `${availableJobLevels.find((l: any) => l.id === jobSettings.jobLevelId)?.title || ''} (ต้องการ Level ${availableJobLevels.find((l: any) => l.id === jobSettings.jobLevelId)?.requiredCharacterLevel || ''})`
                     : 'เลือกอาชีพก่อน'
-                } 
-                disabled 
+                }
+                disabled
                 placeholder="ระบบจะเลือกระดับที่เหมาะสมให้อัตโนมัติ"
               />
             </FormItem>
@@ -568,9 +586,9 @@ const CharacterManagementPage = () => {
               <Input value={selectedCharacter.name} disabled />
             </FormItem>
             <FormItem label="Xeny ปัจจุบัน" className="mb-4">
-              <Input 
-                value={`${selectedCharacter.user.userXeny?.currentXeny || 0} Xeny`} 
-                disabled 
+              <Input
+                value={`${selectedCharacter.user.userXeny?.currentXeny || 0} Xeny`}
+                disabled
               />
             </FormItem>
             <hr />

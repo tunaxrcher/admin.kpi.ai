@@ -6,20 +6,18 @@ import type { CommonProps } from '../../../../@types/common'
 import type { ChatHistories } from '../types'
 
 type ChatProviderProps = CommonProps & {
-    chatHistory: ChatHistories
+  chatHistory: ChatHistories
 }
 
 const ChatProvider = ({ children, chatHistory }: ChatProviderProps) => {
-    const setChatHistory = usGenerativeChatStore(
-        (state) => state.setChatHistory,
-    )
+  const setChatHistory = usGenerativeChatStore((state) => state.setChatHistory)
 
-    useEffect(() => {
-        setChatHistory(chatHistory)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [chatHistory])
+  useEffect(() => {
+    setChatHistory(chatHistory)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatHistory])
 
-    return <>{children} </>
+  return <>{children} </>
 }
 
 export default ChatProvider

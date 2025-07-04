@@ -128,7 +128,6 @@ export class JobLevelService extends BaseService {
     data: GenerateLevelsRequest,
   ): Promise<GeneratedLevel[]> {
     try {
- 
       // const prompt = `
       //   สร้าง level tree สำหรับอาชีพ "${data.jobName}" ในรูปแบบ JSON array ดังนี้:
       //       [
@@ -204,7 +203,7 @@ export class JobLevelService extends BaseService {
         - อย่าใส่ข้อความอธิบายอื่น ๆ เช่น “แน่นอนครับ...” หรือ “นี่คือตัวอย่าง...”
       `
 
-        console.log(prompt)
+      console.log(prompt)
       const response = await fetch(
         'https://api.openai.com/v1/chat/completions',
         {

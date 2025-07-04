@@ -6,13 +6,13 @@ import type { Theme } from '../@types/theme'
  * we recommend to use the configuration that generated from demo.
  */
 export const themeConfig: Theme = {
-    themeSchema: '',
-    direction: THEME_ENUM.DIR_LTR,
-    mode: THEME_ENUM.MODE_DARK,
-    panelExpand: false,
-    controlSize: 'md',
-    layout: {
-        type: THEME_ENUM.LAYOUT_FRAMELESS_SIDE,
-        sideNavCollapse: false,
-    },
+  themeSchema: '',
+  direction: THEME_ENUM.DIR_LTR,
+  mode: THEME_ENUM.MODE_DARK,
+  panelExpand: false,
+  controlSize: 'md',
+  layout: {
+    type: THEME_ENUM.LAYOUT_FRAMELESS_SIDE,
+    sideNavCollapse: false,
+  },
 }

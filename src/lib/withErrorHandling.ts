@@ -6,7 +6,7 @@ import { ApiError } from './errors/custom'
 
 type ApiHandler<T = any> = (
   req: NextRequest,
-  context: T
+  context: T,
 ) => Promise<NextResponse> | NextResponse
 
 type ErrorResponse = {
@@ -27,7 +27,7 @@ const defaultOptions: ErrorHandlerOptions = {
 
 export function withErrorHandling<T = any>(
   handler: ApiHandler<T>,
-  options: ErrorHandlerOptions = defaultOptions
+  options: ErrorHandlerOptions = defaultOptions,
 ): ApiHandler<T> {
   return async function (req: NextRequest, context: T) {
     try {

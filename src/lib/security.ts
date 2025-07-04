@@ -32,14 +32,14 @@ type Encryptable<T, K extends keyof T> = {
 function transformWithEncrypted<D>(
   fieldsToEncrypt: string[],
   depth: DepthOption = 'all',
-  data: D
+  data: D,
 ): D {
   if (!data) return data
 
   // กรณีเป็น array ให้แปลงทีละรายการ
   if (Array.isArray(data)) {
     return data.map((item) =>
-      transformWithEncrypted(fieldsToEncrypt, depth, item)
+      transformWithEncrypted(fieldsToEncrypt, depth, item),
     ) as unknown as D
   }
 
@@ -94,7 +94,7 @@ function transformWithEncrypted<D>(
 export function encryptResult<R, K extends string>(
   result: R,
   fieldsToEncrypt: K[],
-  depth: DepthOption = 'all'
+  depth: DepthOption = 'all',
 ): R extends any[]
   ? Array<
       R[number] extends object
@@ -114,7 +114,7 @@ interface JwtConfig {
 
 export function encodeJwt(
   payload: any,
-  config: JwtConfig = { algorithm: 'HS256', expiresIn: '1h' }
+  config: JwtConfig = { algorithm: 'HS256', expiresIn: '1h' },
 ): string {
   return jwt.sign(payload, SECRET_KEY, {
     expiresIn: config.expiresIn,
@@ -124,7 +124,7 @@ export function encodeJwt(
 
 export function decodeJwt<T = any>(
   token: string,
-  config: JwtConfig = { algorithm: 'HS256' }
+  config: JwtConfig = { algorithm: 'HS256' },
 ): T {
   const { algorithm = 'HS256' } = config
   return jwt.verify(token, SECRET_KEY, {

@@ -6,9 +6,9 @@ export type { AvatarProps } from './Avatar'
 export type { AvatarGroupProps } from './AvatarGroup'
 
 type CompoundedComponent = ForwardRefExoticComponent<
-    AvatarProps & RefAttributes<HTMLSpanElement>
+  AvatarProps & RefAttributes<HTMLSpanElement>
 > & {
-    Group: typeof AvatarGroup
+  Group: typeof AvatarGroup
 }
 
 const Avatar = _Avatar as CompoundedComponent

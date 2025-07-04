@@ -1,7 +1,7 @@
 import SignInClient from './_components/SignInClient'
 
 const Page = () => {
-    return <SignInClient />
+  return <SignInClient />
 }
 
 export default Page

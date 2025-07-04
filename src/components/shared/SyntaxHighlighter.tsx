@@ -5,13 +5,13 @@ import type { SyntaxHighlighterProps as ReactSyntaxHighlighterProps } from 'reac
 type SyntaxHighlighterProps = ReactSyntaxHighlighterProps
 
 const SyntaxHighlighter = (props: SyntaxHighlighterProps) => {
-    const { children, ...rest } = props
+  const { children, ...rest } = props
 
-    return (
-        <Prism style={oneDark} {...rest}>
-            {children}
-        </Prism>
-    )
+  return (
+    <Prism style={oneDark} {...rest}>
+      {children}
+    </Prism>
+  )
 }
 
 export default SyntaxHighlighter

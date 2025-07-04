@@ -34,14 +34,14 @@ export abstract class BaseRepository<T> {
   protected transformWithEncrypted<D>(
     fieldsToEncrypt: string[],
     depth: DepthOption = 'all',
-    data: D
+    data: D,
   ): D {
     if (!data) return data
 
     // กรณีเป็น array ให้แปลงทีละรายการ
     if (Array.isArray(data)) {
       return data.map((item) =>
-        this.transformWithEncrypted(fieldsToEncrypt, depth, item)
+        this.transformWithEncrypted(fieldsToEncrypt, depth, item),
       ) as unknown as D
     }
 
@@ -77,7 +77,7 @@ export abstract class BaseRepository<T> {
           result[key] = this.transformWithEncrypted(
             fieldsToEncrypt,
             nextDepth,
-            value
+            value,
           )
         }
       })
@@ -96,7 +96,7 @@ export abstract class BaseRepository<T> {
   public encryptResult<R, K extends string>(
     result: R,
     fieldsToEncrypt: K[],
-    depth: DepthOption = 'all'
+    depth: DepthOption = 'all',
   ): R extends any[]
     ? Array<
         R[number] extends object

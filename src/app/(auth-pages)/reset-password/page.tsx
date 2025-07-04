@@ -1,7 +1,7 @@
 import ResetPasswordClient from './_components/ResetPasswordClient'
 
 const Page = () => {
-    return <ResetPasswordClient />
+  return <ResetPasswordClient />
 }
 
 export default Page

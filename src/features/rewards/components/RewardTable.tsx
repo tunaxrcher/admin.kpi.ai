@@ -57,7 +57,8 @@ const RewardTable: React.FC<RewardTableProps> = ({
                 <div>
                   <div className="font-medium">{gacha.character.name}</div>
                   <div className="text-sm text-gray-500">
-                    {gacha.character.user.name} (@{gacha.character.user.username})
+                    {gacha.character.user.name} (@
+                    {gacha.character.user.username})
                   </div>
                 </div>
               </Table.Td>
@@ -73,7 +74,9 @@ const RewardTable: React.FC<RewardTableProps> = ({
               </Table.Td>
               <Table.Td>
                 <div className="font-medium">
-                  {gacha.xenyEarned > 0 ? `${gacha.xenyEarned.toLocaleString()} Xeny` : '-'}
+                  {gacha.xenyEarned > 0
+                    ? `${gacha.xenyEarned.toLocaleString()} Xeny`
+                    : '-'}
                 </div>
               </Table.Td>
               <Table.Td>
@@ -82,7 +85,9 @@ const RewardTable: React.FC<RewardTableProps> = ({
                 </div>
               </Table.Td>
               <Table.Td>
-                <div className={`font-medium ${gacha.isWin ? 'text-green-600' : 'text-red-600'}`}>
+                <div
+                  className={`font-medium ${gacha.isWin ? 'text-green-600' : 'text-red-600'}`}
+                >
                   {gacha.isWin ? 'ได้รับรางวัล' : 'ไม่ได้รับรางวัล'}
                 </div>
               </Table.Td>
@@ -90,7 +95,7 @@ const RewardTable: React.FC<RewardTableProps> = ({
           ))}
         </Table.TBody>
       </Table>
-      
+
       {total > 0 && (
         <div className="flex justify-center">
           <Pagination
@@ -105,4 +110,4 @@ const RewardTable: React.FC<RewardTableProps> = ({
   )
 }
 
-export default RewardTable 
+export default RewardTable

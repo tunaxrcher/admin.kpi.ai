@@ -11,123 +11,118 @@ import type { ZodType } from 'zod'
 import type { CommonProps } from '../../../@types/common'
 
 type ResetPasswordFormSchema = {
-    newPassword: string
-    confirmPassword: string
+  newPassword: string
+  confirmPassword: string
 }
 
 export type OnResetPasswordSubmitPayload = {
-    values: ResetPasswordFormSchema
-    setSubmitting: (isSubmitting: boolean) => void
-    setMessage: (message: string) => void
-    setResetComplete?: (complete: boolean) => void
+  values: ResetPasswordFormSchema
+  setSubmitting: (isSubmitting: boolean) => void
+  setMessage: (message: string) => void
+  setResetComplete?: (complete: boolean) => void
 }
 
 export type OnResetPasswordSubmit = (
-    payload: OnResetPasswordSubmitPayload,
+  payload: OnResetPasswordSubmitPayload,
 ) => void
 
 interface ResetPasswordFormProps extends CommonProps {
-    onResetPasswordSubmit?: OnResetPasswordSubmit
-    resetComplete: boolean
-    setResetComplete: (complete: boolean) => void
-    setMessage: (message: string) => void
+  onResetPasswordSubmit?: OnResetPasswordSubmit
+  resetComplete: boolean
+  setResetComplete: (complete: boolean) => void
+  setMessage: (message: string) => void
 }
 
 const validationSchema: ZodType<ResetPasswordFormSchema> = z
-    .object({
-        newPassword: z.string({ required_error: 'Please enter your password' }),
-        confirmPassword: z.string({
-            required_error: 'Confirm Password Required',
-        }),
-    })
-    .refine((data) => data.newPassword === data.confirmPassword, {
-        message: 'Your passwords do not match',
-        path: ['confirmPassword'],
-    })
+  .object({
+    newPassword: z.string({ required_error: 'Please enter your password' }),
+    confirmPassword: z.string({
+      required_error: 'Confirm Password Required',
+    }),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Your passwords do not match',
+    path: ['confirmPassword'],
+  })
 
 const ResetPasswordForm = (props: ResetPasswordFormProps) => {
-    const [isSubmitting, setSubmitting] = useState<boolean>(false)
+  const [isSubmitting, setSubmitting] = useState<boolean>(false)
 
-    const {
-        className,
+  const {
+    className,
+    setMessage,
+    setResetComplete,
+    resetComplete,
+    onResetPasswordSubmit,
+    children,
+  } = props
+
+  const {
+    handleSubmit,
+    formState: { errors },
+    control,
+  } = useForm<ResetPasswordFormSchema>({
+    resolver: zodResolver(validationSchema),
+  })
+
+  const handleResetPassword = async (values: ResetPasswordFormSchema) => {
+    if (onResetPasswordSubmit) {
+      onResetPasswordSubmit({
+        values,
+        setSubmitting,
         setMessage,
         setResetComplete,
-        resetComplete,
-        onResetPasswordSubmit,
-        children,
-    } = props
-
-    const {
-        handleSubmit,
-        formState: { errors },
-        control,
-    } = useForm<ResetPasswordFormSchema>({
-        resolver: zodResolver(validationSchema),
-    })
-
-    const handleResetPassword = async (values: ResetPasswordFormSchema) => {
-        if (onResetPasswordSubmit) {
-            onResetPasswordSubmit({
-                values,
-                setSubmitting,
-                setMessage,
-                setResetComplete,
-            })
-        }
+      })
     }
+  }
 
-    return (
-        <div className={className}>
-            {!resetComplete ? (
-                <Form onSubmit={handleSubmit(handleResetPassword)}>
-                    <FormItem
-                        label="Password"
-                        invalid={Boolean(errors.newPassword)}
-                        errorMessage={errors.newPassword?.message}
-                    >
-                        <Controller
-                            name="newPassword"
-                            control={control}
-                            render={({ field }) => (
-                                <PasswordInput
-                                    autoComplete="off"
-                                    placeholder="••••••••••••"
-                                    {...field}
-                                />
-                            )}
-                        />
-                    </FormItem>
-                    <FormItem
-                        label="Confirm Password"
-                        invalid={Boolean(errors.confirmPassword)}
-                        errorMessage={errors.confirmPassword?.message}
-                    >
-                        <Controller
-                            name="confirmPassword"
-                            control={control}
-                            render={({ field }) => (
-                                <PasswordInput
-                                    autoComplete="off"
-                                    placeholder="Confirm Password"
-                                    {...field}
-                                />
-                            )}
-                        />
-                    </FormItem>
-                    <Button
-                        block
-                        loading={isSubmitting}
-                        variant="solid"
-                        type="submit"
-                    >
-                        {isSubmitting ? 'Submiting...' : 'Submit'}
-                    </Button>
-                </Form>
-            ) : (
-                <>{children}</>
-            )}
-        </div>
-    )
+  return (
+    <div className={className}>
+      {!resetComplete ? (
+        <Form onSubmit={handleSubmit(handleResetPassword)}>
+          <FormItem
+            label="Password"
+            invalid={Boolean(errors.newPassword)}
+            errorMessage={errors.newPassword?.message}
+          >
+            <Controller
+              name="newPassword"
+              control={control}
+              render={({ field }) => (
+                <PasswordInput
+                  autoComplete="off"
+                  placeholder="••••••••••••"
+                  {...field}
+                />
+              )}
+            />
+          </FormItem>
+          <FormItem
+            label="Confirm Password"
+            invalid={Boolean(errors.confirmPassword)}
+            errorMessage={errors.confirmPassword?.message}
+          >
+            <Controller
+              name="confirmPassword"
+              control={control}
+              render={({ field }) => (
+                <PasswordInput
+                  autoComplete="off"
+                  placeholder="Confirm Password"
+                  {...field}
+                />
+              )}
+            />
+          </FormItem>
+          <Button block loading={isSubmitting} variant="solid" type="submit">
+            {isSubmitting ? 'Submiting...' : 'Submit'}
+          </Button>
+        </Form>
+      ) : (
+        <>{children}</>
+      )}
+    </div>
+  )
 }
 
 export default ResetPasswordForm

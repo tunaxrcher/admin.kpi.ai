@@ -7,8 +7,7 @@ import { RewardFilters } from '../types'
 const QUERY_KEYS = {
   all: ['rewards'] as const,
   lists: () => [...QUERY_KEYS.all, 'list'] as const,
-  list: (filters?: RewardFilters) =>
-    [...QUERY_KEYS.lists(), filters] as const,
+  list: (filters?: RewardFilters) => [...QUERY_KEYS.lists(), filters] as const,
 }
 
 // Fetch reward report data
@@ -18,4 +17,4 @@ export const useRewardReportData = (filters?: RewardFilters) => {
     queryFn: () => rewardService.getRewardReportData(filters),
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
-} 
+}

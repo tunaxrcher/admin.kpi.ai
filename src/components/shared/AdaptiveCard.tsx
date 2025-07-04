@@ -8,20 +8,20 @@ import type { CardProps } from '../ui/Card'
 type AdaptableCardProps = CardProps
 
 const AdaptiveCard = (props: AdaptableCardProps) => {
-    const { adaptiveCardActive } = useLayout()
+  const { adaptiveCardActive } = useLayout()
 
-    const { className, bodyClass, ...rest } = props
+  const { className, bodyClass, ...rest } = props
 
-    return (
-        <Card
-            className={classNames(
-                className,
-                adaptiveCardActive && 'border-none dark:bg-transparent',
-            )}
-            bodyClass={classNames(bodyClass, adaptiveCardActive && 'p-0')}
-            {...rest}
-        />
-    )
+  return (
+    <Card
+      className={classNames(
+        className,
+        adaptiveCardActive && 'border-none dark:bg-transparent',
+      )}
+      bodyClass={classNames(bodyClass, adaptiveCardActive && 'p-0')}
+      {...rest}
+    />
+  )
 }
 
 export default AdaptiveCard

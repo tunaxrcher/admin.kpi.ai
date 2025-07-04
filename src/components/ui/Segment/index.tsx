@@ -6,9 +6,9 @@ export type { SegmentProps } from './Segment'
 export type { SegmentItemProps } from './SegmentItem'
 
 type CompoundedComponent = ForwardRefExoticComponent<
-    SegmentProps & RefAttributes<HTMLHtmlElement>
+  SegmentProps & RefAttributes<HTMLHtmlElement>
 > & {
-    Item: typeof SegmentItem
+  Item: typeof SegmentItem
 }
 
 const Segment = _Segment as CompoundedComponent

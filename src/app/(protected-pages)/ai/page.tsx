@@ -5,17 +5,17 @@ import ChatHistoryRenameDialog from './_components/ChatHistoryRenameDialog'
 import getChatHistory from '../../../server/actions/getChatHistory'
 
 export default async function Page() {
-    const chatHistory = await getChatHistory()
+  const chatHistory = await getChatHistory()
 
-    return (
-        <ChatProvider chatHistory={chatHistory}>
-            <div className="h-full">
-                <div className="flex flex-auto gap-4 h-full">
-                    <ChatView />
-                    <ChatSideNav />
-                    <ChatHistoryRenameDialog />
-                </div>
-            </div>
-        </ChatProvider>
-    )
+  return (
+    <ChatProvider chatHistory={chatHistory}>
+      <div className="h-full">
+        <div className="flex flex-auto gap-4 h-full">
+          <ChatView />
+          <ChatSideNav />
+          <ChatHistoryRenameDialog />
+        </div>
+      </div>
+    </ChatProvider>
+  )
 }

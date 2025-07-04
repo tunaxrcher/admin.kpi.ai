@@ -1,7 +1,7 @@
 import ThemeConfigurator from '../ThemeConfigurator'
 
 const SidePanelContent = () => {
-    return <ThemeConfigurator />
+  return <ThemeConfigurator />
 }
 
 export default SidePanelContent

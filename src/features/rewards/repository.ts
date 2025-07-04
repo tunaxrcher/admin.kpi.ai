@@ -1,6 +1,11 @@
 import { BaseRepository } from '../../lib/repository/baseRepository'
 import { GachaHistory } from '@prisma/client'
-import { RewardReportData, RewardFilters, GachaHistoryWithDetails, CharacterGachaStats } from './types'
+import {
+  RewardReportData,
+  RewardFilters,
+  GachaHistoryWithDetails,
+  CharacterGachaStats,
+} from './types'
 
 export class RewardRepository extends BaseRepository<GachaHistory> {
   private static instance: RewardRepository
@@ -28,7 +33,10 @@ export class RewardRepository extends BaseRepository<GachaHistory> {
     })
   }
 
-  async update(id: number, data: Partial<Omit<GachaHistory, 'id' | 'createdAt'>>) {
+  async update(
+    id: number,
+    data: Partial<Omit<GachaHistory, 'id' | 'createdAt'>>,
+  ) {
     return this.prisma.gachaHistory.update({
       where: { id },
       data,
@@ -41,14 +49,16 @@ export class RewardRepository extends BaseRepository<GachaHistory> {
     })
   }
 
-  async getRewardReportData(filters?: RewardFilters): Promise<RewardReportData> {
+  async getRewardReportData(
+    filters?: RewardFilters,
+  ): Promise<RewardReportData> {
     const where: Record<string, unknown> = {}
-    
+
     // Apply filters
     if (filters?.characterId) {
       where.characterId = filters.characterId
     }
-    
+
     if (filters?.search) {
       where.OR = [
         { character: { name: { contains: filters.search } } },
@@ -62,10 +72,14 @@ export class RewardRepository extends BaseRepository<GachaHistory> {
     if (filters?.startDate || filters?.endDate) {
       where.createdAt = {}
       if (filters.startDate) {
-        (where.createdAt as Record<string, unknown>).gte = new Date(filters.startDate)
+        ;(where.createdAt as Record<string, unknown>).gte = new Date(
+          filters.startDate,
+        )
       }
       if (filters.endDate) {
-        (where.createdAt as Record<string, unknown>).lte = new Date(filters.endDate)
+        ;(where.createdAt as Record<string, unknown>).lte = new Date(
+          filters.endDate,
+        )
       }
     }
 
@@ -92,7 +106,7 @@ export class RewardRepository extends BaseRepository<GachaHistory> {
     // Get characters with gacha history
     const charactersWithGacha = await this.prisma.character.findMany({
       where: {
-        id: { in: characterStats.map(stat => stat.characterId) },
+        id: { in: characterStats.map((stat) => stat.characterId) },
       },
       include: {
         user: {
@@ -106,25 +120,30 @@ export class RewardRepository extends BaseRepository<GachaHistory> {
     })
 
     // Build character summary
-    const characterSummary: CharacterGachaStats[] = charactersWithGacha.map(character => {
-      const totalPulls = character.rewardStats?.totalGachaPulls || 0
-      const totalWins = character.rewardStats?.totalGachaWins || 0
-      const totalSpent = character.rewardStats?.totalTokensSpent || 0
+    const characterSummary: CharacterGachaStats[] = charactersWithGacha.map(
+      (character) => {
+        const totalPulls = character.rewardStats?.totalGachaPulls || 0
+        const totalWins = character.rewardStats?.totalGachaWins || 0
+        const totalSpent = character.rewardStats?.totalTokensSpent || 0
 
-      return {
-        characterId: character.id,
-        characterName: character.name,
-        userName: character.user.name,
-        username: character.user.username,
-        jobClass: character.currentJobLevel.jobClass.name,
-        jobLevel: character.currentJobLevel.title,
-        totalPulls,
-        totalWins,
-        totalSpent,
-        winRate: totalPulls > 0 ? (totalWins / totalPulls * 100).toFixed(2) : '0.00',
-        lastGachaAt: character.rewardStats?.lastGachaAt,
-      }
-    })
+        return {
+          characterId: character.id,
+          characterName: character.name,
+          userName: character.user.name,
+          username: character.user.username,
+          jobClass: character.currentJobLevel.jobClass.name,
+          jobLevel: character.currentJobLevel.title,
+          totalPulls,
+          totalWins,
+          totalSpent,
+          winRate:
+            totalPulls > 0
+              ? ((totalWins / totalPulls) * 100).toFixed(2)
+              : '0.00',
+          lastGachaAt: character.rewardStats?.lastGachaAt,
+        }
+      },
+    )
 
     // Get gacha history with pagination
     const page = filters?.page || 1
@@ -162,25 +181,30 @@ export class RewardRepository extends BaseRepository<GachaHistory> {
     ])
 
     // Add Xeny earned to gacha history
-    const gachaHistoryWithXeny: GachaHistoryWithDetails[] = gachaHistory.map(gacha => {
-      let xenyEarned = 0
-      
-      if (gacha.isWin && gacha.rewardItem && gacha.rewardItem.metadata) {
-        try {
-          const metadata = gacha.rewardItem.metadata as { value?: number; currency?: string }
-          if (metadata.value && metadata.currency === 'THB') {
-            xenyEarned = metadata.value
+    const gachaHistoryWithXeny: GachaHistoryWithDetails[] = gachaHistory.map(
+      (gacha) => {
+        let xenyEarned = 0
+
+        if (gacha.isWin && gacha.rewardItem && gacha.rewardItem.metadata) {
+          try {
+            const metadata = gacha.rewardItem.metadata as {
+              value?: number
+              currency?: string
+            }
+            if (metadata.value && metadata.currency === 'THB') {
+              xenyEarned = metadata.value
+            }
+          } catch (error) {
+            console.error('Error parsing metadata:', error)
           }
-        } catch (error) {
-          console.error('Error parsing metadata:', error)
         }
-      }
-      
-      return {
-        ...gacha,
-        xenyEarned,
-      }
-    })
+
+        return {
+          ...gacha,
+          xenyEarned,
+        }
+      },
+    )
 
     return {
       summary: {
@@ -195,4 +219,4 @@ export class RewardRepository extends BaseRepository<GachaHistory> {
   }
 }
 
-export const rewardRepository = RewardRepository.getInstance() 
+export const rewardRepository = RewardRepository.getInstance()

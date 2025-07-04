@@ -10,11 +10,11 @@ export type { MenuGroupProps } from './MenuGroup'
 export type { MenuItemProps } from './MenuItem'
 
 type CompoundedComponent = ForwardRefExoticComponent<
-    MenuProps & RefAttributes<HTMLElement>
+  MenuProps & RefAttributes<HTMLElement>
 > & {
-    MenuItem: typeof MenuItem
-    MenuCollapse: typeof MenuCollapse
-    MenuGroup: typeof MenuGroup
+  MenuItem: typeof MenuItem
+  MenuCollapse: typeof MenuCollapse
+  MenuGroup: typeof MenuGroup
 }
 
 const Menu = _Menu as CompoundedComponent

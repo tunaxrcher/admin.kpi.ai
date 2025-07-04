@@ -6,9 +6,9 @@ export type { RadioProps } from './Radio'
 export type { RadioGroupProps } from './Group'
 
 type CompoundedComponent = ForwardRefExoticComponent<
-    RadioProps & RefAttributes<HTMLHtmlElement>
+  RadioProps & RefAttributes<HTMLHtmlElement>
 > & {
-    Group: typeof Group
+  Group: typeof Group
 }
 
 const Radio = _Radio as CompoundedComponent

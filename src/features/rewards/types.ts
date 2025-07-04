@@ -1,4 +1,10 @@
-import { Character, User, JobClass, JobLevel, GachaHistory } from '@prisma/client'
+import {
+  Character,
+  User,
+  JobClass,
+  JobLevel,
+  GachaHistory,
+} from '@prisma/client'
 
 export interface CharacterWithUser extends Character {
   user: Pick<User, 'name' | 'username'>
@@ -52,4 +58,4 @@ export interface RewardFilters {
   endDate?: string
   page?: number
   limit?: number
-} 
+}

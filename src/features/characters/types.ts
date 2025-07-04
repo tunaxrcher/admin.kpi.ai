@@ -40,4 +40,4 @@ export interface CharacterFilters {
 export interface CharacterListResponse {
   characters: CharacterWithRelations[]
   total: number
-} 
+}

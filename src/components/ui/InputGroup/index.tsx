@@ -6,9 +6,9 @@ export type { InputGroupProps } from './InputGroup'
 export type { AddonProps } from './Addon'
 
 type CompoundedComponent = ForwardRefExoticComponent<
-    InputGroupProps & RefAttributes<HTMLDivElement>
+  InputGroupProps & RefAttributes<HTMLDivElement>
 > & {
-    Addon: typeof Addon
+  Addon: typeof Addon
 }
 
 const InputGroup = _InputGroup as CompoundedComponent

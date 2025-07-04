@@ -9,10 +9,10 @@ export type { DropdownItemProps } from './DropdownItem'
 export type { DropdownSubProps as DropdownMenuProps } from './DropdownSub'
 
 type CompoundedComponent = ForwardRefExoticComponent<
-    DropdownProps & RefAttributes<DropdownRef>
+  DropdownProps & RefAttributes<DropdownRef>
 > & {
-    Item: typeof DropdownItem
-    Menu: typeof DropdownSub
+  Item: typeof DropdownItem
+  Menu: typeof DropdownSub
 }
 
 const Dropdown = _Dropdown as CompoundedComponent

@@ -7,27 +7,23 @@ import dayjs from 'dayjs'
 import type { AbstractIntlMessages } from 'next-intl'
 
 type LocaleProvider = {
-    messages: AbstractIntlMessages
-    children: React.ReactNode
-    locale: string
+  messages: AbstractIntlMessages
+  children: React.ReactNode
+  locale: string
 }
 
 const LocaleProvider = ({ messages, children, locale }: LocaleProvider) => {
-    useEffect(() => {
-        dateLocales[locale]().then(() => {
-            dayjs.locale(locale)
-        })
-    }, [locale])
+  useEffect(() => {
+    dateLocales[locale]().then(() => {
+      dayjs.locale(locale)
+    })
+  }, [locale])
 
-    return (
-        <NextIntlClientProvider
-            messages={messages}
-            locale={locale}
-            timeZone="UTC"
-        >
-            {children}
-        </NextIntlClientProvider>
-    )
+  return (
+    <NextIntlClientProvider messages={messages} locale={locale} timeZone="UTC">
+      {children}
+    </NextIntlClientProvider>
+  )
 }
 
 export default LocaleProvider

@@ -34,13 +34,17 @@ const CharacterStatsTable: React.FC<CharacterStatsTableProps> = ({ data }) => {
             <Table.Td>
               <div>
                 <div className="font-medium">{character.userName}</div>
-                <div className="text-sm text-gray-500">@{character.username}</div>
+                <div className="text-sm text-gray-500">
+                  @{character.username}
+                </div>
               </div>
             </Table.Td>
             <Table.Td>
               <div>
                 <div className="font-medium">{character.jobClass}</div>
-                <div className="text-sm text-gray-500">{character.jobLevel}</div>
+                <div className="text-sm text-gray-500">
+                  {character.jobLevel}
+                </div>
               </div>
             </Table.Td>
             <Table.Td>
@@ -54,9 +58,7 @@ const CharacterStatsTable: React.FC<CharacterStatsTableProps> = ({ data }) => {
               </div>
             </Table.Td>
             <Table.Td>
-              <div className="font-medium">
-                {character.winRate}%
-              </div>
+              <div className="font-medium">{character.winRate}%</div>
             </Table.Td>
             <Table.Td>
               <div className="font-medium">
@@ -65,10 +67,9 @@ const CharacterStatsTable: React.FC<CharacterStatsTableProps> = ({ data }) => {
             </Table.Td>
             <Table.Td>
               <div>
-                {character.lastGachaAt 
+                {character.lastGachaAt
                   ? new Date(character.lastGachaAt).toLocaleDateString('th-TH')
-                  : '-'
-                }
+                  : '-'}
               </div>
             </Table.Td>
           </Table.Tr>
@@ -78,4 +79,4 @@ const CharacterStatsTable: React.FC<CharacterStatsTableProps> = ({ data }) => {
   )
 }
 
-export default CharacterStatsTable 
+export default CharacterStatsTable

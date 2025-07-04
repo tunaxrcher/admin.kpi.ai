@@ -4,11 +4,11 @@ import { createContext } from 'react'
 import type { NavigationTree } from '../../../@types/navigation'
 
 type Navigation = {
-    navigationTree: NavigationTree[]
+  navigationTree: NavigationTree[]
 }
 
 const NavigationContext = createContext<Navigation>({
-    navigationTree: [],
+  navigationTree: [],
 })
 
 export default NavigationContext

@@ -7,31 +7,31 @@ import { THEME_ENUM } from '../../../constants/theme.constant'
 import type { Direction } from '../../../@types/theme'
 
 const dirList = [
-    { value: THEME_ENUM.DIR_LTR, label: 'LTR' },
-    { value: THEME_ENUM.DIR_RTL, label: 'RTL' },
+  { value: THEME_ENUM.DIR_LTR, label: 'LTR' },
+  { value: THEME_ENUM.DIR_RTL, label: 'RTL' },
 ]
 
 const DirectionSwitcher = () => {
-    const setDirection = useTheme((state) => state.setDirection)
-    const direction = useTheme((state) => state.direction)
+  const setDirection = useTheme((state) => state.setDirection)
+  const direction = useTheme((state) => state.direction)
 
-    const onDirChange = (val: Direction) => {
-        setDirection(val)
-    }
+  const onDirChange = (val: Direction) => {
+    setDirection(val)
+  }
 
-    return (
-        <InputGroup size="sm">
-            {dirList.map((dir) => (
-                <Button
-                    key={dir.value}
-                    active={direction === dir.value}
-                    onClick={() => onDirChange(dir.value)}
-                >
-                    {dir.label}
-                </Button>
-            ))}
-        </InputGroup>
-    )
+  return (
+    <InputGroup size="sm">
+      {dirList.map((dir) => (
+        <Button
+          key={dir.value}
+          active={direction === dir.value}
+          onClick={() => onDirChange(dir.value)}
+        >
+          {dir.label}
+        </Button>
+      ))}
+    </InputGroup>
+  )
 }
 
 export default DirectionSwitcher

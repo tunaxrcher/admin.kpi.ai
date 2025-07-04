@@ -171,19 +171,23 @@ export class JobLevelRepository extends BaseRepository<JobLevel> {
     })
   }
 
-  async getJobLevelsByJobClass(jobClassId: number, characterLevel?: number, currentJobLevel?: number) {
+  async getJobLevelsByJobClass(
+    jobClassId: number,
+    characterLevel?: number,
+    currentJobLevel?: number,
+  ) {
     const where: any = { jobClassId }
-    
+
     // Filter by character level if provided - only show levels that character can use
     if (characterLevel !== undefined) {
       where.requiredCharacterLevel = { lte: characterLevel }
     }
-    
+
     // Filter by current job level - only show levels >= current level (no downgrading)
     if (currentJobLevel !== undefined) {
       where.level = { gte: currentJobLevel }
     }
-    
+
     return await this.prisma.jobLevel.findMany({
       where,
       orderBy: { level: 'asc' },

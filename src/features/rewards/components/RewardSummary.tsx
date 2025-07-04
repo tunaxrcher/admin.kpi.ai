@@ -19,7 +19,7 @@ const RewardSummary: React.FC<RewardSummaryProps> = ({ summary }) => {
           <div className="text-sm text-gray-600">Token ที่ใช้ไปแล้ว</div>
         </div>
       </Card>
-      
+
       <Card>
         <div className="p-4 text-center">
           <div className="text-2xl font-bold text-green-600">
@@ -28,7 +28,7 @@ const RewardSummary: React.FC<RewardSummaryProps> = ({ summary }) => {
           <div className="text-sm text-gray-600">จำนวนครั้งที่สุ่ม</div>
         </div>
       </Card>
-      
+
       <Card>
         <div className="p-4 text-center">
           <div className="text-2xl font-bold text-purple-600">
@@ -41,4 +41,4 @@ const RewardSummary: React.FC<RewardSummaryProps> = ({ summary }) => {
   )
 }
 
-export default RewardSummary 
+export default RewardSummary
