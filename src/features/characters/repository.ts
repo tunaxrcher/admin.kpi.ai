@@ -1,5 +1,5 @@
 import { BaseRepository } from '../../lib/repository/baseRepository'
-import { CharacterFilters, UpdateCharacterWorkSettingsRequest, UpdateCharacterJobRequest } from './types'
+import { CharacterFilters, UpdateCharacterWorkSettingsRequest, UpdateCharacterJobRequest, DeductXenyRequest } from './types'
 
 export class CharacterRepository extends BaseRepository<any> {
   private static instance: CharacterRepository
@@ -41,7 +41,7 @@ export class CharacterRepository extends BaseRepository<any> {
   }
 
   async getAllCharactersWithRelations(filters?: CharacterFilters) {
-    const where: Record<string, any> = {}
+    const where: any = {}
     
     if (filters?.jobClassId) {
       where.jobClassId = filters.jobClassId
@@ -124,6 +124,50 @@ export class CharacterRepository extends BaseRepository<any> {
         currentJobLevel: true,
       },
     })
+  }
+
+  async deductXeny(
+    characterId: number,
+    userId: number,
+    data: DeductXenyRequest,
+  ) {
+    // Use raw SQL to avoid type issues
+    const result = await this.prisma.$executeRaw`
+      UPDATE UserXeny 
+      SET currentXeny = currentXeny - ${data.amount},
+          totalSpentXeny = totalSpentXeny + ${data.amount},
+          updatedAt = NOW()
+      WHERE userId = ${userId} AND currentXeny >= ${data.amount}
+    `
+
+    if (result === 0) {
+      // Check if user exists or has insufficient Xeny
+      const userXeny = await this.prisma.$queryRaw`
+        SELECT currentXeny FROM UserXeny WHERE userId = ${userId}
+      ` as any[]
+
+      if (userXeny.length === 0) {
+        // Create UserXeny if not exists
+        await this.prisma.$executeRaw`
+          INSERT INTO UserXeny (userId, currentXeny, totalEarnedXeny, totalSpentXeny, createdAt, updatedAt)
+          VALUES (${userId}, 0, 0, 0, NOW(), NOW())
+        `
+        throw new Error('Xeny ไม่เพียงพอ (มีอยู่ 0 Xeny)')
+      } else {
+        throw new Error(`Xeny ไม่เพียงพอ (มีอยู่ ${userXeny[0].currentXeny} Xeny)`)
+      }
+    }
+
+    // Create transaction record
+    await this.prisma.$executeRaw`
+      INSERT INTO XenyTransaction (userId, characterId, amount, type, description, balanceBefore, balanceAfter, createdAt)
+      SELECT ${userId}, ${characterId}, ${-data.amount}, 'admin_deduct', ${data.description}, 
+             currentXeny + ${data.amount}, currentXeny, NOW()
+      FROM UserXeny WHERE userId = ${userId}
+    `
+
+    // Return updated character
+    return await this.getCharacterById(characterId)
   }
 }
 

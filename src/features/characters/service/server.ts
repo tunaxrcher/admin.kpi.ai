@@ -1,6 +1,6 @@
 import { BaseService } from '../../../lib/services/server/baseService'
 import { characterRepository } from '../repository'
-import { CharacterFilters, UpdateCharacterWorkSettingsRequest, UpdateCharacterJobRequest } from '../types'
+import { CharacterFilters, UpdateCharacterWorkSettingsRequest, UpdateCharacterJobRequest, DeductXenyRequest } from '../types'
 
 export class CharacterService extends BaseService {
   private static instance: CharacterService
@@ -73,6 +73,28 @@ export class CharacterService extends BaseService {
     }
 
     return await characterRepository.updateJob(id, data)
+  }
+
+  async deductXeny(
+    characterId: number,
+    data: DeductXenyRequest,
+  ) {
+    // Validate inputs
+    if (data.amount <= 0) {
+      throw new Error('จำนวน Xeny ที่จะหักต้องมากกว่า 0')
+    }
+
+    if (!data.description?.trim()) {
+      throw new Error('กรุณาระบุเหตุผลในการหัก Xeny')
+    }
+
+    // Get character info
+    const character = await characterRepository.getCharacterById(characterId)
+    if (!character) {
+      throw new Error('ไม่พบข้อมูลบุคลากร')
+    }
+
+    return await characterRepository.deductXeny(characterId, character.userId, data)
   }
 
   private isValidTimeFormat(time: string): boolean {

@@ -1,5 +1,5 @@
 import { BaseService } from '../../../lib/services/client/baseService'
-import { CharacterFilters, UpdateCharacterWorkSettingsRequest, UpdateCharacterJobRequest } from '../types'
+import { CharacterFilters, UpdateCharacterWorkSettingsRequest, UpdateCharacterJobRequest, DeductXenyRequest } from '../types'
 
 export class CharacterService extends BaseService {
   private static instance: CharacterService
@@ -71,6 +71,24 @@ export class CharacterService extends BaseService {
     if (!response.ok) {
       const error = await response.json()
       throw new Error(error.message || 'Failed to update character job')
+    }
+    
+    return response.json()
+  }
+
+  async deductXeny(
+    id: number,
+    data: DeductXenyRequest,
+  ) {
+    const response = await fetch(`/api/characters/${id}/deduct-xeny`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.message || 'Failed to deduct Xeny')
     }
     
     return response.json()

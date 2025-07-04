@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
   Card,
   Table,
@@ -12,17 +12,20 @@ import {
   Dialog,
   Form,
   FormItem,
+  Dropdown,
 } from '../../../components/ui'
-import { HiOutlinePencil, HiOutlineSearch, HiOutlineBriefcase } from 'react-icons/hi'
+import { HiOutlinePencil, HiOutlineSearch, HiOutlineBriefcase, HiOutlineMinus, HiOutlineDotsVertical } from 'react-icons/hi'
 import {
   useCharacters,
   useUpdateCharacterWorkSettings,
   useUpdateCharacterJob,
+  useDeductXeny,
 } from '../hooks/useCharacters'
 import {
   CharacterWithRelations,
   UpdateCharacterWorkSettingsRequest,
   UpdateCharacterJobRequest,
+  DeductXenyRequest,
 } from '../types'
 import { useJobClasses } from '../../jobs/hooks/api'
 
@@ -37,6 +40,7 @@ const CharacterManagementPage = () => {
     useState<CharacterWithRelations | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isJobEditDialogOpen, setIsJobEditDialogOpen] = useState(false)
+  const [isXenyDialogOpen, setIsXenyDialogOpen] = useState(false)
   const [workSettings, setWorkSettings] = useState({
     workStartTime: '',
     workEndTime: '',
@@ -46,12 +50,17 @@ const CharacterManagementPage = () => {
     jobClassId: 0,
     jobLevelId: 0,
   })
+  const [xenySettings, setXenySettings] = useState({
+    amount: '',
+    description: '',
+  })
   const [availableJobLevels, setAvailableJobLevels] = useState<any[]>([])
 
   const { data: charactersData, isLoading, error } = useCharacters(filters)
   const { data: jobClasses, isLoading: jobClassesLoading } = useJobClasses()
   const updateWorkSettings = useUpdateCharacterWorkSettings()
   const updateCharacterJob = useUpdateCharacterJob()
+  const deductXeny = useDeductXeny()
 
   // Debug log
   console.log('jobClasses:', jobClasses)
@@ -174,12 +183,55 @@ const CharacterManagementPage = () => {
     }
   }
 
+  const handleXenyEdit = (character: CharacterWithRelations) => {
+    setSelectedCharacter(character)
+    setXenySettings({
+      amount: '',
+      description: '',
+    })
+    setIsXenyDialogOpen(true)
+  }
+
+  const handleSaveXeny = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (selectedCharacter && xenySettings.amount && xenySettings.description) {
+      const data: DeductXenyRequest = {
+        amount: parseInt(xenySettings.amount),
+        description: xenySettings.description,
+      }
+
+      deductXeny.mutate(
+        { id: selectedCharacter.id, data },
+        {
+          onSuccess: () => {
+            setIsXenyDialogOpen(false)
+            setSelectedCharacter(null)
+            setXenySettings({ amount: '', description: '' })
+          },
+        },
+      )
+    }
+  }
+
   const formatSalary = (salary: number | null) => {
     if (!salary) return '-'
     return new Intl.NumberFormat('th-TH', {
       style: 'currency',
       currency: 'THB',
     }).format(salary)
+  }
+
+  // Get user Xeny from raw query since include doesn't work
+  const getUserXeny = async (userId: number) => {
+    try {
+      const response = await fetch(`/api/users/${userId}/xeny`)
+      if (response.ok) {
+        return await response.json()
+      }
+    } catch (error) {
+      console.error('Error fetching user Xeny:', error)
+    }
+    return { currentXeny: 0 }
   }
 
   if (isLoading) {
@@ -252,6 +304,7 @@ const CharacterManagementPage = () => {
               <Th>บุคลากร</Th>
               <Th>อาชีพ</Th>
               <Th>ระดับอาชีพ</Th>
+              <Th>Xeny</Th>
               <Th>เวลาเข้างาน</Th>
               <Th>เวลาออกงาน</Th>
               <Th className="text-right">เงินเดือน</Th>
@@ -285,25 +338,46 @@ const CharacterManagementPage = () => {
                 </Td>
                 <Td className="text-white">{character.jobClass.name}</Td>
                 <Td className="text-white">{character.currentJobLevel.title}</Td>
+                <Td className="text-white">
+                  {character.user.userXeny?.currentXeny || 0} Xeny
+                </Td>
                 <Td className="text-white">{character.workStartTime || '-'}</Td>
                 <Td className="text-white">{character.workEndTime || '-'}</Td>
                 <Td className="text-right font-medium text-white">
                   {formatSalary(character.salary)}
                 </Td>
                 <Td>
-                  <Button
-                    size="sm"
-                    variant="plain"
-                    icon={<HiOutlinePencil />}
-                    onClick={() => handleEdit(character)}
-                  />
-                  <Button
-                    size="sm"
-                    variant="plain"
-                    icon={<HiOutlineBriefcase />}
-                    onClick={() => handleJobEdit(character)}
-                    className="ml-2"
-                  />
+                  <Dropdown
+                    renderTitle={
+                      <Button
+                        size="sm"
+                        variant="plain"
+                        icon={<HiOutlineDotsVertical />}
+                      >
+                        จัดการ
+                      </Button>
+                    }
+                    placement="bottom-end"
+                  >
+                    <Dropdown.Item onClick={() => handleEdit(character)}>
+                      <div className="flex items-center gap-2">
+                        <HiOutlinePencil className="text-base" />
+                        <span>เงินเดือน, เวลางาน</span>
+                      </div>
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => handleJobEdit(character)}>
+                      <div className="flex items-center gap-2">
+                        <HiOutlineBriefcase className="text-base" />
+                        <span>แก้ไขอาชีพ</span>
+                      </div>
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => handleXenyEdit(character)}>
+                      <div className="flex items-center gap-2">
+                        <HiOutlineMinus className="text-base" />
+                        <span>หัก Xeny</span>
+                      </div>
+                    </Dropdown.Item>
+                  </Dropdown>
                 </Td>
               </Tr>
             ))}
@@ -467,6 +541,79 @@ const CharacterManagementPage = () => {
                 disabled={!jobSettings.jobClassId || !jobSettings.jobLevelId}
               >
                 บันทึก
+              </Button>
+            </div>
+          </Form>
+        )}
+      </Dialog>
+
+      {/* Xeny Deduct Dialog */}
+      <Dialog
+        isOpen={isXenyDialogOpen}
+        onClose={() => {
+          setIsXenyDialogOpen(false)
+          setSelectedCharacter(null)
+          setXenySettings({ amount: '', description: '' })
+        }}
+        onRequestClose={() => {
+          setIsXenyDialogOpen(false)
+          setSelectedCharacter(null)
+          setXenySettings({ amount: '', description: '' })
+        }}
+      >
+        <h5 className="mb-4">หัก Xeny</h5>
+        {selectedCharacter && (
+          <Form onSubmit={handleSaveXeny}>
+            <FormItem label="ชื่อบุคลากร" className="mb-4">
+              <Input value={selectedCharacter.name} disabled />
+            </FormItem>
+            <FormItem label="Xeny ปัจจุบัน" className="mb-4">
+              <Input 
+                value={`${selectedCharacter.user.userXeny?.currentXeny || 0} Xeny`} 
+                disabled 
+              />
+            </FormItem>
+            <hr />
+
+            <FormItem label="จำนวนที่จะหัก" className="mt-4 mb-4">
+              <Input
+                type="number"
+                placeholder="จำนวน Xeny"
+                min="1"
+                value={xenySettings.amount}
+                onChange={(e) =>
+                  setXenySettings((prev) => ({
+                    ...prev,
+                    amount: e.target.value,
+                  }))
+                }
+                required
+              />
+            </FormItem>
+
+            <FormItem label="เหตุผล" className="mb-6">
+              <Input
+                placeholder="เหตุผลในการหัก Xeny"
+                value={xenySettings.description}
+                onChange={(e) =>
+                  setXenySettings((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
+                required
+              />
+            </FormItem>
+
+            <div className="">
+              <Button
+                className="w-full"
+                variant="solid"
+                type="submit"
+                loading={deductXeny.isPending}
+                disabled={!xenySettings.amount || !xenySettings.description}
+              >
+                หัก Xeny
               </Button>
             </div>
           </Form>
