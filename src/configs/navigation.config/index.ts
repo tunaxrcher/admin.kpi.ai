@@ -58,8 +58,8 @@ const navigationConfig: NavigationTree[] = [
     subMenu: [
       {
         key: 'reports.rewards',
-        path: '',
-        title: 'รางวัล (In Dev)',
+        path: '/management/reports',
+        title: 'รางวัล',
         translateKey: 'nav.report.rewards',
         icon: 'sharedComponentDoc',
         type: NAV_ITEM_TYPE_ITEM,
