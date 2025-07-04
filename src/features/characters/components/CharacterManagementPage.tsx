@@ -261,7 +261,7 @@ const CharacterManagementPage = () => {
 
       {/* Filters */}
       <Card className="mb-6">
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Input
             placeholder="ค้นหาด้วยชื่อหรืออีเมล"
             prefix={<HiOutlineSearch />}

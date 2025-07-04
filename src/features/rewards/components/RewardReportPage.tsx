@@ -6,7 +6,6 @@ import { useRewardReportData } from '../hooks/useRewards'
 import { RewardFilters } from '../types'
 import RewardSummary from './RewardSummary'
 import RewardTable from './RewardTable'
-import CharacterStatsTable from './CharacterStatsTable'
 
 const RewardReportPage: React.FC = () => {
   const [filters, setFilters] = useState<RewardFilters>({
@@ -53,11 +52,13 @@ const RewardReportPage: React.FC = () => {
       
       {/* Header */}
 
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold">รายงาน</h2>
-        <p className="text-gray-600">
-          รางวัลที่ได้รับจากการสุ่มตู้กาชา
-        </p>
+      <div className="mb-6 flex justify-between items-start">
+        <div>
+          <h2 className="text-2xl font-bold">รายงาน</h2>
+          <p className="text-gray-600">
+            รางวัลที่ได้รับจากการสุ่มตู้กาชา
+          </p>
+        </div>
 
         <Button
           variant="solid"
@@ -84,42 +85,40 @@ const RewardReportPage: React.FC = () => {
       )} */}
 
 
-      {/* Filters */}
-      <Card>
-        <div className="">
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-       
-              <Input
-                placeholder="ชื่อ Character, User, รางวัล..."
-                value={filters.search || ''}
-                onChange={(e) => handleFilterChange({ search: e.target.value })}
-              />
-            </div>
-            <div>
-         
-              <DatePicker
-                placeholder="เลือกวันที่"
-                value={filters.startDate ? new Date(filters.startDate) : undefined}
-                onChange={(date) => handleFilterChange({ 
-                  startDate: date ? date.toISOString().split('T')[0] : undefined 
-                })}
-              />
-            </div>
-            <div>
-          
-              <DatePicker
-                placeholder="เลือกวันที่"
-                value={filters.endDate ? new Date(filters.endDate) : undefined}
-                onChange={(date) => handleFilterChange({ 
-                  endDate: date ? date.toISOString().split('T')[0] : undefined 
-                })}
-              />
+              {/* Filters */}
+        <Card>
+          <div className="">
+            <div className="flex justify-center">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl">
+                <div>
+                  <Input
+                    placeholder="ชื่อ Character, User, รางวัล..."
+                    value={filters.search || ''}
+                    onChange={(e) => handleFilterChange({ search: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <DatePicker
+                    placeholder="เลือกวันที่"
+                    value={filters.startDate ? new Date(filters.startDate) : undefined}
+                    onChange={(date) => handleFilterChange({ 
+                      startDate: date ? date.toISOString().split('T')[0] : undefined 
+                    })}
+                  />
+                </div>
+                <div>
+                  <DatePicker
+                    placeholder="เลือกวันที่"
+                    value={filters.endDate ? new Date(filters.endDate) : undefined}
+                    onChange={(date) => handleFilterChange({ 
+                      endDate: date ? date.toISOString().split('T')[0] : undefined 
+                    })}
+                  />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </Card>
+        </Card>
 
       {/* Gacha History */}
       <Card>
