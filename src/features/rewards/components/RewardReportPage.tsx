@@ -94,11 +94,18 @@ const RewardReportPage: React.FC = () => {
                     filters.dateRange
                       ? {
                           value: filters.dateRange,
-                          label: filters.dateRange === 'all' ? 'ทั้งหมด' :
-                                 filters.dateRange === 'today' ? 'วันนี้' :
-                                 filters.dateRange === 'week' ? 'อาทิตย์นี้' :
-                                 filters.dateRange === 'month' ? 'เดือนนี้' :
-                                 filters.dateRange === 'year' ? 'ปีนี้' : 'ทั้งหมด'
+                          label:
+                            filters.dateRange === 'all'
+                              ? 'ทั้งหมด'
+                              : filters.dateRange === 'today'
+                                ? 'วันนี้'
+                                : filters.dateRange === 'week'
+                                  ? 'อาทิตย์นี้'
+                                  : filters.dateRange === 'month'
+                                    ? 'เดือนนี้'
+                                    : filters.dateRange === 'year'
+                                      ? 'ปีนี้'
+                                      : 'ทั้งหมด',
                         }
                       : { value: 'all', label: 'ทั้งหมด' }
                   }

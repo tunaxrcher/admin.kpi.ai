@@ -73,21 +73,61 @@ export class RewardRepository extends BaseRepository<GachaHistory> {
     if (filters?.dateRange && filters.dateRange !== 'all') {
       const now = new Date()
       let startDate: Date
-      let endDate: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
+      let endDate: Date = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        23,
+        59,
+        59,
+        999,
+      )
 
       switch (filters.dateRange) {
         case 'today':
-          startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0)
+          startDate = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+            0,
+            0,
+            0,
+            0,
+          )
           break
         case 'week':
           const dayOfWeek = now.getDay()
           const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
-          startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - daysToMonday, 0, 0, 0, 0)
-          endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (6 - daysToMonday), 23, 59, 59, 999)
+          startDate = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate() - daysToMonday,
+            0,
+            0,
+            0,
+            0,
+          )
+          endDate = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate() + (6 - daysToMonday),
+            23,
+            59,
+            59,
+            999,
+          )
           break
         case 'month':
           startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0)
-          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
+          endDate = new Date(
+            now.getFullYear(),
+            now.getMonth() + 1,
+            0,
+            23,
+            59,
+            59,
+            999,
+          )
           break
         case 'year':
           startDate = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0)
