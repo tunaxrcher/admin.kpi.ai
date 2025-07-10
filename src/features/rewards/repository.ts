@@ -89,9 +89,8 @@ export class RewardRepository extends BaseRepository<GachaHistory> {
         _sum: { tokenSpent: true },
         _count: { id: true },
       }),
-      this.prisma.rewardPurchase.aggregate({
-        _sum: { tokenSpent: true },
-        where: { purchaseType: 'gacha' },
+      this.prisma.gachaHistory.aggregate({
+        _sum: { xeny: true },
       }),
     ])
 
@@ -183,25 +182,9 @@ export class RewardRepository extends BaseRepository<GachaHistory> {
     // Add Xeny earned to gacha history
     const gachaHistoryWithXeny: GachaHistoryWithDetails[] = gachaHistory.map(
       (gacha) => {
-        let xenyEarned = 0
-
-        if (gacha.isWin && gacha.rewardItem && gacha.rewardItem.metadata) {
-          try {
-            const metadata = gacha.rewardItem.metadata as {
-              value?: number
-              currency?: string
-            }
-            if (metadata.value && metadata.currency === 'THB') {
-              xenyEarned = metadata.value
-            }
-          } catch (error) {
-            console.error('Error parsing metadata:', error)
-          }
-        }
-
         return {
           ...gacha,
-          xenyEarned,
+          xenyEarned: gacha.xeny || 0,
         }
       },
     )
@@ -210,7 +193,7 @@ export class RewardRepository extends BaseRepository<GachaHistory> {
       summary: {
         totalTokensSpent: gachaStats._sum.tokenSpent || 0,
         totalGachaPulls: gachaStats._count.id || 0,
-        totalXenyDistributed: xenyStats._sum.tokenSpent || 0,
+        totalXenyDistributed: xenyStats._sum.xeny || 0,
       },
       characterSummary,
       gachaHistory: gachaHistoryWithXeny,
