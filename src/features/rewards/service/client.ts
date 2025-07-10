@@ -36,6 +36,10 @@ export class RewardService extends BaseService {
       params.append('endDate', filters.endDate)
     }
 
+    if (filters?.dateRange) {
+      params.append('dateRange', filters.dateRange)
+    }
+
     if (filters?.page) {
       params.append('page', filters.page.toString())
     }

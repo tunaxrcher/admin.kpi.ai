@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Card, Button, Input, DatePicker } from '../../../components/ui'
+import { Card, Button, Input, DatePicker, Select } from '../../../components/ui'
 import { useRewardReportData } from '../hooks/useRewards'
 import { RewardFilters } from '../types'
 import RewardSummary from './RewardSummary'
@@ -11,6 +11,7 @@ const RewardReportPage: React.FC = () => {
   const [filters, setFilters] = useState<RewardFilters>({
     page: 1,
     limit: 10,
+    dateRange: 'all',
   })
 
   const { data, isLoading, error } = useRewardReportData(filters)
@@ -81,10 +82,46 @@ const RewardReportPage: React.FC = () => {
 
       {/* Filters */}
       <Card>
-        <div className="">
+        <div className="p-6">
           <div className="flex justify-center">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl">
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ช่วงเวลา
+                </label>
+                <Select
+                  value={
+                    filters.dateRange
+                      ? {
+                          value: filters.dateRange,
+                          label: filters.dateRange === 'all' ? 'ทั้งหมด' :
+                                 filters.dateRange === 'today' ? 'วันนี้' :
+                                 filters.dateRange === 'week' ? 'อาทิตย์นี้' :
+                                 filters.dateRange === 'month' ? 'เดือนนี้' :
+                                 filters.dateRange === 'year' ? 'ปีนี้' : 'ทั้งหมด'
+                        }
+                      : { value: 'all', label: 'ทั้งหมด' }
+                  }
+                  onChange={(option) =>
+                    handleFilterChange({
+                      dateRange: option?.value as RewardFilters['dateRange'],
+                      startDate: undefined,
+                      endDate: undefined,
+                    })
+                  }
+                  options={[
+                    { value: 'all', label: 'ทั้งหมด' },
+                    { value: 'today', label: 'วันนี้' },
+                    { value: 'week', label: 'อาทิตย์นี้' },
+                    { value: 'month', label: 'เดือนนี้' },
+                    { value: 'year', label: 'ปีนี้' },
+                  ]}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ค้นหา
+                </label>
                 <Input
                   placeholder="ชื่อ Character, User, รางวัล..."
                   value={filters.search || ''}
@@ -94,6 +131,9 @@ const RewardReportPage: React.FC = () => {
                 />
               </div>
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  วันที่เริ่มต้น
+                </label>
                 <DatePicker
                   placeholder="เลือกวันที่"
                   value={
@@ -104,11 +144,16 @@ const RewardReportPage: React.FC = () => {
                       startDate: date
                         ? date.toISOString().split('T')[0]
                         : undefined,
+                      dateRange: 'all', // Reset preset when custom date is selected
                     })
                   }
+                  disabled={filters.dateRange !== 'all'}
                 />
               </div>
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  วันที่สิ้นสุด
+                </label>
                 <DatePicker
                   placeholder="เลือกวันที่"
                   value={
@@ -119,8 +164,10 @@ const RewardReportPage: React.FC = () => {
                       endDate: date
                         ? date.toISOString().split('T')[0]
                         : undefined,
+                      dateRange: 'all', // Reset preset when custom date is selected
                     })
                   }
+                  disabled={filters.dateRange !== 'all'}
                 />
               </div>
             </div>

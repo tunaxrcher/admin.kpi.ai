@@ -56,6 +56,7 @@ export interface RewardFilters {
   search?: string
   startDate?: string
   endDate?: string
+  dateRange?: 'all' | 'today' | 'week' | 'month' | 'year'
   page?: number
   limit?: number
 }

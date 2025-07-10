@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
       search: searchParams.get('search') || undefined,
       startDate: searchParams.get('startDate') || undefined,
       endDate: searchParams.get('endDate') || undefined,
+      dateRange: searchParams.get('dateRange') as 'all' | 'today' | 'week' | 'month' | 'year' || undefined,
       page: searchParams.get('page')
         ? parseInt(searchParams.get('page')!)
         : undefined,

@@ -69,7 +69,39 @@ export class RewardRepository extends BaseRepository<GachaHistory> {
       ]
     }
 
-    if (filters?.startDate || filters?.endDate) {
+    // Handle date range filters
+    if (filters?.dateRange && filters.dateRange !== 'all') {
+      const now = new Date()
+      let startDate: Date
+      let endDate: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
+
+      switch (filters.dateRange) {
+        case 'today':
+          startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0)
+          break
+        case 'week':
+          const dayOfWeek = now.getDay()
+          const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+          startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - daysToMonday, 0, 0, 0, 0)
+          endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (6 - daysToMonday), 23, 59, 59, 999)
+          break
+        case 'month':
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0)
+          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
+          break
+        case 'year':
+          startDate = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0)
+          endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999)
+          break
+        default:
+          startDate = new Date(0)
+      }
+
+      where.createdAt = {
+        gte: startDate,
+        lte: endDate,
+      }
+    } else if (filters?.startDate || filters?.endDate) {
       where.createdAt = {}
       if (filters.startDate) {
         ;(where.createdAt as Record<string, unknown>).gte = new Date(
@@ -83,14 +115,16 @@ export class RewardRepository extends BaseRepository<GachaHistory> {
       }
     }
 
-    // Get summary statistics
+    // Get summary statistics with same filters
     const [gachaStats, xenyStats] = await Promise.all([
       this.prisma.gachaHistory.aggregate({
         _sum: { tokenSpent: true },
         _count: { id: true },
+        where,
       }),
       this.prisma.gachaHistory.aggregate({
         _sum: { xeny: true },
+        where,
       }),
     ])
 
