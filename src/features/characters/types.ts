@@ -1,6 +1,7 @@
 import { Character, User, JobClass, JobLevel } from '@prisma/client'
 
-export interface CharacterWithRelations extends Character {
+export interface CharacterWithRelations extends Omit<Character, 'workDays'> {
+  workDays?: number[] | null // วันทำงาน [0-6] where 0=Sunday, 1=Monday, etc.
   user: User & {
     userXeny?: {
       id: number
@@ -20,6 +21,7 @@ export interface UpdateCharacterWorkSettingsRequest {
   workStartTime?: string | null
   workEndTime?: string | null
   salary?: number | null
+  workDays?: number[] | null // วันทำงาน [0-6] where 0=Sunday, 1=Monday, etc.
 }
 
 export interface UpdateCharacterJobRequest {

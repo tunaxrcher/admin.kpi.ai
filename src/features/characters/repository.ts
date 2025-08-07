@@ -97,6 +97,7 @@ export class CharacterRepository extends BaseRepository<any> {
         workStartTime: data.workStartTime,
         workEndTime: data.workEndTime,
         salary: data.salary,
+        workDays: data.workDays,
       },
       include: {
         user: true,

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import {
   Card,
   Table,
@@ -13,6 +13,7 @@ import {
   Form,
   FormItem,
   Dropdown,
+  Tabs,
 } from '../../../components/ui'
 import {
   HiOutlinePencil,
@@ -37,6 +38,14 @@ import { useJobClasses } from '../../jobs/hooks/api'
 
 const { Tr, Th, Td, THead, TBody } = Table
 
+interface JobClassType {
+  id: number
+  name: string
+}
+
+// Use CharacterWithRelations directly since it has all the required fields
+type CharacterType = CharacterWithRelations
+
 const CharacterManagementPage = () => {
   const [filters, setFilters] = useState({
     search: '',
@@ -51,6 +60,7 @@ const CharacterManagementPage = () => {
     workStartTime: '',
     workEndTime: '',
     salary: '',
+    workDays: [] as number[],
   })
   const [jobSettings, setJobSettings] = useState({
     jobClassId: 0,
@@ -60,10 +70,41 @@ const CharacterManagementPage = () => {
     amount: '',
     description: '',
   })
-  const [availableJobLevels, setAvailableJobLevels] = useState<any[]>([])
+  const [availableJobLevels, setAvailableJobLevels] = useState<Array<{
+    id: number
+    title: string
+    requiredCharacterLevel: number
+  }>>([])
+  const [activeTab, setActiveTab] = useState('management')
+  const [attendanceFilters, setAttendanceFilters] = useState({
+    year: new Date().getFullYear(),
+    month: new Date().getMonth() + 1,
+    characterId: null as number | null,
+  })
+  const [attendanceData, setAttendanceData] = useState<{
+    period: { monthName: string }
+    holidays: Array<{ id: number; name: string }>
+    reports: Array<{
+      character: {
+        id: number
+        name: string
+        avatar?: string
+        jobClass: string
+      }
+      attendance: {
+        workDaysInMonth: number
+        checkinDays: number
+        checkoutDays: number
+        lateDays: number
+        absentDays: number
+        attendanceRate: string
+      }
+    }>
+  } | null>(null)
+  const [isLoadingAttendance, setIsLoadingAttendance] = useState(false)
 
   const { data: charactersData, isLoading, error } = useCharacters(filters)
-  const { data: jobClasses, isLoading: jobClassesLoading } = useJobClasses()
+  const { data: jobClasses } = useJobClasses()
   const updateWorkSettings = useUpdateCharacterWorkSettings()
   const updateCharacterJob = useUpdateCharacterJob()
   const deductXeny = useDeductXeny()
@@ -88,6 +129,7 @@ const CharacterManagementPage = () => {
       workStartTime: character.workStartTime || '',
       workEndTime: character.workEndTime || '',
       salary: character.salary?.toString() || '',
+      workDays: (character.workDays as number[]) || [1, 2, 3, 4, 5], // ค่าเริ่มต้น จันทร์-ศุกร์
     })
     setIsEditDialogOpen(true)
   }
@@ -162,6 +204,7 @@ const CharacterManagementPage = () => {
         workStartTime: workSettings.workStartTime || null,
         workEndTime: workSettings.workEndTime || null,
         salary: workSettings.salary ? parseFloat(workSettings.salary) : null,
+        workDays: workSettings.workDays.length > 0 ? workSettings.workDays : null,
       }
 
       updateWorkSettings.mutate(
@@ -170,7 +213,7 @@ const CharacterManagementPage = () => {
           onSuccess: () => {
             setIsEditDialogOpen(false)
             setSelectedCharacter(null)
-            setWorkSettings({ workStartTime: '', workEndTime: '', salary: '' })
+            setWorkSettings({ workStartTime: '', workEndTime: '', salary: '', workDays: [] })
           },
         },
       )
@@ -237,17 +280,42 @@ const CharacterManagementPage = () => {
     }).format(salary)
   }
 
-  // Get user Xeny from raw query since include doesn't work
-  const getUserXeny = async (userId: number) => {
+  // Function to fetch attendance report
+  const fetchAttendanceReport = useCallback(async () => {
+    setIsLoadingAttendance(true)
     try {
-      const response = await fetch(`/api/users/${userId}/xeny`)
+      const params = new URLSearchParams({
+        year: attendanceFilters.year.toString(),
+        month: attendanceFilters.month.toString(),
+      })
+      
+      if (attendanceFilters.characterId) {
+        params.append('characterId', attendanceFilters.characterId.toString())
+      }
+
+      const response = await fetch(`/api/reports/attendance/monthly?${params}`)
       if (response.ok) {
-        return await response.json()
+        const data = await response.json()
+        setAttendanceData(data.data)
+      } else {
+        console.error('Failed to fetch attendance report')
       }
     } catch (error) {
-      console.error('Error fetching user Xeny:', error)
+      console.error('Error fetching attendance report:', error)
+    } finally {
+      setIsLoadingAttendance(false)
     }
-    return { currentXeny: 0 }
+  }, [attendanceFilters])
+
+  // Load attendance report when filters change
+  React.useEffect(() => {
+    if (activeTab === 'attendance') {
+      fetchAttendanceReport()
+    }
+  }, [activeTab, attendanceFilters, fetchAttendanceReport])
+
+  const handleAttendanceFilterChange = (key: string, value: string | number | null) => {
+    setAttendanceFilters(prev => ({ ...prev, [key]: value }))
   }
 
   if (isLoading) {
@@ -271,144 +339,311 @@ const CharacterManagementPage = () => {
       <div className="mb-6">
         <h2 className="text-2xl font-bold">จัดการบุคลากร</h2>
         <p className="text-gray-600">
-          ตั้งค่าเงินเดือนและเวลาการทำงานของบุคลากร
+          ตั้งค่าเงินเดือน เวลาการทำงาน และรายงานการเข้างาน
         </p>
       </div>
 
-      {/* Filters */}
-      <Card className="mb-6">
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Input
-            placeholder="ค้นหาด้วยชื่อหรืออีเมล"
-            prefix={<HiOutlineSearch />}
-            value={filters.search}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="sm:w-64"
-          />
-          <Select
-            placeholder="เลือกอาชีพ"
-            value={
-              filters.jobClassId
-                ? {
-                    value: filters.jobClassId,
-                    label: jobClasses?.find(
-                      (j: any) => j.id === filters.jobClassId,
-                    )?.name,
-                  }
-                : null
-            }
-            onChange={(option) =>
-              handleJobClassFilter(option?.value?.toString() || null)
-            }
-            className="sm:w-48"
-            options={[
-              { value: '', label: 'ทั้งหมด' },
-              ...(jobClasses?.map((jobClass: any) => ({
-                value: jobClass.id,
-                label: jobClass.name,
-              })) || []),
-            ]}
-          />
-        </div>
-      </Card>
+      <Tabs value={activeTab} onChange={setActiveTab}>
+        <Tabs.TabList>
+          <Tabs.TabNav value="management">จัดการบุคลากร</Tabs.TabNav>
+          <Tabs.TabNav value="attendance">รายงานการเข้างาน</Tabs.TabNav>
+        </Tabs.TabList>
 
-      {/* Character Table */}
-      <Card>
-        <Table>
-          <THead>
-            <Tr>
-              <Th>บุคลากร</Th>
-              <Th>อาชีพ</Th>
-              <Th>ระดับอาชีพ</Th>
-              <Th>Xeny</Th>
-              <Th>เวลาเข้างาน</Th>
-              <Th>เวลาออกงาน</Th>
-              <Th className="text-right">เงินเดือน</Th>
-              <Th></Th>
-            </Tr>
-          </THead>
-          <TBody>
-            {charactersData?.characters.map((character: any) => (
-              <Tr key={character.id}>
-                <Td>
-                  <div className="flex items-center gap-3">
-                    <Avatar
-                      src={
-                        character.currentPortraitUrl ||
-                        character.user.avatar ||
-                        ''
+        {/* Tab 1: Character Management */}
+        <Tabs.TabContent value="management">
+          {/* Filters */}
+          <Card className="mb-6">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Input
+                placeholder="ค้นหาด้วยชื่อหรืออีเมล"
+                prefix={<HiOutlineSearch />}
+                value={filters.search}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="sm:w-64"
+              />
+              <Select
+                placeholder="เลือกอาชีพ"
+                value={
+                  filters.jobClassId
+                    ? {
+                        value: filters.jobClassId,
+                        label: jobClasses?.find(
+                          (j: JobClassType) => j.id === filters.jobClassId,
+                        )?.name,
                       }
-                      alt={character.name}
-                      shape="circle"
-                      size={40}
-                    />
-                    <div>
-                      <div className="font-medium text-white">
-                        {character.name}
-                      </div>
-                      <div className="text-sm text-white-500">
-                        {character.user.email}
-                      </div>
-                    </div>
-                  </div>
-                </Td>
-                <Td className="text-white">{character.jobClass.name}</Td>
-                <Td className="text-white">
-                  {character.currentJobLevel.title}
-                </Td>
-                <Td className="text-white">
-                  {character.user.userXeny?.currentXeny || 0} Xeny
-                </Td>
-                <Td className="text-white">{character.workStartTime || '-'}</Td>
-                <Td className="text-white">{character.workEndTime || '-'}</Td>
-                <Td className="text-right font-medium text-white">
-                  {formatSalary(character.salary)}
-                </Td>
-                <Td>
-                  <Dropdown
-                    renderTitle={
-                      <Button
-                        size="sm"
-                        variant="plain"
-                        icon={<HiOutlineDotsVertical />}
-                      >
-                        จัดการ
-                      </Button>
-                    }
-                    placement="bottom-end"
-                  >
-                    <Dropdown.Item onClick={() => handleEdit(character)}>
-                      <div className="flex items-center gap-2">
-                        <HiOutlinePencil className="text-base" />
-                        <span>เงินเดือน, เวลางาน</span>
-                      </div>
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleJobEdit(character)}>
-                      <div className="flex items-center gap-2">
-                        <HiOutlineBriefcase className="text-base" />
-                        <span>แก้ไขอาชีพ</span>
-                      </div>
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleXenyEdit(character)}>
-                      <div className="flex items-center gap-2">
-                        <HiOutlineMinus className="text-base" />
-                        <span>หัก Xeny</span>
-                      </div>
-                    </Dropdown.Item>
-                  </Dropdown>
-                </Td>
-              </Tr>
-            ))}
-          </TBody>
-        </Table>
+                    : null
+                }
+                onChange={(option) =>
+                  handleJobClassFilter(option?.value?.toString() ?? null)
+                }
+                className="sm:w-48"
+                options={[
+                  { value: '', label: 'ทั้งหมด' },
+                  ...(jobClasses?.map((jobClass: JobClassType) => ({
+                    value: jobClass.id,
+                    label: jobClass.name,
+                  })) || []),
+                ]}
+              />
+            </div>
+          </Card>
 
-        {(!charactersData?.characters ||
-          charactersData.characters.length === 0) && (
-          <div className="text-center py-12 text-white-500">
-            ไม่พบข้อมูลบุคลากร
-          </div>
-        )}
-      </Card>
+          {/* Character Table */}
+          <Card>
+            <Table>
+              <THead>
+                <Tr>
+                  <Th>บุคลากร</Th>
+                  <Th>อาชีพ</Th>
+                  <Th>ระดับอาชีพ</Th>
+                  <Th>Xeny</Th>
+                  <Th>เวลาเข้างาน</Th>
+                  <Th>เวลาออกงาน</Th>
+                  <Th className="text-right">เงินเดือน</Th>
+                  <Th></Th>
+                </Tr>
+              </THead>
+              <TBody>
+                {charactersData?.characters.map((character: CharacterType) => (
+                  <Tr key={character.id}>
+                    <Td>
+                      <div className="flex items-center gap-3">
+                        <Avatar
+                          src={
+                            character.currentPortraitUrl ||
+                            character.user.avatar ||
+                            ''
+                          }
+                          alt={character.name}
+                          shape="circle"
+                          size={40}
+                        />
+                        <div>
+                          <div className="font-medium text-white">
+                            {character.name}
+                          </div>
+                          <div className="text-sm text-white-500">
+                            {character.user.email}
+                          </div>
+                        </div>
+                      </div>
+                    </Td>
+                    <Td className="text-white">{character.jobClass.name}</Td>
+                    <Td className="text-white">
+                      {character.currentJobLevel.title}
+                    </Td>
+                    <Td className="text-white">
+                      {character.user.userXeny?.currentXeny || 0} Xeny
+                    </Td>
+                    <Td className="text-white">{character.workStartTime || '-'}</Td>
+                    <Td className="text-white">{character.workEndTime || '-'}</Td>
+                    <Td className="text-right font-medium text-white">
+                      {formatSalary(character.salary)}
+                    </Td>
+                    <Td>
+                      <Dropdown
+                        renderTitle={
+                          <Button
+                            size="sm"
+                            variant="plain"
+                            icon={<HiOutlineDotsVertical />}
+                          >
+                            จัดการ
+                          </Button>
+                        }
+                        placement="bottom-end"
+                      >
+                        <Dropdown.Item onClick={() => handleEdit(character)}>
+                          <div className="flex items-center gap-2">
+                            <HiOutlinePencil className="text-base" />
+                            <span>เงินเดือน, เวลางาน</span>
+                          </div>
+                        </Dropdown.Item>
+                        <Dropdown.Item onClick={() => handleJobEdit(character)}>
+                          <div className="flex items-center gap-2">
+                            <HiOutlineBriefcase className="text-base" />
+                            <span>แก้ไขอาชีพ</span>
+                          </div>
+                        </Dropdown.Item>
+                        <Dropdown.Item onClick={() => handleXenyEdit(character)}>
+                          <div className="flex items-center gap-2">
+                            <HiOutlineMinus className="text-base" />
+                            <span>หัก Xeny</span>
+                          </div>
+                        </Dropdown.Item>
+                      </Dropdown>
+                    </Td>
+                  </Tr>
+                ))}
+              </TBody>
+            </Table>
+
+            {(!charactersData?.characters ||
+              charactersData.characters.length === 0) && (
+              <div className="text-center py-12 text-white-500">
+                ไม่พบข้อมูลบุคลากร
+              </div>
+            )}
+          </Card>
+        </Tabs.TabContent>
+
+        {/* Tab 2: Attendance Report */}
+        <Tabs.TabContent value="attendance">
+          {/* Attendance Filters */}
+          <Card className="mb-6">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Select
+                placeholder="เลือกปี"
+                value={{ 
+                  value: attendanceFilters.year, 
+                  label: attendanceFilters.year.toString() 
+                }}
+                onChange={(option) =>
+                  handleAttendanceFilterChange('year', option?.value || new Date().getFullYear())
+                }
+                className="sm:w-32"
+                options={Array.from({ length: 5 }, (_, i) => {
+                  const year = new Date().getFullYear() - 2 + i
+                  return { value: year, label: year.toString() }
+                })}
+              />
+              <Select
+                placeholder="เลือกเดือน"
+                value={{ 
+                  value: attendanceFilters.month, 
+                  label: [
+                    'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+                    'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+                  ][attendanceFilters.month - 1]
+                }}
+                onChange={(option) =>
+                  handleAttendanceFilterChange('month', option?.value || new Date().getMonth() + 1)
+                }
+                className="sm:w-40"
+                options={[
+                  'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+                  'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+                ].map((month, index) => ({
+                  value: index + 1,
+                  label: month
+                }))}
+              />
+              <Select
+                placeholder="เลือกบุคลากร (ทั้งหมด)"
+                value={
+                  attendanceFilters.characterId
+                    ? {
+                        value: attendanceFilters.characterId,
+                        label: charactersData?.characters.find(
+                          (c: CharacterType) => c.id === attendanceFilters.characterId,
+                        )?.name,
+                      }
+                    : null
+                }
+                onChange={(option) =>
+                  handleAttendanceFilterChange('characterId', option?.value ?? null)
+                }
+                className="sm:w-48"
+                options={[
+                  { value: null, label: 'ทั้งหมด' },
+                  ...(charactersData?.characters?.map((character: CharacterType) => ({
+                    value: character.id,
+                    label: character.name,
+                  })) || []),
+                ]}
+              />
+            </div>
+          </Card>
+
+          {/* Attendance Report Content */}
+          {isLoadingAttendance ? (
+            <div className="flex justify-center items-center h-96">
+              <Spinner size={40} />
+            </div>
+          ) : attendanceData ? (
+            <Card>
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-white">
+                  รายงานการเข้างาน {attendanceData.period?.monthName}
+                </h3>
+                {attendanceData.holidays?.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-400">
+                      วันหยุดในเดือนนี้: {attendanceData.holidays.map((h) => h.name).join(', ')}
+                    </p>
+                  </div>
+                )}
+              </div>
+              
+              <Table>
+                <THead>
+                  <Tr>
+                    <Th>บุคลากร</Th>
+                    <Th>วันทำงาน</Th>
+                    <Th>เข้างาน</Th>
+                    <Th>ออกงาน</Th>
+                    <Th>มาสาย</Th>
+                    <Th>ขาดงาน</Th>
+                    <Th>เปอร์เซ็นต์การเข้างาน</Th>
+                  </Tr>
+                </THead>
+                <TBody>
+                  {attendanceData.reports?.map((report) => (
+                    <Tr key={report.character.id}>
+                      <Td>
+                        <div className="flex items-center gap-3">
+                          <Avatar
+                            src={report.character.avatar || ''}
+                            alt={report.character.name}
+                            shape="circle"
+                            size={32}
+                          />
+                          <div>
+                            <div className="font-medium text-white">
+                              {report.character.name}
+                            </div>
+                            <div className="text-xs text-gray-400">
+                              {report.character.jobClass}
+                            </div>
+                          </div>
+                        </div>
+                      </Td>
+                      <Td className="text-white">{report.attendance.workDaysInMonth}</Td>
+                      <Td className="text-white">{report.attendance.checkinDays}</Td>
+                      <Td className="text-white">{report.attendance.checkoutDays}</Td>
+                      <Td className="text-white">{report.attendance.lateDays}</Td>
+                      <Td className="text-white">{report.attendance.absentDays}</Td>
+                      <Td className="text-white">
+                        <span className={`font-medium ${
+                          parseFloat(report.attendance.attendanceRate) >= 80 
+                            ? 'text-green-400' 
+                            : parseFloat(report.attendance.attendanceRate) >= 60
+                            ? 'text-yellow-400'
+                            : 'text-red-400'
+                        }`}>
+                          {report.attendance.attendanceRate}%
+                        </span>
+                      </Td>
+                    </Tr>
+                  ))}
+                </TBody>
+              </Table>
+
+              {(!attendanceData.reports || attendanceData.reports.length === 0) && (
+                <div className="text-center py-12 text-white-500">
+                  ไม่พบข้อมูลการเข้างานในช่วงเวลาที่เลือก
+                </div>
+              )}
+            </Card>
+          ) : (
+            <Card>
+              <div className="text-center py-12 text-white-500">
+                กรุณาเลือกเดือนและปีเพื่อดูรายงานการเข้างาน
+              </div>
+            </Card>
+          )}
+        </Tabs.TabContent>
+      </Tabs>
 
       {/* Edit Dialog */}
       <Dialog
@@ -416,12 +651,12 @@ const CharacterManagementPage = () => {
         onClose={() => {
           setIsEditDialogOpen(false)
           setSelectedCharacter(null)
-          setWorkSettings({ workStartTime: '', workEndTime: '', salary: '' })
+          setWorkSettings({ workStartTime: '', workEndTime: '', salary: '', workDays: [] })
         }}
         onRequestClose={() => {
           setIsEditDialogOpen(false)
           setSelectedCharacter(null)
-          setWorkSettings({ workStartTime: '', workEndTime: '', salary: '' })
+          setWorkSettings({ workStartTime: '', workEndTime: '', salary: '', workDays: [] })
         }}
       >
         <h5 className="mb-4">ตั้งค่าการทำงาน</h5>
@@ -458,7 +693,7 @@ const CharacterManagementPage = () => {
               />
             </FormItem>
 
-            <FormItem label="เงินเดือน (บาท)" className="mb-6">
+            <FormItem label="เงินเดือน (บาท)" className="mb-4">
               <Input
                 type="number"
                 placeholder="0"
@@ -472,6 +707,49 @@ const CharacterManagementPage = () => {
                   }))
                 }
               />
+            </FormItem>
+
+            <FormItem label="วันทำงาน" className="mb-6">
+              <div className="grid grid-cols-7 gap-2">
+                {[
+                  { value: 0, label: 'อา', fullName: 'อาทิตย์' },
+                  { value: 1, label: 'จ', fullName: 'จันทร์' },
+                  { value: 2, label: 'อ', fullName: 'อังคาร' },
+                  { value: 3, label: 'พ', fullName: 'พุธ' },
+                  { value: 4, label: 'พฤ', fullName: 'พฤหัสบดี' },
+                  { value: 5, label: 'ศ', fullName: 'ศุกร์' },
+                  { value: 6, label: 'ส', fullName: 'เสาร์' },
+                ].map((day) => {
+                  const isSelected = workSettings.workDays.includes(day.value)
+                  return (
+                    <button
+                      key={day.value}
+                      type="button"
+                      onClick={() => {
+                        setWorkSettings((prev) => ({
+                          ...prev,
+                          workDays: isSelected
+                            ? prev.workDays.filter((d) => d !== day.value)
+                            : [...prev.workDays, day.value].sort(),
+                        }))
+                      }}
+                      className={`
+                        h-10 rounded-lg border text-sm font-medium transition-colors
+                        ${isSelected
+                          ? 'bg-blue-500 text-white border-blue-500'
+                          : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                        }
+                      `}
+                      title={day.fullName}
+                    >
+                      {day.label}
+                    </button>
+                  )
+                })}
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                เลือกวันที่ต้องการให้บุคลากรคนนี้ทำงาน (ค่าเริ่มต้น: จันทร์-ศุกร์)
+              </p>
             </FormItem>
 
             <div className="">
@@ -523,14 +801,14 @@ const CharacterManagementPage = () => {
                     ? {
                         value: jobSettings.jobClassId,
                         label: jobClasses?.find(
-                          (j: any) => j.id === jobSettings.jobClassId,
+                          (j: JobClassType) => j.id === jobSettings.jobClassId,
                         )?.name,
                       }
                     : null
                 }
                 onChange={(option) => handleJobClassChange(option?.value || 0)}
                 options={
-                  jobClasses?.map((jobClass: any) => ({
+                  jobClasses?.map((jobClass: JobClassType) => ({
                     value: jobClass.id,
                     label: jobClass.name,
                   })) || []
@@ -542,7 +820,7 @@ const CharacterManagementPage = () => {
               <Input
                 value={
                   jobSettings.jobLevelId && availableJobLevels.length > 0
-                    ? `${availableJobLevels.find((l: any) => l.id === jobSettings.jobLevelId)?.title || ''} (ต้องการ Level ${availableJobLevels.find((l: any) => l.id === jobSettings.jobLevelId)?.requiredCharacterLevel || ''})`
+                    ? `${availableJobLevels.find((l) => l.id === jobSettings.jobLevelId)?.title || ''} (ต้องการ Level ${availableJobLevels.find((l) => l.id === jobSettings.jobLevelId)?.requiredCharacterLevel || ''})`
                     : 'เลือกอาชีพก่อน'
                 }
                 disabled
