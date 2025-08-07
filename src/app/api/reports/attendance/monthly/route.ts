@@ -22,13 +22,13 @@ export async function GET(request: NextRequest) {
     const monthEnd = endOfMonth(targetDate)
 
     // สร้าง WHERE clause สำหรับกรองตัวละคร
-    const whereClause = characterId 
-      ? { characterId: parseInt(characterId) }
+    const characterWhereClause = characterId 
+      ? { id: parseInt(characterId) }
       : {}
 
     // ดึงข้อมูลตัวละครทั้งหมด (หรือแค่ตัวที่ระบุ)
     const characters = await prisma.character.findMany({
-      where: whereClause,
+      where: characterWhereClause,
       include: {
         user: {
           select: {
@@ -49,10 +49,15 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    // สร้าง WHERE clause สำหรับการเข้าออกงาน
+    const attendanceWhereClause = characterId 
+      ? { characterId: parseInt(characterId) }
+      : {}
+
     // ดึงข้อมูลการเข้าออกงานในช่วงเวลาที่กำหนด
     const attendanceRecords = await prisma.checkinCheckout.findMany({
       where: {
-        ...whereClause,
+        ...attendanceWhereClause,
         checkinAt: {
           gte: monthStart,
           lte: monthEnd
@@ -145,6 +150,7 @@ export async function GET(request: NextRequest) {
           name: character.name,
           email: character.user.email,
           avatar: character.user.avatar,
+          currentPortraitUrl: character.currentPortraitUrl,
           jobClass: character.jobClass.name,
           jobLevel: character.currentJobLevel.title,
           workStartTime: character.workStartTime,

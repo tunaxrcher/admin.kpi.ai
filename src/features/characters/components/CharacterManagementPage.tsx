@@ -88,7 +88,8 @@ const CharacterManagementPage = () => {
       character: {
         id: number
         name: string
-        avatar?: string
+        avatar?: string | null
+        currentPortraitUrl?: string | null
         jobClass: string
       }
       attendance: {
@@ -593,7 +594,7 @@ const CharacterManagementPage = () => {
                       <Td>
                         <div className="flex items-center gap-3">
                           <Avatar
-                            src={report.character.avatar || ''}
+                            src={report.character.avatar || report.character.currentPortraitUrl || ''}
                             alt={report.character.name}
                             shape="circle"
                             size={32}
@@ -608,11 +609,31 @@ const CharacterManagementPage = () => {
                           </div>
                         </div>
                       </Td>
-                      <Td className="text-white">{report.attendance.workDaysInMonth}</Td>
-                      <Td className="text-white">{report.attendance.checkinDays}</Td>
-                      <Td className="text-white">{report.attendance.checkoutDays}</Td>
-                      <Td className="text-white">{report.attendance.lateDays}</Td>
-                      <Td className="text-white">{report.attendance.absentDays}</Td>
+                      <Td>
+                        <span className="font-medium text-blue-400">
+                          {report.attendance.workDaysInMonth}
+                        </span>
+                      </Td>
+                      <Td>
+                        <span className="font-medium text-green-400">
+                          {report.attendance.checkinDays}
+                        </span>
+                      </Td>
+                      <Td>
+                        <span className="font-medium text-green-400">
+                          {report.attendance.checkoutDays}
+                        </span>
+                      </Td>
+                      <Td>
+                        <span className="font-medium text-yellow-400">
+                          {report.attendance.lateDays}
+                        </span>
+                      </Td>
+                      <Td>
+                        <span className="font-medium text-red-400">
+                          {report.attendance.absentDays}
+                        </span>
+                      </Td>
                       <Td className="text-white">
                         <span className={`font-medium ${
                           parseFloat(report.attendance.attendanceRate) >= 80 
