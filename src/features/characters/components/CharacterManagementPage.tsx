@@ -594,7 +594,7 @@ const CharacterManagementPage = () => {
                       <Td>
                         <div className="flex items-center gap-3">
                           <Avatar
-                            src={report.character.avatar || report.character.currentPortraitUrl || ''}
+                            src={report.character.currentPortraitUrl || report.character.avatar || ''}
                             alt={report.character.name}
                             shape="circle"
                             size={32}
