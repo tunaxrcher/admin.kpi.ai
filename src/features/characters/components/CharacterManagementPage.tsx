@@ -80,6 +80,7 @@ const CharacterManagementPage = () => {
     year: new Date().getFullYear(),
     month: new Date().getMonth() + 1,
     characterId: null as number | null,
+    jobClassId: null as number | null,
   })
   const [attendanceData, setAttendanceData] = useState<{
     period: { monthName: string }
@@ -103,6 +104,10 @@ const CharacterManagementPage = () => {
     }>
   } | null>(null)
   const [isLoadingAttendance, setIsLoadingAttendance] = useState(false)
+  const [selectedAttendanceCharacter, setSelectedAttendanceCharacter] = useState<any>(null)
+  const [isAttendanceDetailModalOpen, setIsAttendanceDetailModalOpen] = useState(false)
+  const [attendanceDetailData, setAttendanceDetailData] = useState<any[]>([])
+  const [isLoadingAttendanceDetail, setIsLoadingAttendanceDetail] = useState(false)
 
   const { data: charactersData, isLoading, error } = useCharacters(filters)
   const { data: jobClasses } = useJobClasses()
@@ -293,6 +298,10 @@ const CharacterManagementPage = () => {
       if (attendanceFilters.characterId) {
         params.append('characterId', attendanceFilters.characterId.toString())
       }
+      
+      if (attendanceFilters.jobClassId) {
+        params.append('jobClassId', attendanceFilters.jobClassId.toString())
+      }
 
       const response = await fetch(`/api/reports/attendance/monthly?${params}`)
       if (response.ok) {
@@ -317,6 +326,40 @@ const CharacterManagementPage = () => {
 
   const handleAttendanceFilterChange = (key: string, value: string | number | null) => {
     setAttendanceFilters(prev => ({ ...prev, [key]: value }))
+  }
+
+  // Function to fetch attendance detail records
+  const fetchAttendanceDetail = useCallback(async (characterId: number) => {
+    setIsLoadingAttendanceDetail(true)
+    try {
+      const params = new URLSearchParams({
+        year: attendanceFilters.year.toString(),
+        month: attendanceFilters.month.toString(),
+        characterId: characterId.toString(),
+      })
+
+      const response = await fetch(`/api/reports/attendance/monthly?${params}`)
+      if (response.ok) {
+        const data = await response.json()
+        // Get the records for the specific character
+        const characterReport = data.data.reports?.[0]
+        setAttendanceDetailData(characterReport?.records || [])
+      } else {
+        console.error('Failed to fetch attendance detail')
+        setAttendanceDetailData([])
+      }
+    } catch (error) {
+      console.error('Error fetching attendance detail:', error)
+      setAttendanceDetailData([])
+    } finally {
+      setIsLoadingAttendanceDetail(false)
+    }
+  }, [attendanceFilters.year, attendanceFilters.month])
+
+  const handleViewAttendanceDetail = (character: any) => {
+    setSelectedAttendanceCharacter(character)
+    setIsAttendanceDetailModalOpen(true)
+    fetchAttendanceDetail(character.id)
   }
 
   if (isLoading) {
@@ -530,6 +573,30 @@ const CharacterManagementPage = () => {
                 }))}
               />
               <Select
+                placeholder="เลือกสายอาชีพ"
+                value={
+                  attendanceFilters.jobClassId
+                    ? {
+                        value: attendanceFilters.jobClassId,
+                        label: jobClasses?.find(
+                          (j: JobClassType) => j.id === attendanceFilters.jobClassId,
+                        )?.name,
+                      }
+                    : null
+                }
+                onChange={(option) =>
+                  handleAttendanceFilterChange('jobClassId', option?.value ?? null)
+                }
+                className="sm:w-40"
+                options={[
+                  { value: null, label: 'ทั้งหมด' },
+                  ...(jobClasses?.map((jobClass: JobClassType) => ({
+                    value: jobClass.id,
+                    label: jobClass.name,
+                  })) || []),
+                ]}
+              />
+              <Select
                 placeholder="เลือกบุคลากร (ทั้งหมด)"
                 value={
                   attendanceFilters.characterId
@@ -586,6 +653,7 @@ const CharacterManagementPage = () => {
                     <Th>มาสาย</Th>
                     <Th>ขาดงาน</Th>
                     <Th>เปอร์เซ็นต์การเข้างาน</Th>
+                    <Th>การจัดการ</Th>
                   </Tr>
                 </THead>
                 <TBody>
@@ -644,6 +712,15 @@ const CharacterManagementPage = () => {
                         }`}>
                           {report.attendance.attendanceRate}%
                         </span>
+                      </Td>
+                      <Td>
+                        <Button
+                          size="sm"
+                          variant="twoTone"
+                          onClick={() => handleViewAttendanceDetail(report.character)}
+                        >
+                          ดูบันทึกการเข้าออกงาน
+                        </Button>
                       </Td>
                     </Tr>
                   ))}
@@ -934,6 +1011,151 @@ const CharacterManagementPage = () => {
               </Button>
             </div>
           </Form>
+        )}
+      </Dialog>
+
+      {/* Attendance Detail Modal */}
+      <Dialog
+        isOpen={isAttendanceDetailModalOpen}
+        onClose={() => {
+          setIsAttendanceDetailModalOpen(false)
+          setSelectedAttendanceCharacter(null)
+          setAttendanceDetailData([])
+        }}
+        onRequestClose={() => {
+          setIsAttendanceDetailModalOpen(false)
+          setSelectedAttendanceCharacter(null)
+          setAttendanceDetailData([])
+        }}
+        className="max-w-4xl"
+      >
+        <div className="mb-6">
+          <h5 className="text-xl font-bold mb-2">บันทึกการเข้าออกงาน</h5>
+          {selectedAttendanceCharacter && (
+            <div className="flex items-center gap-3">
+              <Avatar
+                src={selectedAttendanceCharacter.currentPortraitUrl || selectedAttendanceCharacter.avatar || ''}
+                alt={selectedAttendanceCharacter.name}
+                shape="circle"
+                size={40}
+              />
+              <div>
+                <div className="font-medium text-white">
+                  {selectedAttendanceCharacter.name}
+                </div>
+                <div className="text-sm text-gray-400">
+                  {selectedAttendanceCharacter.jobClass}
+                </div>
+              </div>
+            </div>
+          )}
+          <div className="text-sm text-gray-400 mt-2">
+            {attendanceData?.period?.monthName}
+          </div>
+        </div>
+
+        {isLoadingAttendanceDetail ? (
+          <div className="flex justify-center items-center h-64">
+            <Spinner size={40} />
+          </div>
+        ) : (
+          <div className="space-y-4 max-h-96 overflow-y-auto">
+            {attendanceDetailData.length > 0 ? (
+              attendanceDetailData.map((record: any, index: number) => (
+                <Card key={record.id || index} className="p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-4 mb-2">
+                        <div className="text-lg font-semibold text-white">
+                          {new Date(record.checkinAt).toLocaleDateString('th-TH', {
+                            weekday: 'short',
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                          })}
+                        </div>
+                        {record.lateLevel > 0 && (
+                          <div className="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs">
+                            มาสาย
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center gap-6 text-sm">
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-400">Check-in</span>
+                          <span className="font-medium text-green-400">
+                            {new Date(record.checkinAt).toLocaleTimeString('th-TH', {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-400">Check-out</span>
+                          <span className="font-medium text-green-400">
+                            {record.checkoutAt 
+                              ? new Date(record.checkoutAt).toLocaleTimeString('th-TH', {
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })
+                              : 'Auto'
+                            }
+                          </span>
+                          {record.isAutoCheckout && (
+                            <span className="text-blue-400 text-xs">Auto</span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-400">ระยะเวลา</span>
+                          <span className="font-medium text-blue-400">
+                            {record.totalHours 
+                              ? `${record.totalHours.toFixed(1)} ชั่วโมง`
+                              : '-'
+                            }
+                          </span>
+                        </div>
+                      </div>
+
+                      {record.lateMinutes > 0 && (
+                        <div className="text-sm text-yellow-400 mt-1">
+                          มาสาย {record.lateMinutes} นาที
+                        </div>
+                      )}
+
+                      {record.notes && (
+                        <div className="text-sm text-gray-400 mt-2">
+                          <span className="font-medium">หมายเหตุ:</span> {record.notes}
+                        </div>
+                      )}
+
+                      {record.autoCheckoutNote && (
+                        <div className="text-sm text-blue-400 mt-1">
+                          Auto checkout: {record.autoCheckoutNote}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        record.checkinType === 'onsite' 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        {record.checkinType === 'onsite' ? 'ในสถานที่' : 'นอกสถานที่'}
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))
+            ) : (
+              <div className="text-center py-12 text-gray-500">
+                ไม่พบบันทึกการเข้าออกงานในเดือนนี้
+              </div>
+            )}
+          </div>
         )}
       </Dialog>
     </div>

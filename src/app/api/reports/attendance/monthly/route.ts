@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
     const year = searchParams.get('year')
     const month = searchParams.get('month')
     const characterId = searchParams.get('characterId')
+    const jobClassId = searchParams.get('jobClassId')
 
     if (!year || !month) {
       return NextResponse.json(
@@ -22,9 +23,15 @@ export async function GET(request: NextRequest) {
     const monthEnd = endOfMonth(targetDate)
 
     // สร้าง WHERE clause สำหรับกรองตัวละคร
-    const characterWhereClause = characterId 
-      ? { id: parseInt(characterId) }
-      : {}
+    let characterWhereClause: any = {}
+    
+    if (characterId) {
+      characterWhereClause.id = parseInt(characterId)
+    }
+    
+    if (jobClassId) {
+      characterWhereClause.jobClassId = parseInt(jobClassId)
+    }
 
     // ดึงข้อมูลตัวละครทั้งหมด (หรือแค่ตัวที่ระบุ)
     const characters = await prisma.character.findMany({
