@@ -78,6 +78,12 @@ export async function GET(request: NextRequest) {
             workEndTime: true,
             workDays: true
           }
+        },
+        workLocation: {
+          select: {
+            id: true,
+            name: true
+          }
         }
       },
       orderBy: {
@@ -184,7 +190,8 @@ export async function GET(request: NextRequest) {
           checkinType: record.checkinType,
           isAutoCheckout: record.isAutoCheckout,
           autoCheckoutNote: record.autoCheckoutNote,
-          notes: record.notes
+          notes: record.notes,
+          workLocation: record.workLocation
         }))
       }
     })

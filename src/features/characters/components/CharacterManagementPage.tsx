@@ -1151,119 +1151,120 @@ const CharacterManagementPage = () => {
           <div className="space-y-4 max-h-96 overflow-y-auto">
             {attendanceDetailData.length > 0 ? (
               attendanceDetailData.map((record: any, index: number) => (
-                <Card key={record.id || index} className="p-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <div className="text-lg font-semibold text-white">
-                          {new Date(record.checkinAt).toLocaleDateString(
-                            'th-TH',
-                            {
-                              weekday: 'short',
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric',
-                            },
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div
-                            className={`px-3 py-1 rounded-md text-xs font-medium ${
-                              record.checkinType === 'onsite'
-                                ? 'bg-gray-700 text-white'
-                                : 'bg-gray-700 text-white'
-                            }`}
-                          >
-                            {record.checkinType === 'onsite'
-                              ? 'ในสถานที่'
-                              : 'นอกสถานที่'}
-                          </div>
-                        </div>
-                        {record.lateLevel > 0 && (
-                          <div className="bg-orange-900 text-white px-2 py-1 rounded-md text-xs">
-                            สาย {record.lateMinutes} นาที
-                          </div>
+                <Card key={record.id || index} className="p-6">
+                  <div className="space-y-4">
+                    {/* Header with Date and Status */}
+                    <div className="flex flex-wrap items-center gap-3">
+                      <div className="text-lg font-semibold text-white">
+                        {new Date(record.checkinAt).toLocaleDateString(
+                          'th-TH',
+                          {
+                            weekday: 'short',
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          },
                         )}
                       </div>
-                      {/* Time Details */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {/* Check-in */}
-                        <div className="space-y-1">
-                          <p className="text-sm text-muted-foreground">
-                            Check-in
-                          </p>
-                          <p className="font-medium flex items-center gap-2">
-                            <Clock className="h-4 w-4" />
-                            {new Date(record.checkinAt).toLocaleTimeString(
-                              'th-TH',
-                              {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              },
-                            )}
-                          </p>
-                        </div>
-
-                        {/* Check-out */}
-                        <div className="space-y-1">
-                          <p className="text-sm text-muted-foreground">
-                            Check-out
-                          </p>
-                          <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4" />
-                            {record.checkoutAt ? (
-                              <div className="flex items-center gap-2">
-                                {record.checkoutAt
-                                  ? new Date(
-                                      record.checkoutAt,
-                                    ).toLocaleTimeString('th-TH', {
-                                      hour: '2-digit',
-                                      minute: '2-digit',
-                                    })
-                                  : 'Auto'}
-                              </div>
-                            ) : (
-                              ' ลืม Checkout'
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Duration */}
-                        <div className="space-y-1">
-                          <p className="text-sm text-muted-foreground">
-                            ระยะเวลา
-                          </p>
-                          <p className="font-medium">
-                            {record.totalHours
-                              ? `${record.totalHours.toFixed(1)} ชั่วโมง`
-                              : '-'}
-                          </p>
-                        </div>
+                      <div
+                        className={`px-3 py-1 rounded-lg text-xs font-medium ${
+                          record.checkinType === 'onsite'
+                            ? 'bg-green-600 text-white'
+                            : 'bg-blue-600 text-white'
+                        }`}
+                      >
+                        {record.checkinType === 'onsite'
+                          ? 'ในสถานที่'
+                          : 'นอกสถานที่'}
                       </div>
-
-                      {/* Location */}
-                      {record.workLocation && (
-                        <div className="flex items-center gap-2 text-sm">
-                          <MapPin className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-muted-foreground">
-                            {record.workLocation.name}
-                          </span>
+                      {record.lateLevel > 0 && (
+                        <div className="bg-orange-600 text-white px-3 py-1 rounded-lg text-xs font-medium">
+                          สาย {record.lateMinutes} นาที
                         </div>
                       )}
+                    </div>
 
-                      {/* Photos */}
-                      <div className="grid grid-cols-2 gap-4">
+                                         {/* Time Details */}
+                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                       {/* Check-in */}
+                       <div className="space-y-2">
+                         <p className="text-sm text-gray-400">Check-in</p>
+                         <p className="font-medium text-white flex items-center gap-2">
+                           <Clock className="h-4 w-4 text-green-400" />
+                           {new Date(record.checkinAt).toLocaleTimeString(
+                             'th-TH',
+                             {
+                               hour: '2-digit',
+                               minute: '2-digit',
+                             },
+                           )}
+                         </p>
+                       </div>
+
+                       {/* Check-out */}
+                       <div className="space-y-2">
+                         <p className="text-sm text-gray-400">Check-out</p>
+                         <p className="font-medium text-white flex items-center gap-2">
+                           <Clock className="h-4 w-4 text-blue-400" />
+                           {record.checkoutAt ? (
+                             <span className="flex items-center gap-2">
+                               {new Date(record.checkoutAt).toLocaleTimeString('th-TH', {
+                                 hour: '2-digit',
+                                 minute: '2-digit',
+                               })}
+                               {(record.isAutoCheckout === true || record.isAutoCheckout === 1 || record.notes?.includes('[AUTO CHECKOUT]')) && (
+                                 <span className="text-blue-400 text-xs bg-blue-900 px-2 py-1 rounded">
+                                   Auto
+                                 </span>
+                               )}
+                             </span>
+                           ) : (
+                             <span className="text-red-400">ลืม Checkout</span>
+                           )}
+                         </p>
+                       </div>
+
+                       {/* Duration */}
+                       <div className="space-y-2">
+                         <p className="text-sm text-gray-400">ระยะเวลา</p>
+                         <p className="font-medium text-white">
+                           {record.totalHours
+                             ? `${record.totalHours.toFixed(1)} ชั่วโมง`
+                             : '-'}
+                         </p>
+                       </div>
+
+                       {/* Location */}
+                       <div className="space-y-2">
+                         <p className="text-sm text-gray-400">สถานที่</p>
+                         <p className="font-medium text-white flex items-center gap-2">
+                           <MapPin className="h-4 w-4 text-gray-400" />
+                           {record.workLocation ? (
+                             <span className="text-gray-300">
+                               {record.workLocation.name}
+                             </span>
+                           ) : (
+                             <span className="text-gray-500">ไม่ระบุ</span>
+                           )}
+                         </p>
+                       </div>
+                     </div>
+
+                    {/* Photos */}
+                    {(record.checkinPhotoUrl || record.checkoutPhotoUrl) && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                         {record.checkinPhotoUrl && (
                           <div className="space-y-2">
-                            <p className="text-sm text-muted-foreground flex items-center gap-1">
-                              <Camera className="h-3 w-3" />
+                            <p className="text-sm text-gray-400 flex items-center gap-2">
+                              <Camera className="h-4 w-4" />
                               รูป Check-in
                             </p>
-                            <div className="aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden">
+                            <div className="aspect-[4/3] bg-gray-700 rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity">
                               <img
                                 src={record.checkinPhotoUrl}
                                 alt="Check-in"
                                 className="w-full h-full object-cover"
+                                onClick={() => window.open(record.checkinPhotoUrl, '_blank')}
                               />
                             </div>
                           </div>
@@ -1271,35 +1272,43 @@ const CharacterManagementPage = () => {
 
                         {record.checkoutPhotoUrl && (
                           <div className="space-y-2">
-                            <p className="text-sm text-muted-foreground flex items-center gap-1">
-                              <Camera className="h-3 w-3" />
+                            <p className="text-sm text-gray-400 flex items-center gap-2">
+                              <Camera className="h-4 w-4" />
                               รูป Check-out
                             </p>
-                            <div className="aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden">
+                            <div className="aspect-[4/3] bg-gray-700 rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity">
                               <img
                                 src={record.checkoutPhotoUrl}
                                 alt="Check-out"
                                 className="w-full h-full object-cover"
+                                onClick={() => window.open(record.checkoutPhotoUrl, '_blank')}
                               />
                             </div>
                           </div>
                         )}
                       </div>
+                    )}
 
-                      {/* Notes */}
-                      {record.notes && (
-                        <div className="pt-2 border-t">
-                          <p className="text-sm text-muted-foreground">
-                            หมายเหตุ
-                          </p>
-                          <p className="text-sm mt-1">
-                            {record.notes
-                              .replace('[AUTO CHECKOUT] ', '')
-                              .replace('[AUTO CHECKOUT]', '')}
-                          </p>
-                        </div>
-                      )}
-                    </div>
+                    {/* Notes */}
+                    {record.notes && (
+                      <div className="pt-4 border-t border-gray-600">
+                        <p className="text-sm text-gray-400 mb-2">หมายเหตุ</p>
+                        <p className="text-sm text-gray-300">
+                          {record.notes
+                            .replace('[AUTO CHECKOUT] ', '')
+                            .replace('[AUTO CHECKOUT]', '')}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Auto Checkout Note */}
+                    {record.autoCheckoutNote && (
+                      <div className="pt-2">
+                        <p className="text-sm text-blue-400">
+                          <span className="font-medium">Auto Checkout:</span> {record.autoCheckoutNote}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </Card>
               ))
