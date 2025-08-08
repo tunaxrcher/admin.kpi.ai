@@ -35,6 +35,7 @@ import {
   DeductXenyRequest,
 } from '../types'
 import { useJobClasses } from '../../jobs/hooks/api'
+import { Camera, Clock, MapPin } from 'lucide-react'
 
 const { Tr, Th, Td, THead, TBody } = Table
 
@@ -70,11 +71,13 @@ const CharacterManagementPage = () => {
     amount: '',
     description: '',
   })
-  const [availableJobLevels, setAvailableJobLevels] = useState<Array<{
-    id: number
-    title: string
-    requiredCharacterLevel: number
-  }>>([])
+  const [availableJobLevels, setAvailableJobLevels] = useState<
+    Array<{
+      id: number
+      title: string
+      requiredCharacterLevel: number
+    }>
+  >([])
   const [activeTab, setActiveTab] = useState('management')
   const [attendanceFilters, setAttendanceFilters] = useState({
     year: new Date().getFullYear(),
@@ -104,10 +107,13 @@ const CharacterManagementPage = () => {
     }>
   } | null>(null)
   const [isLoadingAttendance, setIsLoadingAttendance] = useState(false)
-  const [selectedAttendanceCharacter, setSelectedAttendanceCharacter] = useState<any>(null)
-  const [isAttendanceDetailModalOpen, setIsAttendanceDetailModalOpen] = useState(false)
+  const [selectedAttendanceCharacter, setSelectedAttendanceCharacter] =
+    useState<any>(null)
+  const [isAttendanceDetailModalOpen, setIsAttendanceDetailModalOpen] =
+    useState(false)
   const [attendanceDetailData, setAttendanceDetailData] = useState<any[]>([])
-  const [isLoadingAttendanceDetail, setIsLoadingAttendanceDetail] = useState(false)
+  const [isLoadingAttendanceDetail, setIsLoadingAttendanceDetail] =
+    useState(false)
 
   const { data: charactersData, isLoading, error } = useCharacters(filters)
   const { data: jobClasses } = useJobClasses()
@@ -210,7 +216,8 @@ const CharacterManagementPage = () => {
         workStartTime: workSettings.workStartTime || null,
         workEndTime: workSettings.workEndTime || null,
         salary: workSettings.salary ? parseFloat(workSettings.salary) : null,
-        workDays: workSettings.workDays.length > 0 ? workSettings.workDays : null,
+        workDays:
+          workSettings.workDays.length > 0 ? workSettings.workDays : null,
       }
 
       updateWorkSettings.mutate(
@@ -219,7 +226,12 @@ const CharacterManagementPage = () => {
           onSuccess: () => {
             setIsEditDialogOpen(false)
             setSelectedCharacter(null)
-            setWorkSettings({ workStartTime: '', workEndTime: '', salary: '', workDays: [] })
+            setWorkSettings({
+              workStartTime: '',
+              workEndTime: '',
+              salary: '',
+              workDays: [],
+            })
           },
         },
       )
@@ -294,11 +306,11 @@ const CharacterManagementPage = () => {
         year: attendanceFilters.year.toString(),
         month: attendanceFilters.month.toString(),
       })
-      
+
       if (attendanceFilters.characterId) {
         params.append('characterId', attendanceFilters.characterId.toString())
       }
-      
+
       if (attendanceFilters.jobClassId) {
         params.append('jobClassId', attendanceFilters.jobClassId.toString())
       }
@@ -324,37 +336,45 @@ const CharacterManagementPage = () => {
     }
   }, [activeTab, attendanceFilters, fetchAttendanceReport])
 
-  const handleAttendanceFilterChange = (key: string, value: string | number | null) => {
-    setAttendanceFilters(prev => ({ ...prev, [key]: value }))
+  const handleAttendanceFilterChange = (
+    key: string,
+    value: string | number | null,
+  ) => {
+    setAttendanceFilters((prev) => ({ ...prev, [key]: value }))
   }
 
   // Function to fetch attendance detail records
-  const fetchAttendanceDetail = useCallback(async (characterId: number) => {
-    setIsLoadingAttendanceDetail(true)
-    try {
-      const params = new URLSearchParams({
-        year: attendanceFilters.year.toString(),
-        month: attendanceFilters.month.toString(),
-        characterId: characterId.toString(),
-      })
+  const fetchAttendanceDetail = useCallback(
+    async (characterId: number) => {
+      setIsLoadingAttendanceDetail(true)
+      try {
+        const params = new URLSearchParams({
+          year: attendanceFilters.year.toString(),
+          month: attendanceFilters.month.toString(),
+          characterId: characterId.toString(),
+        })
 
-      const response = await fetch(`/api/reports/attendance/monthly?${params}`)
-      if (response.ok) {
-        const data = await response.json()
-        // Get the records for the specific character
-        const characterReport = data.data.reports?.[0]
-        setAttendanceDetailData(characterReport?.records || [])
-      } else {
-        console.error('Failed to fetch attendance detail')
+        const response = await fetch(
+          `/api/reports/attendance/monthly?${params}`,
+        )
+        if (response.ok) {
+          const data = await response.json()
+          // Get the records for the specific character
+          const characterReport = data.data.reports?.[0]
+          setAttendanceDetailData(characterReport?.records || [])
+        } else {
+          console.error('Failed to fetch attendance detail')
+          setAttendanceDetailData([])
+        }
+      } catch (error) {
+        console.error('Error fetching attendance detail:', error)
         setAttendanceDetailData([])
+      } finally {
+        setIsLoadingAttendanceDetail(false)
       }
-    } catch (error) {
-      console.error('Error fetching attendance detail:', error)
-      setAttendanceDetailData([])
-    } finally {
-      setIsLoadingAttendanceDetail(false)
-    }
-  }, [attendanceFilters.year, attendanceFilters.month])
+    },
+    [attendanceFilters.year, attendanceFilters.month],
+  )
 
   const handleViewAttendanceDetail = (character: any) => {
     setSelectedAttendanceCharacter(character)
@@ -479,8 +499,12 @@ const CharacterManagementPage = () => {
                     <Td className="text-white">
                       {character.user.userXeny?.currentXeny || 0} Xeny
                     </Td>
-                    <Td className="text-white">{character.workStartTime || '-'}</Td>
-                    <Td className="text-white">{character.workEndTime || '-'}</Td>
+                    <Td className="text-white">
+                      {character.workStartTime || '-'}
+                    </Td>
+                    <Td className="text-white">
+                      {character.workEndTime || '-'}
+                    </Td>
                     <Td className="text-right font-medium text-white">
                       {formatSalary(character.salary)}
                     </Td>
@@ -509,7 +533,9 @@ const CharacterManagementPage = () => {
                             <span>แก้ไขอาชีพ</span>
                           </div>
                         </Dropdown.Item>
-                        <Dropdown.Item onClick={() => handleXenyEdit(character)}>
+                        <Dropdown.Item
+                          onClick={() => handleXenyEdit(character)}
+                        >
                           <div className="flex items-center gap-2">
                             <HiOutlineMinus className="text-base" />
                             <span>หัก Xeny</span>
@@ -538,12 +564,15 @@ const CharacterManagementPage = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Select
                 placeholder="เลือกปี"
-                value={{ 
-                  value: attendanceFilters.year, 
-                  label: attendanceFilters.year.toString() 
+                value={{
+                  value: attendanceFilters.year,
+                  label: attendanceFilters.year.toString(),
                 }}
                 onChange={(option) =>
-                  handleAttendanceFilterChange('year', option?.value || new Date().getFullYear())
+                  handleAttendanceFilterChange(
+                    'year',
+                    option?.value || new Date().getFullYear(),
+                  )
                 }
                 className="sm:w-32"
                 options={Array.from({ length: 5 }, (_, i) => {
@@ -553,23 +582,46 @@ const CharacterManagementPage = () => {
               />
               <Select
                 placeholder="เลือกเดือน"
-                value={{ 
-                  value: attendanceFilters.month, 
+                value={{
+                  value: attendanceFilters.month,
                   label: [
-                    'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-                    'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
-                  ][attendanceFilters.month - 1]
+                    'มกราคม',
+                    'กุมภาพันธ์',
+                    'มีนาคม',
+                    'เมษายน',
+                    'พฤษภาคม',
+                    'มิถุนายน',
+                    'กรกฎาคม',
+                    'สิงหาคม',
+                    'กันยายน',
+                    'ตุลาคม',
+                    'พฤศจิกายน',
+                    'ธันวาคม',
+                  ][attendanceFilters.month - 1],
                 }}
                 onChange={(option) =>
-                  handleAttendanceFilterChange('month', option?.value || new Date().getMonth() + 1)
+                  handleAttendanceFilterChange(
+                    'month',
+                    option?.value || new Date().getMonth() + 1,
+                  )
                 }
                 className="sm:w-40"
                 options={[
-                  'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-                  'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+                  'มกราคม',
+                  'กุมภาพันธ์',
+                  'มีนาคม',
+                  'เมษายน',
+                  'พฤษภาคม',
+                  'มิถุนายน',
+                  'กรกฎาคม',
+                  'สิงหาคม',
+                  'กันยายน',
+                  'ตุลาคม',
+                  'พฤศจิกายน',
+                  'ธันวาคม',
                 ].map((month, index) => ({
                   value: index + 1,
-                  label: month
+                  label: month,
                 }))}
               />
               <Select
@@ -579,13 +631,17 @@ const CharacterManagementPage = () => {
                     ? {
                         value: attendanceFilters.jobClassId,
                         label: jobClasses?.find(
-                          (j: JobClassType) => j.id === attendanceFilters.jobClassId,
+                          (j: JobClassType) =>
+                            j.id === attendanceFilters.jobClassId,
                         )?.name,
                       }
                     : null
                 }
                 onChange={(option) =>
-                  handleAttendanceFilterChange('jobClassId', option?.value ?? null)
+                  handleAttendanceFilterChange(
+                    'jobClassId',
+                    option?.value ?? null,
+                  )
                 }
                 className="sm:w-40"
                 options={[
@@ -603,21 +659,27 @@ const CharacterManagementPage = () => {
                     ? {
                         value: attendanceFilters.characterId,
                         label: charactersData?.characters.find(
-                          (c: CharacterType) => c.id === attendanceFilters.characterId,
+                          (c: CharacterType) =>
+                            c.id === attendanceFilters.characterId,
                         )?.name,
                       }
                     : null
                 }
                 onChange={(option) =>
-                  handleAttendanceFilterChange('characterId', option?.value ?? null)
+                  handleAttendanceFilterChange(
+                    'characterId',
+                    option?.value ?? null,
+                  )
                 }
                 className="sm:w-48"
                 options={[
                   { value: null, label: 'ทั้งหมด' },
-                  ...(charactersData?.characters?.map((character: CharacterType) => ({
-                    value: character.id,
-                    label: character.name,
-                  })) || []),
+                  ...(charactersData?.characters?.map(
+                    (character: CharacterType) => ({
+                      value: character.id,
+                      label: character.name,
+                    }),
+                  ) || []),
                 ]}
               />
             </div>
@@ -637,12 +699,13 @@ const CharacterManagementPage = () => {
                 {attendanceData.holidays?.length > 0 && (
                   <div className="mt-2">
                     <p className="text-sm text-gray-400">
-                      วันหยุดในเดือนนี้: {attendanceData.holidays.map((h) => h.name).join(', ')}
+                      วันหยุดในเดือนนี้:{' '}
+                      {attendanceData.holidays.map((h) => h.name).join(', ')}
                     </p>
                   </div>
                 )}
               </div>
-              
+
               <Table>
                 <THead>
                   <Tr>
@@ -662,7 +725,11 @@ const CharacterManagementPage = () => {
                       <Td>
                         <div className="flex items-center gap-3">
                           <Avatar
-                            src={report.character.currentPortraitUrl || report.character.avatar || ''}
+                            src={
+                              report.character.currentPortraitUrl ||
+                              report.character.avatar ||
+                              ''
+                            }
                             alt={report.character.name}
                             shape="circle"
                             size={32}
@@ -703,13 +770,16 @@ const CharacterManagementPage = () => {
                         </span>
                       </Td>
                       <Td className="text-white">
-                        <span className={`font-medium ${
-                          parseFloat(report.attendance.attendanceRate) >= 80 
-                            ? 'text-green-400' 
-                            : parseFloat(report.attendance.attendanceRate) >= 60
-                            ? 'text-yellow-400'
-                            : 'text-red-400'
-                        }`}>
+                        <span
+                          className={`font-medium ${
+                            parseFloat(report.attendance.attendanceRate) >= 80
+                              ? 'text-green-400'
+                              : parseFloat(report.attendance.attendanceRate) >=
+                                  60
+                                ? 'text-yellow-400'
+                                : 'text-red-400'
+                          }`}
+                        >
                           {report.attendance.attendanceRate}%
                         </span>
                       </Td>
@@ -717,7 +787,9 @@ const CharacterManagementPage = () => {
                         <Button
                           size="sm"
                           variant="twoTone"
-                          onClick={() => handleViewAttendanceDetail(report.character)}
+                          onClick={() =>
+                            handleViewAttendanceDetail(report.character)
+                          }
                         >
                           ดูบันทึกการเข้าออกงาน
                         </Button>
@@ -727,7 +799,8 @@ const CharacterManagementPage = () => {
                 </TBody>
               </Table>
 
-              {(!attendanceData.reports || attendanceData.reports.length === 0) && (
+              {(!attendanceData.reports ||
+                attendanceData.reports.length === 0) && (
                 <div className="text-center py-12 text-white-500">
                   ไม่พบข้อมูลการเข้างานในช่วงเวลาที่เลือก
                 </div>
@@ -749,12 +822,22 @@ const CharacterManagementPage = () => {
         onClose={() => {
           setIsEditDialogOpen(false)
           setSelectedCharacter(null)
-          setWorkSettings({ workStartTime: '', workEndTime: '', salary: '', workDays: [] })
+          setWorkSettings({
+            workStartTime: '',
+            workEndTime: '',
+            salary: '',
+            workDays: [],
+          })
         }}
         onRequestClose={() => {
           setIsEditDialogOpen(false)
           setSelectedCharacter(null)
-          setWorkSettings({ workStartTime: '', workEndTime: '', salary: '', workDays: [] })
+          setWorkSettings({
+            workStartTime: '',
+            workEndTime: '',
+            salary: '',
+            workDays: [],
+          })
         }}
       >
         <h5 className="mb-4">ตั้งค่าการทำงาน</h5>
@@ -833,9 +916,10 @@ const CharacterManagementPage = () => {
                       }}
                       className={`
                         h-10 rounded-lg border text-sm font-medium transition-colors
-                        ${isSelected
-                          ? 'bg-blue-500 text-white border-blue-500'
-                          : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                        ${
+                          isSelected
+                            ? 'bg-blue-500 text-white border-blue-500'
+                            : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
                         }
                       `}
                       title={day.fullName}
@@ -846,7 +930,8 @@ const CharacterManagementPage = () => {
                 })}
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                เลือกวันที่ต้องการให้บุคลากรคนนี้ทำงาน (ค่าเริ่มต้น: จันทร์-ศุกร์)
+                เลือกวันที่ต้องการให้บุคลากรคนนี้ทำงาน (ค่าเริ่มต้น:
+                จันทร์-ศุกร์)
               </p>
             </FormItem>
 
@@ -1034,7 +1119,11 @@ const CharacterManagementPage = () => {
           {selectedAttendanceCharacter && (
             <div className="flex items-center gap-3">
               <Avatar
-                src={selectedAttendanceCharacter.currentPortraitUrl || selectedAttendanceCharacter.avatar || ''}
+                src={
+                  selectedAttendanceCharacter.currentPortraitUrl ||
+                  selectedAttendanceCharacter.avatar ||
+                  ''
+                }
                 alt={selectedAttendanceCharacter.name}
                 shape="circle"
                 size={40}
@@ -1065,87 +1154,151 @@ const CharacterManagementPage = () => {
                 <Card key={record.id || index} className="p-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex-1">
-                      <div className="flex items-center gap-4 mb-2">
+                      <div className="flex items-center gap-2">
                         <div className="text-lg font-semibold text-white">
-                          {new Date(record.checkinAt).toLocaleDateString('th-TH', {
-                            weekday: 'short',
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric'
-                          })}
+                          {new Date(record.checkinAt).toLocaleDateString(
+                            'th-TH',
+                            {
+                              weekday: 'short',
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
+                            },
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className={`px-3 py-1 rounded-md text-xs font-medium ${
+                              record.checkinType === 'onsite'
+                                ? 'bg-gray-700 text-white'
+                                : 'bg-gray-700 text-white'
+                            }`}
+                          >
+                            {record.checkinType === 'onsite'
+                              ? 'ในสถานที่'
+                              : 'นอกสถานที่'}
+                          </div>
                         </div>
                         {record.lateLevel > 0 && (
-                          <div className="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs">
-                            มาสาย
+                          <div className="bg-orange-900 text-white px-2 py-1 rounded-md text-xs">
+                            สาย {record.lateMinutes} นาที
                           </div>
                         )}
                       </div>
-                      
-                      <div className="flex items-center gap-6 text-sm">
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-400">Check-in</span>
-                          <span className="font-medium text-green-400">
-                            {new Date(record.checkinAt).toLocaleTimeString('th-TH', {
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </span>
-                        </div>
-                        
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-400">Check-out</span>
-                          <span className="font-medium text-green-400">
-                            {record.checkoutAt 
-                              ? new Date(record.checkoutAt).toLocaleTimeString('th-TH', {
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })
-                              : 'Auto'
-                            }
-                          </span>
-                          {record.isAutoCheckout && (
-                            <span className="text-blue-400 text-xs">Auto</span>
-                          )}
+                      {/* Time Details */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* Check-in */}
+                        <div className="space-y-1">
+                          <p className="text-sm text-muted-foreground">
+                            Check-in
+                          </p>
+                          <p className="font-medium flex items-center gap-2">
+                            <Clock className="h-4 w-4" />
+                            {new Date(record.checkinAt).toLocaleTimeString(
+                              'th-TH',
+                              {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              },
+                            )}
+                          </p>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-400">ระยะเวลา</span>
-                          <span className="font-medium text-blue-400">
-                            {record.totalHours 
+                        {/* Check-out */}
+                        <div className="space-y-1">
+                          <p className="text-sm text-muted-foreground">
+                            Check-out
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4" />
+                            {record.checkoutAt ? (
+                              <div className="flex items-center gap-2">
+                                {record.checkoutAt
+                                  ? new Date(
+                                      record.checkoutAt,
+                                    ).toLocaleTimeString('th-TH', {
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                    })
+                                  : 'Auto'}
+                              </div>
+                            ) : (
+                              ' ลืม Checkout'
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Duration */}
+                        <div className="space-y-1">
+                          <p className="text-sm text-muted-foreground">
+                            ระยะเวลา
+                          </p>
+                          <p className="font-medium">
+                            {record.totalHours
                               ? `${record.totalHours.toFixed(1)} ชั่วโมง`
-                              : '-'
-                            }
+                              : '-'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Location */}
+                      {record.workLocation && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <MapPin className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">
+                            {record.workLocation.name}
                           </span>
                         </div>
-                      </div>
-
-                      {record.lateMinutes > 0 && (
-                        <div className="text-sm text-yellow-400 mt-1">
-                          มาสาย {record.lateMinutes} นาที
-                        </div>
                       )}
 
+                      {/* Photos */}
+                      <div className="grid grid-cols-2 gap-4">
+                        {record.checkinPhotoUrl && (
+                          <div className="space-y-2">
+                            <p className="text-sm text-muted-foreground flex items-center gap-1">
+                              <Camera className="h-3 w-3" />
+                              รูป Check-in
+                            </p>
+                            <div className="aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden">
+                              <img
+                                src={record.checkinPhotoUrl}
+                                alt="Check-in"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {record.checkoutPhotoUrl && (
+                          <div className="space-y-2">
+                            <p className="text-sm text-muted-foreground flex items-center gap-1">
+                              <Camera className="h-3 w-3" />
+                              รูป Check-out
+                            </p>
+                            <div className="aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden">
+                              <img
+                                src={record.checkoutPhotoUrl}
+                                alt="Check-out"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Notes */}
                       {record.notes && (
-                        <div className="text-sm text-gray-400 mt-2">
-                          <span className="font-medium">หมายเหตุ:</span> {record.notes}
+                        <div className="pt-2 border-t">
+                          <p className="text-sm text-muted-foreground">
+                            หมายเหตุ
+                          </p>
+                          <p className="text-sm mt-1">
+                            {record.notes
+                              .replace('[AUTO CHECKOUT] ', '')
+                              .replace('[AUTO CHECKOUT]', '')}
+                          </p>
                         </div>
                       )}
-
-                      {record.autoCheckoutNote && (
-                        <div className="text-sm text-blue-400 mt-1">
-                          Auto checkout: {record.autoCheckoutNote}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        record.checkinType === 'onsite' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {record.checkinType === 'onsite' ? 'ในสถานที่' : 'นอกสถานที่'}
-                      </div>
                     </div>
                   </div>
                 </Card>

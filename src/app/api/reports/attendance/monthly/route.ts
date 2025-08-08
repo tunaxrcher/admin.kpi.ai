@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
         }
       },
       orderBy: {
-        checkinAt: 'asc'
+        checkinAt: 'desc'
       }
     })
 
@@ -176,10 +176,14 @@ export async function GET(request: NextRequest) {
           id: record.id,
           checkinAt: record.checkinAt,
           checkoutAt: record.checkoutAt,
+          checkinPhotoUrl: record.checkinPhotoUrl,
+          checkoutPhotoUrl: record.checkoutPhotoUrl,
           totalHours: record.totalHours,
           lateLevel: record.lateLevel,
           lateMinutes: record.lateMinutes,
           checkinType: record.checkinType,
+          isAutoCheckout: record.isAutoCheckout,
+          autoCheckoutNote: record.autoCheckoutNote,
           notes: record.notes
         }))
       }
