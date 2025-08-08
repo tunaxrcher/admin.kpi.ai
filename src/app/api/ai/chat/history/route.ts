@@ -1,11 +1,7 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { withErrorHandling } from '../../../../../lib/withErrorHandling'
 import { chatHistoryData } from '../../../../../mock/data/aiData'
 
-export async function GET() {
-  try {
-    return NextResponse.json(chatHistoryData)
-  } catch (error) {
-    console.log(error)
-    return NextResponse.json({ error: error }, { status: 500 })
-  }
-}
+export const GET = withErrorHandling(async (request: NextRequest) => {
+  return NextResponse.json(chatHistoryData)
+})

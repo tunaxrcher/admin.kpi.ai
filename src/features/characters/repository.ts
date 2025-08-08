@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client'
 import { BaseRepository } from '../../lib/repository/baseRepository'
 import {
   CharacterFilters,
@@ -97,7 +98,7 @@ export class CharacterRepository extends BaseRepository<any> {
         workStartTime: data.workStartTime,
         workEndTime: data.workEndTime,
         salary: data.salary,
-        workDays: data.workDays,
+        workDays: data.workDays ?? Prisma.JsonNull, //
       },
       include: {
         user: true,

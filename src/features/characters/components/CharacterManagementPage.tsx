@@ -786,7 +786,7 @@ const CharacterManagementPage = () => {
                       <Td>
                         <Button
                           size="sm"
-                          variant="twoTone"
+                          variant="solid"
                           onClick={() =>
                             handleViewAttendanceDetail(report.character)
                           }
@@ -1184,71 +1184,76 @@ const CharacterManagementPage = () => {
                       )}
                     </div>
 
-                                         {/* Time Details */}
-                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                       {/* Check-in */}
-                       <div className="space-y-2">
-                         <p className="text-sm text-gray-400">Check-in</p>
-                         <p className="font-medium text-white flex items-center gap-2">
-                           <Clock className="h-4 w-4 text-green-400" />
-                           {new Date(record.checkinAt).toLocaleTimeString(
-                             'th-TH',
-                             {
-                               hour: '2-digit',
-                               minute: '2-digit',
-                             },
-                           )}
-                         </p>
-                       </div>
+                    {/* Time Details */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                      {/* Check-in */}
+                      <div className="space-y-2">
+                        <p className="text-sm text-gray-400">Check-in</p>
+                        <p className="font-medium text-white flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-green-400" />
+                          {new Date(record.checkinAt).toLocaleTimeString(
+                            'th-TH',
+                            {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            },
+                          )}
+                        </p>
+                      </div>
 
-                       {/* Check-out */}
-                       <div className="space-y-2">
-                         <p className="text-sm text-gray-400">Check-out</p>
-                         <p className="font-medium text-white flex items-center gap-2">
-                           <Clock className="h-4 w-4 text-blue-400" />
-                           {record.checkoutAt ? (
-                             <span className="flex items-center gap-2">
-                               {new Date(record.checkoutAt).toLocaleTimeString('th-TH', {
-                                 hour: '2-digit',
-                                 minute: '2-digit',
-                               })}
-                               {(record.isAutoCheckout === true || record.isAutoCheckout === 1 || record.notes?.includes('[AUTO CHECKOUT]')) && (
-                                 <span className="text-blue-400 text-xs bg-blue-900 px-2 py-1 rounded">
-                                   Auto
-                                 </span>
-                               )}
-                             </span>
-                           ) : (
-                             <span className="text-red-400">ลืม Checkout</span>
-                           )}
-                         </p>
-                       </div>
+                      {/* Check-out */}
+                      <div className="space-y-2">
+                        <p className="text-sm text-gray-400">Check-out</p>
+                        <p className="font-medium text-white flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-blue-400" />
+                          {record.checkoutAt ? (
+                            <span className="flex items-center gap-2">
+                              {new Date(record.checkoutAt).toLocaleTimeString(
+                                'th-TH',
+                                {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                },
+                              )}
+                              {(record.isAutoCheckout === true ||
+                                record.isAutoCheckout === 1 ||
+                                record.notes?.includes('[AUTO CHECKOUT]')) && (
+                                <span className="text-blue-400 text-xs bg-blue-900 px-2 py-1 rounded">
+                                  Auto
+                                </span>
+                              )}
+                            </span>
+                          ) : (
+                            <span className="text-red-400">ลืม Checkout</span>
+                          )}
+                        </p>
+                      </div>
 
-                       {/* Duration */}
-                       <div className="space-y-2">
-                         <p className="text-sm text-gray-400">ระยะเวลา</p>
-                         <p className="font-medium text-white">
-                           {record.totalHours
-                             ? `${record.totalHours.toFixed(1)} ชั่วโมง`
-                             : '-'}
-                         </p>
-                       </div>
+                      {/* Duration */}
+                      <div className="space-y-2">
+                        <p className="text-sm text-gray-400">ระยะเวลา</p>
+                        <p className="font-medium text-white">
+                          {record.totalHours
+                            ? `${record.totalHours.toFixed(1)} ชั่วโมง`
+                            : '-'}
+                        </p>
+                      </div>
 
-                       {/* Location */}
-                       <div className="space-y-2">
-                         <p className="text-sm text-gray-400">สถานที่</p>
-                         <p className="font-medium text-white flex items-center gap-2">
-                           <MapPin className="h-4 w-4 text-gray-400" />
-                           {record.workLocation ? (
-                             <span className="text-gray-300">
-                               {record.workLocation.name}
-                             </span>
-                           ) : (
-                             <span className="text-gray-500">ไม่ระบุ</span>
-                           )}
-                         </p>
-                       </div>
-                     </div>
+                      {/* Location */}
+                      <div className="space-y-2">
+                        <p className="text-sm text-gray-400">สถานที่</p>
+                        <p className="font-medium text-white flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-gray-400" />
+                          {record.workLocation ? (
+                            <span className="text-gray-300">
+                              {record.workLocation.name}
+                            </span>
+                          ) : (
+                            <span className="text-gray-500">ไม่ระบุ</span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
 
                     {/* Photos */}
                     {(record.checkinPhotoUrl || record.checkoutPhotoUrl) && (
@@ -1264,7 +1269,9 @@ const CharacterManagementPage = () => {
                                 src={record.checkinPhotoUrl}
                                 alt="Check-in"
                                 className="w-full h-full object-cover"
-                                onClick={() => window.open(record.checkinPhotoUrl, '_blank')}
+                                onClick={() =>
+                                  window.open(record.checkinPhotoUrl, '_blank')
+                                }
                               />
                             </div>
                           </div>
@@ -1281,7 +1288,9 @@ const CharacterManagementPage = () => {
                                 src={record.checkoutPhotoUrl}
                                 alt="Check-out"
                                 className="w-full h-full object-cover"
-                                onClick={() => window.open(record.checkoutPhotoUrl, '_blank')}
+                                onClick={() =>
+                                  window.open(record.checkoutPhotoUrl, '_blank')
+                                }
                               />
                             </div>
                           </div>
@@ -1305,7 +1314,8 @@ const CharacterManagementPage = () => {
                     {record.autoCheckoutNote && (
                       <div className="pt-2">
                         <p className="text-sm text-blue-400">
-                          <span className="font-medium">Auto Checkout:</span> {record.autoCheckoutNote}
+                          <span className="font-medium">Auto Checkout:</span>{' '}
+                          {record.autoCheckoutNote}
                         </p>
                       </div>
                     )}

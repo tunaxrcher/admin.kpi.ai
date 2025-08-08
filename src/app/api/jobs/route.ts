@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { withErrorHandling } from '../../../lib/withErrorHandling'
 import { jobClassService } from '../../../features/jobs/service/server'
 
-export const GET = withErrorHandling(async () => {
+export const GET = withErrorHandling(async (request: NextRequest) => {
   console.log(`[API] GET All Job Class`)
 
   const jobClasses = await jobClassService.getAllJobClasses()

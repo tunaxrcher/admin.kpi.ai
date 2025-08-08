@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { withErrorHandling } from '../../../../lib/withErrorHandling'
 import uniqueId from 'lodash/uniqueId'
 import dayjs from 'dayjs'
 import sleep from '../../../../utils/sleep'
 
-export async function POST(req: NextRequest) {
-  const { prompt } = await req.json()
+export const POST = withErrorHandling(async (request: NextRequest) => {
+  const { prompt } = await request.json()
 
   const userPrompt = prompt.toLocaleLowerCase()
 
@@ -56,4 +57,4 @@ export async function POST(req: NextRequest) {
   await sleep(200)
 
   return NextResponse.json(response)
-}
+})
