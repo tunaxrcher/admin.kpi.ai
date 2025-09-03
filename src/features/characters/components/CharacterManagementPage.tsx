@@ -36,6 +36,7 @@ import {
 } from '../types'
 import { useJobClasses } from '../../jobs/hooks/api'
 import { Camera, Clock, MapPin } from 'lucide-react'
+import Link from 'next/link'
 
 const { Tr, Th, Td, THead, TBody } = Table
 
@@ -484,7 +485,12 @@ const CharacterManagementPage = () => {
                         />
                         <div>
                           <div className="font-medium text-white">
-                            {character.name}
+                            <Link 
+                              href={`/management/characters/${character.id}`}
+                              className="hover:text-blue-400 transition-colors"
+                            >
+                              {character.name}
+                            </Link>
                           </div>
                           <div className="text-sm text-white-500">
                             {character.user.email}
