@@ -375,6 +375,27 @@ const CharacterDetailPage: React.FC<CharacterDetailPageProps> = ({
     }).format(salary)
   }
 
+  // Format Xeny with thousand separators
+  const formatXeny = (xeny: number | null | undefined) => {
+    const value = xeny || 0
+    return new Intl.NumberFormat('en-US').format(value)
+  }
+
+  // Get Xeny color based on value
+  const getXenyColor = (xeny: number | null | undefined) => {
+    const value = xeny || 0
+
+    if (value < 1000) {
+      return 'text-white' // สีขาว
+    } else if (value < 10000) {
+      return 'text-yellow-400' // สีเหลือง
+    } else if (value < 100000) {
+      return 'text-red-400' // สีแดง
+    } else {
+      return 'text-green-400' // สีเขียวสำหรับ 100,000 ขึ้นไป
+    }
+  }
+
   const handleAttendanceFilterChange = (
     key: string,
     value: string | number | null,
@@ -569,11 +590,14 @@ const CharacterDetailPage: React.FC<CharacterDetailPageProps> = ({
                     Xeny Balance
                   </span>
                 </div>
-                <p className="text-3xl font-bold text-white mb-2">
-                  {character.user.userXeny?.currentXeny || 0}
+                <p
+                  className={`text-3xl font-bold mb-2 ${getXenyColor(character.user.userXeny?.currentXeny)}`}
+                >
+                  {formatXeny(character.user.userXeny?.currentXeny)}
                 </p>
                 <p className="text-sm text-gray-500">
-                  รวมได้รับ: {character.user.userXeny?.totalEarnedXeny || 0}
+                  รวมได้รับ:{' '}
+                  {formatXeny(character.user.userXeny?.totalEarnedXeny)}
                 </p>
               </div>
 
@@ -1456,7 +1480,7 @@ const CharacterDetailPage: React.FC<CharacterDetailPageProps> = ({
             </FormItem>
             <FormItem label="Xeny ปัจจุบัน" className="mb-4">
               <Input
-                value={`${selectedCharacter.user.userXeny?.currentXeny || 0} Xeny`}
+                value={`${formatXeny(selectedCharacter.user.userXeny?.currentXeny)} Xeny`}
                 disabled
               />
             </FormItem>

@@ -38,7 +38,7 @@ import { useJobClasses } from '../../jobs/hooks/api'
 import { Camera, Clock, MapPin } from 'lucide-react'
 import Link from 'next/link'
 
-const { Tr, Th, Td, THead, TBody } = Table
+const { Tr, Th, Td, THead, TBody, Sorter } = Table
 
 interface JobClassType {
   id: number
@@ -115,6 +115,20 @@ const CharacterManagementPage = () => {
   const [attendanceDetailData, setAttendanceDetailData] = useState<any[]>([])
   const [isLoadingAttendanceDetail, setIsLoadingAttendanceDetail] =
     useState(false)
+  const [attendanceSortConfig, setAttendanceSortConfig] = useState<{
+    key: string | null
+    direction: 'asc' | 'desc'
+  }>({
+    key: null,
+    direction: 'asc',
+  })
+  const [characterSortConfig, setCharacterSortConfig] = useState<{
+    key: string | null
+    direction: 'asc' | 'desc'
+  }>({
+    key: null,
+    direction: 'asc',
+  })
 
   const { data: charactersData, isLoading, error } = useCharacters(filters)
   const { data: jobClasses } = useJobClasses()
@@ -299,6 +313,27 @@ const CharacterManagementPage = () => {
     }).format(salary)
   }
 
+  // Format Xeny with thousand separators
+  const formatXeny = (xeny: number | null | undefined) => {
+    const value = xeny || 0
+    return new Intl.NumberFormat('en-US').format(value)
+  }
+
+  // Get Xeny color based on value
+  const getXenyColor = (xeny: number | null | undefined) => {
+    const value = xeny || 0
+
+    if (value < 1000) {
+      return 'text-white' // สีขาว
+    } else if (value < 10000) {
+      return 'text-yellow-400' // สีเหลือง
+    } else if (value < 100000) {
+      return 'text-red-400' // สีแดง
+    } else {
+      return 'text-green-400' // สีเขียวสำหรับ 100,000 ขึ้นไป
+    }
+  }
+
   // Function to fetch attendance report
   const fetchAttendanceReport = useCallback(async () => {
     setIsLoadingAttendance(true)
@@ -383,6 +418,78 @@ const CharacterManagementPage = () => {
     fetchAttendanceDetail(character.id)
   }
 
+  // Sort handler for attendance table
+  const handleAttendanceSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc'
+
+    if (
+      attendanceSortConfig.key === key &&
+      attendanceSortConfig.direction === 'asc'
+    ) {
+      direction = 'desc'
+    }
+
+    setAttendanceSortConfig({ key, direction })
+  }
+
+  // Sort handler for character management table
+  const handleCharacterSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc'
+
+    if (
+      characterSortConfig.key === key &&
+      characterSortConfig.direction === 'asc'
+    ) {
+      direction = 'desc'
+    }
+
+    setCharacterSortConfig({ key, direction })
+  }
+
+  // Function to get sorted attendance data
+  const getSortedAttendanceData = () => {
+    if (!attendanceData?.reports) return []
+
+    const sortedReports = [...attendanceData.reports]
+
+    if (attendanceSortConfig.key === 'attendanceRate') {
+      sortedReports.sort((a, b) => {
+        const aRate = parseFloat(a.attendance.attendanceRate)
+        const bRate = parseFloat(b.attendance.attendanceRate)
+
+        if (attendanceSortConfig.direction === 'asc') {
+          return aRate - bRate
+        } else {
+          return bRate - aRate
+        }
+      })
+    }
+
+    return sortedReports
+  }
+
+  // Function to get sorted character data
+  const getSortedCharacterData = () => {
+    if (!charactersData?.characters) return []
+
+    const sortedCharacters = [...charactersData.characters]
+
+    if (characterSortConfig.key === 'xeny') {
+      sortedCharacters.sort((a, b) => {
+        const aXeny = a.user.userXeny?.currentXeny || 0
+        const bXeny = b.user.userXeny?.currentXeny || 0
+
+        if (characterSortConfig.direction === 'asc') {
+          return aXeny - bXeny
+        } else {
+          return bXeny - aXeny
+        }
+      })
+    }
+
+    return sortedCharacters
+  }
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-96">
@@ -461,7 +568,21 @@ const CharacterManagementPage = () => {
                   <Th>บุคลากร</Th>
                   <Th>อาชีพ</Th>
                   <Th>ระดับอาชีพ</Th>
-                  <Th>Xeny</Th>
+                  <Th
+                    className="cursor-pointer select-none hover:bg-gray-700 transition-colors"
+                    onClick={() => handleCharacterSort('xeny')}
+                  >
+                    <div className="flex items-center gap-2">
+                      Xeny
+                      <Sorter
+                        sort={
+                          characterSortConfig.key === 'xeny'
+                            ? characterSortConfig.direction
+                            : false
+                        }
+                      />
+                    </div>
+                  </Th>
                   <Th>เวลาเข้างาน</Th>
                   <Th>เวลาออกงาน</Th>
                   <Th className="text-right">เงินเดือน</Th>
@@ -469,7 +590,7 @@ const CharacterManagementPage = () => {
                 </Tr>
               </THead>
               <TBody>
-                {charactersData?.characters.map((character: CharacterType) => (
+                {getSortedCharacterData().map((character: CharacterType) => (
                   <Tr key={character.id}>
                     <Td>
                       <div className="flex items-center gap-3">
@@ -502,8 +623,12 @@ const CharacterManagementPage = () => {
                     <Td className="text-white">
                       {character.currentJobLevel.title}
                     </Td>
-                    <Td className="text-white">
-                      {character.user.userXeny?.currentXeny || 0} Xeny
+                    <Td>
+                      <span
+                        className={`font-medium ${getXenyColor(character.user.userXeny?.currentXeny)}`}
+                      >
+                        {formatXeny(character.user.userXeny?.currentXeny)} Xeny
+                      </span>
                     </Td>
                     <Td className="text-white">
                       {character.workStartTime || '-'}
@@ -554,8 +679,7 @@ const CharacterManagementPage = () => {
               </TBody>
             </Table>
 
-            {(!charactersData?.characters ||
-              charactersData.characters.length === 0) && (
+            {getSortedCharacterData().length === 0 && (
               <div className="text-center py-12 text-white-500">
                 ไม่พบข้อมูลบุคลากร
               </div>
@@ -721,12 +845,26 @@ const CharacterManagementPage = () => {
                     <Th>ออกงาน</Th>
                     <Th>มาสาย</Th>
                     <Th>ขาดงาน</Th>
-                    <Th>เปอร์เซ็นต์การเข้างาน</Th>
+                    <Th
+                      className="cursor-pointer select-none hover:bg-gray-700 transition-colors"
+                      onClick={() => handleAttendanceSort('attendanceRate')}
+                    >
+                      <div className="flex items-center gap-2">
+                        เปอร์เซ็นต์การเข้างาน
+                        <Sorter
+                          sort={
+                            attendanceSortConfig.key === 'attendanceRate'
+                              ? attendanceSortConfig.direction
+                              : false
+                          }
+                        />
+                      </div>
+                    </Th>
                     <Th>การจัดการ</Th>
                   </Tr>
                 </THead>
                 <TBody>
-                  {attendanceData.reports?.map((report) => (
+                  {getSortedAttendanceData().map((report) => (
                     <Tr key={report.character.id}>
                       <Td>
                         <div className="flex items-center gap-3">
@@ -805,8 +943,7 @@ const CharacterManagementPage = () => {
                 </TBody>
               </Table>
 
-              {(!attendanceData.reports ||
-                attendanceData.reports.length === 0) && (
+              {getSortedAttendanceData().length === 0 && (
                 <div className="text-center py-12 text-white-500">
                   ไม่พบข้อมูลการเข้างานในช่วงเวลาที่เลือก
                 </div>

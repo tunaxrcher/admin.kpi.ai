@@ -65,7 +65,11 @@ export class CharacterRepository extends BaseRepository<any> {
       this.prisma.character.findMany({
         where,
         include: {
-          user: true,
+          user: {
+            include: {
+              userXeny: true,
+            },
+          },
           jobClass: true,
           currentJobLevel: true,
         },
@@ -81,7 +85,11 @@ export class CharacterRepository extends BaseRepository<any> {
     return await this.prisma.character.findUnique({
       where: { id },
       include: {
-        user: true,
+        user: {
+          include: {
+            userXeny: true,
+          },
+        },
         jobClass: true,
         currentJobLevel: true,
       },
@@ -101,7 +109,11 @@ export class CharacterRepository extends BaseRepository<any> {
         workDays: data.workDays ?? Prisma.JsonNull, //
       },
       include: {
-        user: true,
+        user: {
+          include: {
+            userXeny: true,
+          },
+        },
         jobClass: true,
         currentJobLevel: true,
       },
@@ -123,7 +135,11 @@ export class CharacterRepository extends BaseRepository<any> {
         jobLevelId: data.jobLevelId,
       },
       include: {
-        user: true,
+        user: {
+          include: {
+            userXeny: true,
+          },
+        },
         jobClass: true,
         currentJobLevel: true,
       },
