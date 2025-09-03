@@ -3,10 +3,14 @@ import { withErrorHandling } from '../../../../lib/withErrorHandling'
 import { characterService } from '../../../../features/characters/service/server'
 
 export const GET = withErrorHandling(
-  async (request: NextRequest, { params }: { params: { id: string } }) => {
-    console.log(`[API] GET Character by ID: ${params.id}`)
+  async (
+    request: NextRequest,
+    context: { params: Promise<{ id: string }> },
+  ) => {
+    const { id } = await context.params
+    console.log(`[API] GET Character by ID: ${id}`)
 
-    const characterId = parseInt(params.id)
+    const characterId = parseInt(id)
 
     if (isNaN(characterId)) {
       return NextResponse.json(

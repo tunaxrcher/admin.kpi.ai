@@ -8,6 +8,8 @@ export const PUT = withErrorHandling(
     context: { params: Promise<{ id: string }> },
   ) => {
     const { id } = await context.params
+    console.log(`[API] PUT Update Character Work Settings - ID: ${id}`)
+
     const characterId = parseInt(id)
     const body = await request.json()
 

@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { withErrorHandling } from '../../../../../lib/withErrorHandling'
 import { prisma } from '@/lib/db'
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } },
-) {
-  try {
-    const characterId = parseInt(params.id)
+export const GET = withErrorHandling(
+  async (
+    request: NextRequest,
+    context: { params: Promise<{ id: string }> },
+  ) => {
+    const { id } = await context.params
+    console.log(`[API] GET Character Evaluations - Character ID: ${id}`)
+
+    const characterId = parseInt(id)
 
     if (isNaN(characterId)) {
       return NextResponse.json(
@@ -41,11 +45,5 @@ export async function GET(
       success: true,
       data: evaluations,
     })
-  } catch (error) {
-    console.error('Error fetching character evaluations:', error)
-    return NextResponse.json(
-      { error: 'เกิดข้อผิดพลาดในการดึงข้อมูลการประเมิน' },
-      { status: 500 },
-    )
-  }
-}
+  },
+)

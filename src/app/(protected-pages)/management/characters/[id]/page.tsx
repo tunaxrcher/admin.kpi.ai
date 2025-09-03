@@ -1,11 +1,12 @@
 import CharacterDetailPage from '../../../../../features/characters/components/CharacterDetailPage'
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
-export default function CharacterDetailPageRoute({ params }: PageProps) {
-  return <CharacterDetailPage characterId={parseInt(params.id)} />
+export default async function CharacterDetailPageRoute({ params }: PageProps) {
+  const { id } = await params
+  return <CharacterDetailPage characterId={parseInt(id)} />
 }

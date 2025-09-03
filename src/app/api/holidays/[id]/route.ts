@@ -8,6 +8,8 @@ export const PUT = withErrorHandling(
     context: { params: Promise<{ id: string }> },
   ) => {
     const { id } = await context.params
+    console.log(`[API] PUT Update Holiday by ID: ${id}`)
+
     const holidayId = parseInt(id)
     const body = await request.json()
 
@@ -37,6 +39,8 @@ export const DELETE = withErrorHandling(
     context: { params: Promise<{ id: string }> },
   ) => {
     const { id } = await context.params
+    console.log(`[API] DELETE Holiday by ID: ${id}`)
+
     const holidayId = parseInt(id)
 
     await prisma.holiday.delete({

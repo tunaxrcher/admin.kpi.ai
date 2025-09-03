@@ -8,6 +8,8 @@ export const GET = withErrorHandling(
     context: { params: Promise<{ id: string }> },
   ) => {
     const { id } = await context.params
+    console.log(`[API] GET Work Location by ID: ${id}`)
+
     const workLocationId = parseInt(id)
 
     const workLocation = await prisma.workLocation.findUnique({
@@ -31,6 +33,8 @@ export const PUT = withErrorHandling(
     context: { params: Promise<{ id: string }> },
   ) => {
     const { id } = await context.params
+    console.log(`[API] PUT Update Work Location by ID: ${id}`)
+
     const workLocationId = parseInt(id)
     const body = await request.json()
     const { name, address, latitude, longitude, radius, isActive } = body
@@ -60,6 +64,8 @@ export const DELETE = withErrorHandling(
     context: { params: Promise<{ id: string }> },
   ) => {
     const { id } = await context.params
+    console.log(`[API] DELETE Work Location by ID: ${id}`)
+
     const workLocationId = parseInt(id)
 
     await prisma.workLocation.delete({
