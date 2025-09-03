@@ -594,16 +594,21 @@ const CharacterManagementPage = () => {
                   <Tr key={character.id}>
                     <Td>
                       <div className="flex items-center gap-3">
-                        <Avatar
-                          src={
-                            character.currentPortraitUrl ||
-                            character.user.avatar ||
-                            ''
-                          }
-                          alt={character.name}
-                          shape="circle"
-                          size={40}
-                        />
+                        <Link
+                          href={`/management/characters/${character.id}`}
+                          className="hover:opacity-80 transition-opacity"
+                        >
+                          <Avatar
+                            src={
+                              character.currentPortraitUrl ||
+                              character.user.avatar ||
+                              ''
+                            }
+                            alt={character.name}
+                            shape="circle"
+                            size={40}
+                          />
+                        </Link>
                         <div>
                           <div className="font-medium text-white">
                             <Link
@@ -614,7 +619,12 @@ const CharacterManagementPage = () => {
                             </Link>
                           </div>
                           <div className="text-sm text-white-500">
-                            {character.user.email}
+                            <Link
+                              href={`/management/characters/${character.id}`}
+                              className="hover:text-blue-400 transition-colors"
+                            >
+                              {character.user.email}
+                            </Link>
                           </div>
                         </div>
                       </div>
@@ -868,22 +878,37 @@ const CharacterManagementPage = () => {
                     <Tr key={report.character.id}>
                       <Td>
                         <div className="flex items-center gap-3">
-                          <Avatar
-                            src={
-                              report.character.currentPortraitUrl ||
-                              report.character.avatar ||
-                              ''
-                            }
-                            alt={report.character.name}
-                            shape="circle"
-                            size={32}
-                          />
+                          <Link
+                            href={`/management/characters/${report.character.id}`}
+                            className="hover:opacity-80 transition-opacity"
+                          >
+                            <Avatar
+                              src={
+                                report.character.currentPortraitUrl ||
+                                report.character.avatar ||
+                                ''
+                              }
+                              alt={report.character.name}
+                              shape="circle"
+                              size={32}
+                            />
+                          </Link>
                           <div>
                             <div className="font-medium text-white">
-                              {report.character.name}
+                              <Link
+                                href={`/management/characters/${report.character.id}`}
+                                className="hover:text-blue-400 transition-colors"
+                              >
+                                {report.character.name}
+                              </Link>
                             </div>
                             <div className="text-xs text-gray-400">
-                              {report.character.jobClass}
+                              <Link
+                                href={`/management/characters/${report.character.id}`}
+                                className="hover:text-blue-400 transition-colors"
+                              >
+                                {report.character.jobClass}
+                              </Link>
                             </div>
                           </div>
                         </div>
