@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     const monthEnd = endOfMonth(targetDate)
 
     // สร้าง WHERE clause สำหรับกรองตัวละคร
-    let characterWhereClause: any = {}
+    const characterWhereClause: Record<string, number> = {}
 
     if (characterId) {
       characterWhereClause.id = parseInt(characterId)
@@ -142,11 +142,13 @@ export async function GET(request: NextRequest) {
       })
 
       // ตรวจสอบแต่ละวันในเดือน
+      const today = new Date()
       daysInMonth.forEach((day) => {
         const dayOfWeek = getDay(day) // 0 = Sunday, 1 = Monday, etc.
         const dateKey = format(day, 'yyyy-MM-dd')
         const isHoliday = holidayDates.has(dateKey)
         const isWorkDay = workDaysSet.has(dayOfWeek) && !isHoliday
+        const isPastDay = day < today // วันที่ผ่านมาแล้ว
 
         if (isWorkDay) {
           workDaysCount++
@@ -160,7 +162,8 @@ export async function GET(request: NextRequest) {
             if (attendanceRecord.lateLevel && attendanceRecord.lateLevel > 0) {
               lateDays++
             }
-          } else {
+          } else if (isPastDay) {
+            // นับเป็นวันขาดงานเฉพาะวันที่ผ่านมาแล้วและไม่มีการเช็คอิน
             absentDays++
           }
         }
