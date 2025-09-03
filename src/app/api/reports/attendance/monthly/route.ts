@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { startOfMonth, endOfMonth, format, eachDayOfInterval, getDay } from 'date-fns'
+import {
+  startOfMonth,
+  endOfMonth,
+  format,
+  eachDayOfInterval,
+  getDay,
+} from 'date-fns'
 import { th } from 'date-fns/locale'
 
 export async function GET(request: NextRequest) {
@@ -14,7 +20,7 @@ export async function GET(request: NextRequest) {
     if (!year || !month) {
       return NextResponse.json(
         { error: 'กรุณาระบุปีและเดือน' },
-        { status: 400 }
+        { status: 400 },
       )
     }
 
@@ -24,11 +30,11 @@ export async function GET(request: NextRequest) {
 
     // สร้าง WHERE clause สำหรับกรองตัวละคร
     let characterWhereClause: any = {}
-    
+
     if (characterId) {
       characterWhereClause.id = parseInt(characterId)
     }
-    
+
     if (jobClassId) {
       characterWhereClause.jobClassId = parseInt(jobClassId)
     }
@@ -40,24 +46,24 @@ export async function GET(request: NextRequest) {
         user: {
           select: {
             email: true,
-            avatar: true
-          }
+            avatar: true,
+          },
         },
         jobClass: {
           select: {
-            name: true
-          }
+            name: true,
+          },
         },
         currentJobLevel: {
           select: {
-            title: true
-          }
-        }
-      }
+            title: true,
+          },
+        },
+      },
     })
 
     // สร้าง WHERE clause สำหรับการเข้าออกงาน
-    const attendanceWhereClause = characterId 
+    const attendanceWhereClause = characterId
       ? { characterId: parseInt(characterId) }
       : {}
 
@@ -67,8 +73,8 @@ export async function GET(request: NextRequest) {
         ...attendanceWhereClause,
         checkinAt: {
           gte: monthStart,
-          lte: monthEnd
-        }
+          lte: monthEnd,
+        },
       },
       include: {
         character: {
@@ -76,19 +82,19 @@ export async function GET(request: NextRequest) {
             name: true,
             workStartTime: true,
             workEndTime: true,
-            workDays: true
-          }
+            workDays: true,
+          },
         },
         workLocation: {
           select: {
             id: true,
-            name: true
-          }
-        }
+            name: true,
+          },
+        },
       },
       orderBy: {
-        checkinAt: 'desc'
-      }
+        checkinAt: 'desc',
+      },
     })
 
     // ดึงข้อมูลวันหยุดในเดือนนั้น
@@ -96,29 +102,32 @@ export async function GET(request: NextRequest) {
       where: {
         date: {
           gte: monthStart,
-          lte: monthEnd
+          lte: monthEnd,
         },
-        isActive: true
-      }
+        isActive: true,
+      },
     })
 
     const holidayDates = new Set(
-      holidays.map(h => format(h.date, 'yyyy-MM-dd'))
+      holidays.map((h) => format(h.date, 'yyyy-MM-dd')),
     )
 
     // สร้างรายงานสำหรับแต่ละตัวละคร
-    const reports = characters.map(character => {
+    const reports = characters.map((character) => {
       // กรองข้อมูลการเข้างานของตัวละครนี้
       const characterAttendance = attendanceRecords.filter(
-        record => record.characterId === character.id
+        (record) => record.characterId === character.id,
       )
 
       // ดึงวันทำงานของตัวละคร (ถ้าไม่มีข้อมูล ใช้ค่าเริ่มต้น จันทร์-ศุกร์)
-      const workDaysData = character.workDays as number[] || [1, 2, 3, 4, 5]
+      const workDaysData = (character.workDays as number[]) || [1, 2, 3, 4, 5]
       const workDaysSet = new Set(workDaysData)
 
       // คำนวณสถิติการเข้างาน
-      const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd })
+      const daysInMonth = eachDayOfInterval({
+        start: monthStart,
+        end: monthEnd,
+      })
       let workDaysCount = 0
       let checkinDays = 0
       let checkoutDays = 0
@@ -127,13 +136,13 @@ export async function GET(request: NextRequest) {
 
       // สร้าง Map สำหรับเช็คข้อมูลการเข้างานแต่ละวัน
       const attendanceByDate = new Map()
-      characterAttendance.forEach(record => {
+      characterAttendance.forEach((record) => {
         const dateKey = format(record.checkinAt, 'yyyy-MM-dd')
         attendanceByDate.set(dateKey, record)
       })
 
       // ตรวจสอบแต่ละวันในเดือน
-      daysInMonth.forEach(day => {
+      daysInMonth.forEach((day) => {
         const dayOfWeek = getDay(day) // 0 = Sunday, 1 = Monday, etc.
         const dateKey = format(day, 'yyyy-MM-dd')
         const isHoliday = holidayDates.has(dateKey)
@@ -141,7 +150,7 @@ export async function GET(request: NextRequest) {
 
         if (isWorkDay) {
           workDaysCount++
-          
+
           const attendanceRecord = attendanceByDate.get(dateKey)
           if (attendanceRecord) {
             checkinDays++
@@ -168,7 +177,7 @@ export async function GET(request: NextRequest) {
           jobLevel: character.currentJobLevel.title,
           workStartTime: character.workStartTime,
           workEndTime: character.workEndTime,
-          workDays: workDaysData
+          workDays: workDaysData,
         },
         attendance: {
           workDaysInMonth: workDaysCount,
@@ -176,9 +185,12 @@ export async function GET(request: NextRequest) {
           checkoutDays,
           lateDays,
           absentDays,
-          attendanceRate: workDaysCount > 0 ? (checkinDays / workDaysCount * 100).toFixed(1) : '0.0'
+          attendanceRate:
+            workDaysCount > 0
+              ? ((checkinDays / workDaysCount) * 100).toFixed(1)
+              : '0.0',
         },
-        records: characterAttendance.map(record => ({
+        records: characterAttendance.map((record) => ({
           id: record.id,
           checkinAt: record.checkinAt,
           checkoutAt: record.checkoutAt,
@@ -191,8 +203,8 @@ export async function GET(request: NextRequest) {
           isAutoCheckout: record.isAutoCheckout,
           autoCheckoutNote: record.autoCheckoutNote,
           notes: record.notes,
-          workLocation: record.workLocation
-        }))
+          workLocation: record.workLocation,
+        })),
       }
     })
 
@@ -204,23 +216,22 @@ export async function GET(request: NextRequest) {
           month: parseInt(month),
           monthName: format(targetDate, 'MMMM yyyy', { locale: th }),
           startDate: monthStart,
-          endDate: monthEnd
+          endDate: monthEnd,
         },
-        holidays: holidays.map(h => ({
+        holidays: holidays.map((h) => ({
           id: h.id,
           name: h.name,
           date: h.date,
-          description: h.description
+          description: h.description,
         })),
-        reports
-      }
+        reports,
+      },
     })
-
   } catch (error) {
     console.error('Error generating attendance report:', error)
     return NextResponse.json(
       { error: 'เกิดข้อผิดพลาดในการสร้างรายงาน' },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }

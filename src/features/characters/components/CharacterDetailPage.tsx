@@ -38,7 +38,16 @@ import {
   DeductXenyRequest,
 } from '../types'
 import { useJobClasses } from '../../jobs/hooks/api'
-import { Camera, Clock, MapPin, Trophy, Star, TrendingUp, CheckCircle, XCircle } from 'lucide-react'
+import {
+  Camera,
+  Clock,
+  MapPin,
+  Trophy,
+  Star,
+  TrendingUp,
+  CheckCircle,
+  XCircle,
+} from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 interface JobClassType {
@@ -495,11 +504,7 @@ const CharacterDetailPage: React.FC<CharacterDetailPageProps> = ({
         <div className="lg:col-span-1">
           <div className="flex flex-col items-center">
             <Avatar
-              src={
-                character.currentPortraitUrl ||
-                character.user.avatar ||
-                ''
-              }
+              src={character.currentPortraitUrl || character.user.avatar || ''}
               alt={character.name}
               shape="circle"
               size={200}
@@ -509,7 +514,9 @@ const CharacterDetailPage: React.FC<CharacterDetailPageProps> = ({
               <h3 className="text-3xl font-bold text-white mb-3">
                 {character.name}
               </h3>
-              <p className="text-gray-400 mb-4 text-lg">{character.user.email}</p>
+              <p className="text-gray-400 mb-4 text-lg">
+                {character.user.email}
+              </p>
               <div className="space-y-2">
                 <p className="text-xl font-semibold text-blue-400">
                   Level {character.level}
@@ -530,77 +537,86 @@ const CharacterDetailPage: React.FC<CharacterDetailPageProps> = ({
           <Card className="p-6">
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* XP Stats */}
-                <div className="bg-gray-800 p-6 rounded-lg">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Star className="h-6 w-6 text-yellow-400" />
-                    <span className="text-lg font-medium text-gray-400">Experience Points</span>
-                  </div>
-                  <p className="text-3xl font-bold text-white mb-2">
-                    {character.currentXP.toLocaleString()}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    ถัดไป: {character.nextLevelXP.toLocaleString()} XP
-                  </p>
-                  <div className="mt-3 bg-gray-700 rounded-full h-2">
-                    <div 
-                      className="bg-yellow-400 h-2 rounded-full transition-all duration-300"
-                      style={{ 
-                        width: `${Math.min(100, (character.currentXP / character.nextLevelXP) * 100)}%` 
-                      }}
-                    ></div>
-                  </div>
+              {/* XP Stats */}
+              <div className="bg-gray-800 p-6 rounded-lg">
+                <div className="flex items-center gap-3 mb-4">
+                  <Star className="h-6 w-6 text-yellow-400" />
+                  <span className="text-lg font-medium text-gray-400">
+                    Experience Points
+                  </span>
                 </div>
-
-                {/* Xeny */}
-                <div className="bg-gray-800 p-6 rounded-lg">
-                  <div className="flex items-center gap-3 mb-4">
-                    <HiOutlineCurrencyDollar className="h-6 w-6 text-green-400" />
-                    <span className="text-lg font-medium text-gray-400">Xeny Balance</span>
-                  </div>
-                  <p className="text-3xl font-bold text-white mb-2">
-                    {character.user.userXeny?.currentXeny || 0}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    รวมได้รับ: {character.user.userXeny?.totalEarnedXeny || 0}
-                  </p>
-                </div>
-
-                {/* Work Hours */}
-                <div className="bg-gray-800 p-6 rounded-lg">
-                  <div className="flex items-center gap-3 mb-4">
-                    <HiOutlineClock className="h-6 w-6 text-blue-400" />
-                    <span className="text-lg font-medium text-gray-400">เวลาทำงาน</span>
-                  </div>
-                  <p className="text-2xl font-bold text-white mb-2">
-                    {character.workStartTime || '-'} - {character.workEndTime || '-'}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {character.workDays && Array.isArray(character.workDays) 
-                      ? character.workDays
-                          .map((day: number) => {
-                            const days = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส']
-                            return days[day]
-                          })
-                          .join(', ')
-                      : 'ไม่ได้กำหนดวันทำงาน'}
-                  </p>
-                </div>
-
-                {/* Salary */}
-                <div className="bg-gray-800 p-6 rounded-lg">
-                  <div className="flex items-center gap-3 mb-4">
-                    <HiOutlineCurrencyDollar className="h-6 w-6 text-emerald-400" />
-                    <span className="text-lg font-medium text-gray-400">เงินเดือน</span>
-                  </div>
-                  <p className="text-2xl font-bold text-white mb-2">
-                    {formatSalary(character.salary)}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {character.salary ? 'ต่อเดือน' : 'ยังไม่ได้กำหนด'}
-                  </p>
+                <p className="text-3xl font-bold text-white mb-2">
+                  {character.currentXP.toLocaleString()}
+                </p>
+                <p className="text-sm text-gray-500">
+                  ถัดไป: {character.nextLevelXP.toLocaleString()} XP
+                </p>
+                <div className="mt-3 bg-gray-700 rounded-full h-2">
+                  <div
+                    className="bg-yellow-400 h-2 rounded-full transition-all duration-300"
+                    style={{
+                      width: `${Math.min(100, (character.currentXP / character.nextLevelXP) * 100)}%`,
+                    }}
+                  ></div>
                 </div>
               </div>
+
+              {/* Xeny */}
+              <div className="bg-gray-800 p-6 rounded-lg">
+                <div className="flex items-center gap-3 mb-4">
+                  <HiOutlineCurrencyDollar className="h-6 w-6 text-green-400" />
+                  <span className="text-lg font-medium text-gray-400">
+                    Xeny Balance
+                  </span>
+                </div>
+                <p className="text-3xl font-bold text-white mb-2">
+                  {character.user.userXeny?.currentXeny || 0}
+                </p>
+                <p className="text-sm text-gray-500">
+                  รวมได้รับ: {character.user.userXeny?.totalEarnedXeny || 0}
+                </p>
+              </div>
+
+              {/* Work Hours */}
+              <div className="bg-gray-800 p-6 rounded-lg">
+                <div className="flex items-center gap-3 mb-4">
+                  <HiOutlineClock className="h-6 w-6 text-blue-400" />
+                  <span className="text-lg font-medium text-gray-400">
+                    เวลาทำงาน
+                  </span>
+                </div>
+                <p className="text-2xl font-bold text-white mb-2">
+                  {character.workStartTime || '-'} -{' '}
+                  {character.workEndTime || '-'}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {character.workDays && Array.isArray(character.workDays)
+                    ? character.workDays
+                        .map((day: number) => {
+                          const days = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส']
+                          return days[day]
+                        })
+                        .join(', ')
+                    : 'ไม่ได้กำหนดวันทำงาน'}
+                </p>
+              </div>
+
+              {/* Salary */}
+              <div className="bg-gray-800 p-6 rounded-lg">
+                <div className="flex items-center gap-3 mb-4">
+                  <HiOutlineCurrencyDollar className="h-6 w-6 text-emerald-400" />
+                  <span className="text-lg font-medium text-gray-400">
+                    เงินเดือน
+                  </span>
+                </div>
+                <p className="text-2xl font-bold text-white mb-2">
+                  {formatSalary(character.salary)}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {character.salary ? 'ต่อเดือน' : 'ยังไม่ได้กำหนด'}
+                </p>
+              </div>
+            </div>
           </Card>
         </div>
       </div>
@@ -622,27 +638,39 @@ const CharacterDetailPage: React.FC<CharacterDetailPageProps> = ({
               <div className="space-y-4">
                 <div className="flex justify-between items-center py-2">
                   <span className="text-gray-400">AGI (ความคล่องแคล่ว)</span>
-                  <span className="font-medium text-white text-lg">{character.statAGI}</span>
+                  <span className="font-medium text-white text-lg">
+                    {character.statAGI}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center py-2">
                   <span className="text-gray-400">STR (พลัง)</span>
-                  <span className="font-medium text-white text-lg">{character.statSTR}</span>
+                  <span className="font-medium text-white text-lg">
+                    {character.statSTR}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center py-2">
                   <span className="text-gray-400">DEX (ความแม่นยำ)</span>
-                  <span className="font-medium text-white text-lg">{character.statDEX}</span>
+                  <span className="font-medium text-white text-lg">
+                    {character.statDEX}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center py-2">
                   <span className="text-gray-400">VIT (ความแข็งแกร่ง)</span>
-                  <span className="font-medium text-white text-lg">{character.statVIT}</span>
+                  <span className="font-medium text-white text-lg">
+                    {character.statVIT}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center py-2">
                   <span className="text-gray-400">INT (สติปัญญา)</span>
-                  <span className="font-medium text-white text-lg">{character.statINT}</span>
+                  <span className="font-medium text-white text-lg">
+                    {character.statINT}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center pt-4 mt-4 border-t border-gray-600">
                   <span className="text-gray-400">Stat Points ที่เหลือ</span>
-                  <span className="font-medium text-white text-lg">{character.statPoints}</span>
+                  <span className="font-medium text-white text-lg">
+                    {character.statPoints}
+                  </span>
                 </div>
               </div>
             </Card>
@@ -666,7 +694,7 @@ const CharacterDetailPage: React.FC<CharacterDetailPageProps> = ({
                 <div className="flex justify-between items-center py-2">
                   <span className="text-gray-400">วันทำงาน</span>
                   <span className="font-medium text-white">
-                    {character.workDays && Array.isArray(character.workDays) 
+                    {character.workDays && Array.isArray(character.workDays)
                       ? character.workDays
                           .map((day: number) => {
                             const days = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส']
@@ -806,166 +834,208 @@ const CharacterDetailPage: React.FC<CharacterDetailPageProps> = ({
               </div>
 
               {/* Detailed Records */}
-              {attendanceData.reports[0]?.records && attendanceData.reports[0].records.length > 0 && (
-                <div className="space-y-6">
-                  <h4 className="text-lg font-semibold text-white">บันทึกรายวัน</h4>
-                  {attendanceData.reports[0].records.map((record: {
-                    id: number
-                    checkinAt: string
-                    checkoutAt?: string | null
-                    checkinPhotoUrl?: string | null
-                    checkoutPhotoUrl?: string | null
-                    totalHours?: number | null
-                    lateLevel: number
-                    lateMinutes: number
-                    checkinType: string
-                    isAutoCheckout: boolean
-                    autoCheckoutNote?: string | null
-                    notes?: string | null
-                    workLocation?: { id: number; name: string } | null
-                  }, index: number) => (
-                    <Card key={record.id || index} className="p-6">
-                      <div className="space-y-4">
-                        {/* Header with Date and Status */}
-                        <div className="flex flex-wrap items-center gap-3 pb-4 border-b border-gray-700">
-                          <div className="text-lg font-semibold text-white">
-                            {new Date(record.checkinAt).toLocaleDateString('th-TH', {
-                              weekday: 'short',
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric',
-                            })}
-                          </div>
-                          <div
-                            className={`px-3 py-1 rounded-lg text-xs font-medium ${
-                              record.checkinType === 'onsite'
-                                ? 'bg-green-600 text-white'
-                                : 'bg-blue-600 text-white'
-                            }`}
-                          >
-                            {record.checkinType === 'onsite' ? 'ในสถานที่' : 'นอกสถานที่'}
-                          </div>
-                          {record.lateLevel > 0 && (
-                            <div className="bg-orange-600 text-white px-3 py-1 rounded-lg text-xs font-medium">
-                              สาย {record.lateMinutes} นาที
+              {attendanceData.reports[0]?.records &&
+                attendanceData.reports[0].records.length > 0 && (
+                  <div className="space-y-6">
+                    <h4 className="text-lg font-semibold text-white">
+                      บันทึกรายวัน
+                    </h4>
+                    {attendanceData.reports[0].records.map(
+                      (
+                        record: {
+                          id: number
+                          checkinAt: string
+                          checkoutAt?: string | null
+                          checkinPhotoUrl?: string | null
+                          checkoutPhotoUrl?: string | null
+                          totalHours?: number | null
+                          lateLevel: number
+                          lateMinutes: number
+                          checkinType: string
+                          isAutoCheckout: boolean
+                          autoCheckoutNote?: string | null
+                          notes?: string | null
+                          workLocation?: { id: number; name: string } | null
+                        },
+                        index: number,
+                      ) => (
+                        <Card key={record.id || index} className="p-6">
+                          <div className="space-y-4">
+                            {/* Header with Date and Status */}
+                            <div className="flex flex-wrap items-center gap-3 pb-4 border-b border-gray-700">
+                              <div className="text-lg font-semibold text-white">
+                                {new Date(record.checkinAt).toLocaleDateString(
+                                  'th-TH',
+                                  {
+                                    weekday: 'short',
+                                    day: 'numeric',
+                                    month: 'short',
+                                    year: 'numeric',
+                                  },
+                                )}
+                              </div>
+                              <div
+                                className={`px-3 py-1 rounded-lg text-xs font-medium ${
+                                  record.checkinType === 'onsite'
+                                    ? 'bg-green-600 text-white'
+                                    : 'bg-blue-600 text-white'
+                                }`}
+                              >
+                                {record.checkinType === 'onsite'
+                                  ? 'ในสถานที่'
+                                  : 'นอกสถานที่'}
+                              </div>
+                              {record.lateLevel > 0 && (
+                                <div className="bg-orange-600 text-white px-3 py-1 rounded-lg text-xs font-medium">
+                                  สาย {record.lateMinutes} นาที
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
 
-                        {/* Time Details */}
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                          <div className="space-y-1">
-                            <p className="text-sm text-gray-400">Check-in</p>
-                            <p className="font-medium text-white flex items-center gap-2">
-                              <Clock className="h-4 w-4 text-green-400" />
-                              {new Date(record.checkinAt).toLocaleTimeString('th-TH', {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
-                            </p>
-                          </div>
-
-                          <div className="space-y-1">
-                            <p className="text-sm text-gray-400">Check-out</p>
-                            <p className="font-medium text-white flex items-center gap-2">
-                              <Clock className="h-4 w-4 text-blue-400" />
-                              {record.checkoutAt ? (
-                                <span className="flex items-center gap-2">
-                                  {new Date(record.checkoutAt).toLocaleTimeString('th-TH', {
+                            {/* Time Details */}
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                              <div className="space-y-1">
+                                <p className="text-sm text-gray-400">
+                                  Check-in
+                                </p>
+                                <p className="font-medium text-white flex items-center gap-2">
+                                  <Clock className="h-4 w-4 text-green-400" />
+                                  {new Date(
+                                    record.checkinAt,
+                                  ).toLocaleTimeString('th-TH', {
                                     hour: '2-digit',
                                     minute: '2-digit',
                                   })}
-                                  {record.isAutoCheckout && (
-                                    <span className="text-blue-400 text-xs bg-blue-900 px-2 py-1 rounded">
-                                      Auto
+                                </p>
+                              </div>
+
+                              <div className="space-y-1">
+                                <p className="text-sm text-gray-400">
+                                  Check-out
+                                </p>
+                                <p className="font-medium text-white flex items-center gap-2">
+                                  <Clock className="h-4 w-4 text-blue-400" />
+                                  {record.checkoutAt ? (
+                                    <span className="flex items-center gap-2">
+                                      {new Date(
+                                        record.checkoutAt,
+                                      ).toLocaleTimeString('th-TH', {
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                      })}
+                                      {record.isAutoCheckout && (
+                                        <span className="text-blue-400 text-xs bg-blue-900 px-2 py-1 rounded">
+                                          Auto
+                                        </span>
+                                      )}
+                                    </span>
+                                  ) : (
+                                    <span className="text-red-400">
+                                      ลืม Checkout
                                     </span>
                                   )}
-                                </span>
-                              ) : (
-                                <span className="text-red-400">ลืม Checkout</span>
-                              )}
-                            </p>
-                          </div>
-
-                          <div className="space-y-1">
-                            <p className="text-sm text-gray-400">ระยะเวลา</p>
-                            <p className="font-medium text-white">
-                              {record.totalHours
-                                ? `${record.totalHours.toFixed(1)} ชั่วโมง`
-                                : '-'}
-                            </p>
-                          </div>
-
-                          <div className="space-y-1">
-                            <p className="text-sm text-gray-400">สถานที่</p>
-                            <p className="font-medium text-white flex items-center gap-2">
-                              <MapPin className="h-4 w-4 text-gray-400" />
-                              {record.workLocation ? (
-                                <span className="text-gray-300">
-                                  {record.workLocation.name}
-                                </span>
-                              ) : (
-                                <span className="text-gray-500">ไม่ระบุ</span>
-                              )}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Photos */}
-                        {(record.checkinPhotoUrl || record.checkoutPhotoUrl) && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-700">
-                            {record.checkinPhotoUrl && (
-                              <div className="space-y-2">
-                                <p className="text-sm text-gray-400 flex items-center gap-2">
-                                  <Camera className="h-4 w-4" />
-                                  รูป Check-in
                                 </p>
-                                <div className="aspect-[4/3] bg-gray-700 rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity">
-                                  <img
-                                    src={record.checkinPhotoUrl}
-                                    alt="Check-in"
-                                    className="w-full h-full object-cover"
-                                    onClick={() => record.checkinPhotoUrl && window.open(record.checkinPhotoUrl, '_blank')}
-                                  />
-                                </div>
+                              </div>
+
+                              <div className="space-y-1">
+                                <p className="text-sm text-gray-400">
+                                  ระยะเวลา
+                                </p>
+                                <p className="font-medium text-white">
+                                  {record.totalHours
+                                    ? `${record.totalHours.toFixed(1)} ชั่วโมง`
+                                    : '-'}
+                                </p>
+                              </div>
+
+                              <div className="space-y-1">
+                                <p className="text-sm text-gray-400">สถานที่</p>
+                                <p className="font-medium text-white flex items-center gap-2">
+                                  <MapPin className="h-4 w-4 text-gray-400" />
+                                  {record.workLocation ? (
+                                    <span className="text-gray-300">
+                                      {record.workLocation.name}
+                                    </span>
+                                  ) : (
+                                    <span className="text-gray-500">
+                                      ไม่ระบุ
+                                    </span>
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Photos */}
+                            {(record.checkinPhotoUrl ||
+                              record.checkoutPhotoUrl) && (
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-700">
+                                {record.checkinPhotoUrl && (
+                                  <div className="space-y-2">
+                                    <p className="text-sm text-gray-400 flex items-center gap-2">
+                                      <Camera className="h-4 w-4" />
+                                      รูป Check-in
+                                    </p>
+                                    <div className="aspect-[4/3] bg-gray-700 rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity">
+                                      <img
+                                        src={record.checkinPhotoUrl}
+                                        alt="Check-in"
+                                        className="w-full h-full object-cover"
+                                        onClick={() =>
+                                          record.checkinPhotoUrl &&
+                                          window.open(
+                                            record.checkinPhotoUrl,
+                                            '_blank',
+                                          )
+                                        }
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+
+                                {record.checkoutPhotoUrl && (
+                                  <div className="space-y-2">
+                                    <p className="text-sm text-gray-400 flex items-center gap-2">
+                                      <Camera className="h-4 w-4" />
+                                      รูป Check-out
+                                    </p>
+                                    <div className="aspect-[4/3] bg-gray-700 rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity">
+                                      <img
+                                        src={record.checkoutPhotoUrl}
+                                        alt="Check-out"
+                                        className="w-full h-full object-cover"
+                                        onClick={() =>
+                                          record.checkoutPhotoUrl &&
+                                          window.open(
+                                            record.checkoutPhotoUrl,
+                                            '_blank',
+                                          )
+                                        }
+                                      />
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             )}
 
-                            {record.checkoutPhotoUrl && (
-                              <div className="space-y-2">
-                                <p className="text-sm text-gray-400 flex items-center gap-2">
-                                  <Camera className="h-4 w-4" />
-                                  รูป Check-out
+                            {/* Notes */}
+                            {record.notes && (
+                              <div className="pt-4 border-t border-gray-700">
+                                <p className="text-sm text-gray-400 mb-2">
+                                  หมายเหตุ
                                 </p>
-                                <div className="aspect-[4/3] bg-gray-700 rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity">
-                                  <img
-                                    src={record.checkoutPhotoUrl}
-                                    alt="Check-out"
-                                    className="w-full h-full object-cover"
-                                    onClick={() => record.checkoutPhotoUrl && window.open(record.checkoutPhotoUrl, '_blank')}
-                                  />
-                                </div>
+                                <p className="text-sm text-gray-300">
+                                  {record.notes
+                                    .replace('[AUTO CHECKOUT] ', '')
+                                    .replace('[AUTO CHECKOUT]', '')}
+                                </p>
                               </div>
                             )}
                           </div>
-                        )}
-
-                        {/* Notes */}
-                        {record.notes && (
-                          <div className="pt-4 border-t border-gray-700">
-                            <p className="text-sm text-gray-400 mb-2">หมายเหตุ</p>
-                            <p className="text-sm text-gray-300">
-                              {record.notes
-                                .replace('[AUTO CHECKOUT] ', '')
-                                .replace('[AUTO CHECKOUT]', '')}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              )}
+                        </Card>
+                      ),
+                    )}
+                  </div>
+                )}
             </Card>
           ) : (
             <Card>
@@ -992,7 +1062,8 @@ const CharacterDetailPage: React.FC<CharacterDetailPageProps> = ({
                       <HiOutlineChartBar className="h-6 w-6 text-blue-400" />
                       <div>
                         <h4 className="text-xl font-semibold text-white">
-                          ผลประเมิน {getMonthName(evaluation.month)} {evaluation.year}
+                          ผลประเมิน {getMonthName(evaluation.month)}{' '}
+                          {evaluation.year}
                         </h4>
                         {/* <p className="text-sm text-gray-400 mt-1">
                           จำนวนงานที่ประเมิน: {evaluation.totalSubmissions} งาน
@@ -1011,22 +1082,29 @@ const CharacterDetailPage: React.FC<CharacterDetailPageProps> = ({
                     <div className="border border-gray-600 rounded-lg p-4">
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <span className="font-medium text-gray-400">งานที่ส่ง:</span>
+                          <span className="font-medium text-gray-400">
+                            งานที่ส่ง:
+                          </span>
                           <div className="mt-1 font-semibold text-white">
                             {evaluation.totalSubmissions} งาน
                           </div>
                         </div>
                         <div>
-                          <span className="font-medium text-gray-400">วันที่ประเมิน:</span>
+                          <span className="font-medium text-gray-400">
+                            วันที่ประเมิน:
+                          </span>
                           <div className="mt-1 text-white">
-                            {evaluation.evaluatedAt 
-                              ? new Date(evaluation.evaluatedAt).toLocaleDateString('th-TH')
-                              : 'ยังไม่ได้ประเมิน'
-                            }
+                            {evaluation.evaluatedAt
+                              ? new Date(
+                                  evaluation.evaluatedAt,
+                                ).toLocaleDateString('th-TH')
+                              : 'ยังไม่ได้ประเมิน'}
                           </div>
                         </div>
                         <div>
-                          <span className="font-medium text-gray-400">ผลการประเมิน:</span>
+                          <span className="font-medium text-gray-400">
+                            ผลการประเมิน:
+                          </span>
                           <div className="mt-1 flex items-center gap-1">
                             {evaluation.isPassed !== null ? (
                               evaluation.isPassed ? (
@@ -1045,7 +1123,9 @@ const CharacterDetailPage: React.FC<CharacterDetailPageProps> = ({
                                 </>
                               )
                             ) : (
-                              <Badge className="bg-gray-600 text-white">ยังไม่ได้ประเมิน</Badge>
+                              <Badge className="bg-gray-600 text-white">
+                                ยังไม่ได้ประเมิน
+                              </Badge>
                             )}
                           </div>
                         </div>
@@ -1053,61 +1133,61 @@ const CharacterDetailPage: React.FC<CharacterDetailPageProps> = ({
                     </div>
 
                     {/* Evaluation Content */}
-                    {evaluation.status === 'completed' && evaluation.summary && (
-                      <div className="space-y-4">
-                        <div className="border border-gray-600 rounded-lg p-4 text-center">
-                          <h3 className="font-semibold mb-3 text-lg text-white">
-                            📋 รายงานการประเมิน
-                          </h3>
-                          <div className="whitespace-pre-wrap text-sm leading-relaxed text-gray-300">
-                            {evaluation.summary}
+                    {evaluation.status === 'completed' &&
+                      evaluation.summary && (
+                        <div className="space-y-4">
+                          <div className="border border-gray-600 rounded-lg p-4 text-center">
+                            <h3 className="font-semibold mb-3 text-lg text-white">
+                              📋 รายงานการประเมิน
+                            </h3>
+                            <div className="whitespace-pre-wrap text-sm leading-relaxed text-gray-300">
+                              {evaluation.summary}
+                            </div>
                           </div>
+
+                          {/* Detailed Sections */}
+                          {(evaluation.strengths ||
+                            evaluation.weaknesses ||
+                            evaluation.improvements) && (
+                            <div className="grid gap-4">
+                              {evaluation.strengths && (
+                                <div className="border border-green-600 rounded-lg p-4">
+                                  <h4 className="font-semibold text-green-400 mb-2 flex items-center gap-2">
+                                    <TrendingUp className="h-4 w-4" />✅ จุดดี
+                                  </h4>
+                                  <div className="text-sm whitespace-pre-wrap text-gray-300">
+                                    {evaluation.strengths}
+                                  </div>
+                                </div>
+                              )}
+
+                              {evaluation.weaknesses && (
+                                <div className="border border-yellow-600 rounded-lg p-4">
+                                  <h4 className="font-semibold text-yellow-400 mb-2 flex items-center gap-2">
+                                    <HiOutlineMinus className="h-4 w-4" />
+                                    ⚠️ จุดบกพร่อง
+                                  </h4>
+                                  <div className="text-sm whitespace-pre-wrap text-gray-300">
+                                    {evaluation.weaknesses}
+                                  </div>
+                                </div>
+                              )}
+
+                              {evaluation.improvements && (
+                                <div className="border border-blue-600 rounded-lg p-4">
+                                  <h4 className="font-semibold text-blue-400 mb-2 flex items-center gap-2">
+                                    <Trophy className="h-4 w-4" />
+                                    🎯 สิ่งที่ต้องแก้/ทำต่อไป
+                                  </h4>
+                                  <div className="text-sm whitespace-pre-wrap text-gray-300">
+                                    {evaluation.improvements}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
-
-                        {/* Detailed Sections */}
-                        {(evaluation.strengths ||
-                          evaluation.weaknesses ||
-                          evaluation.improvements) && (
-                          <div className="grid gap-4">
-                            {evaluation.strengths && (
-                              <div className="border border-green-600 rounded-lg p-4">
-                                <h4 className="font-semibold text-green-400 mb-2 flex items-center gap-2">
-                                  <TrendingUp className="h-4 w-4" />
-                                  ✅ จุดดี
-                                </h4>
-                                <div className="text-sm whitespace-pre-wrap text-gray-300">
-                                  {evaluation.strengths}
-                                </div>
-                              </div>
-                            )}
-
-                            {evaluation.weaknesses && (
-                              <div className="border border-yellow-600 rounded-lg p-4">
-                                <h4 className="font-semibold text-yellow-400 mb-2 flex items-center gap-2">
-                                  <HiOutlineMinus className="h-4 w-4" />
-                                  ⚠️ จุดบกพร่อง
-                                </h4>
-                                <div className="text-sm whitespace-pre-wrap text-gray-300">
-                                  {evaluation.weaknesses}
-                                </div>
-                              </div>
-                            )}
-
-                            {evaluation.improvements && (
-                              <div className="border border-blue-600 rounded-lg p-4">
-                                <h4 className="font-semibold text-blue-400 mb-2 flex items-center gap-2">
-                                  <Trophy className="h-4 w-4" />
-                                  🎯 สิ่งที่ต้องแก้/ทำต่อไป
-                                </h4>
-                                <div className="text-sm whitespace-pre-wrap text-gray-300">
-                                  {evaluation.improvements}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
+                      )}
 
                     {evaluation.status === 'failed' && (
                       <div className="border border-red-600 rounded-lg p-4">
@@ -1124,7 +1204,9 @@ const CharacterDetailPage: React.FC<CharacterDetailPageProps> = ({
                     {evaluation.status === 'pending' && (
                       <div className="border border-gray-600 rounded-lg p-4 text-center">
                         <Clock className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                        <div className="text-sm text-gray-300">รอการประเมินผลประจำเดือน</div>
+                        <div className="text-sm text-gray-300">
+                          รอการประเมินผลประจำเดือน
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1256,7 +1338,8 @@ const CharacterDetailPage: React.FC<CharacterDetailPageProps> = ({
                 })}
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                เลือกวันที่ต้องการให้บุคลากรคนนี้ทำงาน (ค่าเริ่มต้น: จันทร์-ศุกร์)
+                เลือกวันที่ต้องการให้บุคลากรคนนี้ทำงาน (ค่าเริ่มต้น:
+                จันทร์-ศุกร์)
               </p>
             </FormItem>
 

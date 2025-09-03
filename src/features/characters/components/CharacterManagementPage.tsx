@@ -485,7 +485,7 @@ const CharacterManagementPage = () => {
                         />
                         <div>
                           <div className="font-medium text-white">
-                            <Link 
+                            <Link
                               href={`/management/characters/${character.id}`}
                               className="hover:text-blue-400 transition-colors"
                             >
