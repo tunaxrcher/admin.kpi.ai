@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import {
   Card,
   Table,
@@ -57,6 +57,10 @@ const CharacterManagementPage = () => {
     search: '',
     jobClassId: undefined as number | undefined,
   })
+  const [searchInput, setSearchInput] = useState('')
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+  const [shouldRestoreFocus, setShouldRestoreFocus] = useState(false)
   const [selectedCharacter, setSelectedCharacter] =
     useState<CharacterWithRelations | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
@@ -141,7 +145,13 @@ const CharacterManagementPage = () => {
   const [isConfirmBulkDeleteOpen, setIsConfirmBulkDeleteOpen] = useState(false)
   const [characterToDelete, setCharacterToDelete] = useState<CharacterWithRelations | null>(null)
 
-  const { data: charactersData, isLoading, error } = useCharacters(filters)
+  // Memoize filters to prevent unnecessary re-renders
+  const memoizedFilters = useMemo(() => ({
+    search: filters.search,
+    jobClassId: filters.jobClassId
+  }), [filters.search, filters.jobClassId])
+  
+  const { data: charactersData, isLoading, error } = useCharacters(memoizedFilters)
   const { data: jobClasses } = useJobClasses()
   const updateWorkSettings = useUpdateCharacterWorkSettings()
   const updateCharacterJob = useUpdateCharacterJob()
@@ -152,9 +162,37 @@ const CharacterManagementPage = () => {
   // Debug log
   console.log('jobClasses:', jobClasses)
 
-  const handleSearch = (value: string) => {
-    setFilters((prev) => ({ ...prev, search: value }))
-  }
+  const handleSearch = useCallback((value: string) => {
+    setSearchInput(value)
+    setShouldRestoreFocus(true)
+    
+    // Clear existing timeout
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current)
+    }
+    
+    // Set new timeout for debounced search
+    debounceTimeoutRef.current = setTimeout(() => {
+      setFilters((prev) => ({ ...prev, search: value }))
+    }, 300) // 300ms delay
+  }, [])
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  // Restore focus after re-render
+  useEffect(() => {
+    if (shouldRestoreFocus && searchInputRef.current) {
+      searchInputRef.current.focus()
+      setShouldRestoreFocus(false)
+    }
+  }, [shouldRestoreFocus, charactersData])
 
   const handleJobClassFilter = (value: string | null) => {
     setFilters((prev) => ({
@@ -598,9 +636,11 @@ const CharacterManagementPage = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
               <div className="flex flex-col sm:flex-row gap-4 items-center">
                 <Input
+                  ref={searchInputRef}
+                  key="character-search-input"
                   placeholder="ค้นหาด้วยชื่อหรืออีเมล"
                   prefix={<HiOutlineSearch />}
-                  value={filters.search}
+                  value={searchInput}
                   onChange={(e) => handleSearch(e.target.value)}
                   className="sm:w-64"
                 />
