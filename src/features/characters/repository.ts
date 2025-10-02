@@ -191,6 +191,213 @@ export class CharacterRepository extends BaseRepository<any> {
     // Return updated character
     return await this.getCharacterById(characterId)
   }
+
+  async getCharactersByIds(ids: number[]) {
+    return await this.prisma.character.findMany({
+      where: { id: { in: ids } },
+      include: {
+        user: {
+          include: {
+            userXeny: true,
+          },
+        },
+        jobClass: true,
+        currentJobLevel: true,
+      },
+    })
+  }
+
+  async deleteCharacter(characterId: number, userId: number) {
+    // Use transaction to ensure data consistency
+    return await this.prisma.$transaction(async (tx) => {
+      // Get character info before deletion
+      const character = await tx.character.findUnique({
+        where: { id: characterId },
+        include: {
+          user: {
+            select: { id: true, email: true, name: true }
+          }
+        }
+      })
+
+      if (!character) {
+        throw new Error('ไม่พบข้อมูลบุคลากร')
+      }
+
+      // Delete related records that don't have cascade delete
+      // Order is important due to foreign key constraints
+      
+      // 1. Delete QuestSubmission records first (references AssignedQuest)
+      await tx.questSubmission.deleteMany({
+        where: { characterId }
+      })
+
+      // 2. Delete AssignedQuest records (now safe to delete)
+      await tx.assignedQuest.deleteMany({
+        where: { characterId }
+      })
+
+      // 3. Delete personal Quest records
+      await tx.quest.deleteMany({
+        where: { characterId }
+      })
+
+      // 4. Delete LevelHistory records
+      await tx.levelHistory.deleteMany({
+        where: { characterId }
+      })
+
+      // 5. Delete QuestToken records (has character reference without cascade)
+      await tx.questToken.deleteMany({
+        where: { characterId }
+      })
+
+      // 6. Delete TokenPurchase records (has character reference without cascade)
+      await tx.tokenPurchase.deleteMany({
+        where: { characterId }
+      })
+
+      // 7. Delete RewardPurchase records
+      await tx.rewardPurchase.deleteMany({
+        where: { characterId }
+      })
+
+      // 8. Delete GachaHistory records
+      await tx.gachaHistory.deleteMany({
+        where: { characterId }
+      })
+
+      // 9. Delete UserRewardStats
+      await tx.userRewardStats.deleteMany({
+        where: { characterId }
+      })
+
+      // 10. Delete CheckinCheckout records
+      await tx.checkinCheckout.deleteMany({
+        where: { characterId }
+      })
+
+      // 11. Delete MonthlyEvaluation records
+      await tx.monthlyEvaluation.deleteMany({
+        where: { characterId }
+      })
+
+      // 12. Delete CharacterAchievement records
+      await tx.characterAchievement.deleteMany({
+        where: { characterId }
+      })
+
+      // 13. Delete Ranking records
+      await tx.ranking.deleteMany({
+        where: { characterId }
+      })
+
+      // Now delete the user (this will cascade delete the character and other records with cascade delete)
+      await tx.user.delete({
+        where: { id: userId }
+      })
+
+      return {
+        deletedCharacter: {
+          id: character.id,
+          name: character.name,
+          userId: character.userId,
+        },
+        deletedUser: character.user,
+      }
+    })
+  }
+
+  async bulkDeleteCharacters(characters: any[]) {
+    const userIds = characters.map(c => c.userId)
+    const characterIds = characters.map(c => c.id)
+    
+    // Use transaction to ensure data consistency
+    return await this.prisma.$transaction(async (tx) => {
+      // Delete related records that don't have cascade delete for all characters
+      // Order is important due to foreign key constraints
+      
+      // 1. Delete QuestSubmission records first (references AssignedQuest)
+      await tx.questSubmission.deleteMany({
+        where: { characterId: { in: characterIds } }
+      })
+
+      // 2. Delete AssignedQuest records (now safe to delete)
+      await tx.assignedQuest.deleteMany({
+        where: { characterId: { in: characterIds } }
+      })
+
+      // 3. Delete personal Quest records
+      await tx.quest.deleteMany({
+        where: { characterId: { in: characterIds } }
+      })
+
+      // 4. Delete LevelHistory records
+      await tx.levelHistory.deleteMany({
+        where: { characterId: { in: characterIds } }
+      })
+
+      // 5. Delete QuestToken records
+      await tx.questToken.deleteMany({
+        where: { characterId: { in: characterIds } }
+      })
+
+      // 6. Delete TokenPurchase records
+      await tx.tokenPurchase.deleteMany({
+        where: { characterId: { in: characterIds } }
+      })
+
+      // 7. Delete RewardPurchase records
+      await tx.rewardPurchase.deleteMany({
+        where: { characterId: { in: characterIds } }
+      })
+
+      // 8. Delete GachaHistory records
+      await tx.gachaHistory.deleteMany({
+        where: { characterId: { in: characterIds } }
+      })
+
+      // 9. Delete UserRewardStats
+      await tx.userRewardStats.deleteMany({
+        where: { characterId: { in: characterIds } }
+      })
+
+      // 10. Delete CheckinCheckout records
+      await tx.checkinCheckout.deleteMany({
+        where: { characterId: { in: characterIds } }
+      })
+
+      // 11. Delete MonthlyEvaluation records
+      await tx.monthlyEvaluation.deleteMany({
+        where: { characterId: { in: characterIds } }
+      })
+
+      // 12. Delete CharacterAchievement records
+      await tx.characterAchievement.deleteMany({
+        where: { characterId: { in: characterIds } }
+      })
+
+      // 13. Delete Ranking records
+      await tx.ranking.deleteMany({
+        where: { characterId: { in: characterIds } }
+      })
+
+      // Now delete all users (this will cascade delete the characters and other records with cascade delete)
+      const deletedUsers = await tx.user.deleteMany({
+        where: { id: { in: userIds } },
+      })
+
+      return {
+        deletedCount: deletedUsers.count,
+        deletedCharacters: characters.map(c => ({
+          id: c.id,
+          name: c.name,
+          userId: c.userId,
+          userEmail: c.user.email,
+        })),
+      }
+    })
+  }
 }
 
 export const characterRepository = CharacterRepository.getInstance()

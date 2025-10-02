@@ -102,6 +102,29 @@ export class CharacterService extends BaseService {
     )
   }
 
+  async deleteCharacter(characterId: number) {
+    // Get character info first to validate and get user ID
+    const character = await characterRepository.getCharacterById(characterId)
+    if (!character) {
+      throw new Error('ไม่พบข้อมูลบุคลากร')
+    }
+
+    return await characterRepository.deleteCharacter(characterId, character.userId)
+  }
+
+  async bulkDeleteCharacters(characterIds: number[]) {
+    // Get all characters first to validate and get user IDs
+    const characters = await characterRepository.getCharactersByIds(characterIds)
+    
+    if (characters.length !== characterIds.length) {
+      const foundIds = characters.map(c => c.id)
+      const missingIds = characterIds.filter(id => !foundIds.includes(id))
+      throw new Error(`ไม่พบบุคลากรที่มี ID: ${missingIds.join(', ')}`)
+    }
+
+    return await characterRepository.bulkDeleteCharacters(characters)
+  }
+
   private isValidTimeFormat(time: string): boolean {
     const timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d$/
     return timeRegex.test(time)

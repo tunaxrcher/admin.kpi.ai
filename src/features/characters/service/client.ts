@@ -92,6 +92,34 @@ export class CharacterService extends BaseService {
 
     return response.json()
   }
+
+  async deleteCharacter(id: number) {
+    const response = await fetch(`/api/characters/${id}`, {
+      method: 'DELETE',
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.message || 'Failed to delete character')
+    }
+
+    return response.json()
+  }
+
+  async bulkDeleteCharacters(characterIds: number[]) {
+    const response = await fetch('/api/characters/bulk-delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ characterIds }),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.message || 'Failed to bulk delete characters')
+    }
+
+    return response.json()
+  }
 }
 
 export const characterService = CharacterService.getInstance()

@@ -21,12 +21,16 @@ import {
   HiOutlineBriefcase,
   HiOutlineMinus,
   HiOutlineDotsVertical,
+  HiOutlineTrash,
+  HiOutlineCheck,
 } from 'react-icons/hi'
 import {
   useCharacters,
   useUpdateCharacterWorkSettings,
   useUpdateCharacterJob,
   useDeductXeny,
+  useDeleteCharacter,
+  useBulkDeleteCharacters,
 } from '../hooks/useCharacters'
 import {
   CharacterWithRelations,
@@ -129,12 +133,21 @@ const CharacterManagementPage = () => {
     key: null,
     direction: 'asc',
   })
+  
+  // Delete functionality states
+  const [isBulkDeleteMode, setIsBulkDeleteMode] = useState(false)
+  const [selectedCharacterIds, setSelectedCharacterIds] = useState<number[]>([])
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isConfirmBulkDeleteOpen, setIsConfirmBulkDeleteOpen] = useState(false)
+  const [characterToDelete, setCharacterToDelete] = useState<CharacterWithRelations | null>(null)
 
   const { data: charactersData, isLoading, error } = useCharacters(filters)
   const { data: jobClasses } = useJobClasses()
   const updateWorkSettings = useUpdateCharacterWorkSettings()
   const updateCharacterJob = useUpdateCharacterJob()
   const deductXeny = useDeductXeny()
+  const deleteCharacter = useDeleteCharacter()
+  const bulkDeleteCharacters = useBulkDeleteCharacters()
 
   // Debug log
   console.log('jobClasses:', jobClasses)
@@ -302,6 +315,63 @@ const CharacterManagementPage = () => {
           },
         },
       )
+    }
+  }
+
+  // Delete handlers
+  const handleDeleteCharacter = (character: CharacterWithRelations) => {
+    setCharacterToDelete(character)
+    setIsDeleteDialogOpen(true)
+  }
+
+  const confirmDeleteCharacter = () => {
+    if (characterToDelete) {
+      deleteCharacter.mutate(characterToDelete.id, {
+        onSuccess: () => {
+          setIsDeleteDialogOpen(false)
+          setCharacterToDelete(null)
+        },
+      })
+    }
+  }
+
+  const toggleBulkDeleteMode = () => {
+    setIsBulkDeleteMode(!isBulkDeleteMode)
+    setSelectedCharacterIds([])
+  }
+
+  const handleSelectCharacter = (characterId: number, isSelected: boolean) => {
+    if (isSelected) {
+      setSelectedCharacterIds(prev => [...prev, characterId])
+    } else {
+      setSelectedCharacterIds(prev => prev.filter(id => id !== characterId))
+    }
+  }
+
+  const handleSelectAllCharacters = (isSelected: boolean) => {
+    if (isSelected) {
+      const allIds = getSortedCharacterData().map(c => c.id)
+      setSelectedCharacterIds(allIds)
+    } else {
+      setSelectedCharacterIds([])
+    }
+  }
+
+  const handleBulkDelete = () => {
+    if (selectedCharacterIds.length > 0) {
+      setIsConfirmBulkDeleteOpen(true)
+    }
+  }
+
+  const confirmBulkDelete = () => {
+    if (selectedCharacterIds.length > 0) {
+      bulkDeleteCharacters.mutate(selectedCharacterIds, {
+        onSuccess: () => {
+          setIsConfirmBulkDeleteOpen(false)
+          setSelectedCharacterIds([])
+          setIsBulkDeleteMode(false)
+        },
+      })
     }
   }
 
@@ -525,38 +595,75 @@ const CharacterManagementPage = () => {
         <Tabs.TabContent value="management">
           {/* Filters */}
           <Card className="mb-6">
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Input
-                placeholder="ค้นหาด้วยชื่อหรืออีเมล"
-                prefix={<HiOutlineSearch />}
-                value={filters.search}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="sm:w-64"
-              />
-              <Select
-                placeholder="เลือกอาชีพ"
-                value={
-                  filters.jobClassId
-                    ? {
-                        value: filters.jobClassId,
-                        label: jobClasses?.find(
-                          (j: JobClassType) => j.id === filters.jobClassId,
-                        )?.name,
-                      }
-                    : null
-                }
-                onChange={(option) =>
-                  handleJobClassFilter(option?.value?.toString() ?? null)
-                }
-                className="sm:w-48"
-                options={[
-                  { value: '', label: 'ทั้งหมด' },
-                  ...(jobClasses?.map((jobClass: JobClassType) => ({
-                    value: jobClass.id,
-                    label: jobClass.name,
-                  })) || []),
-                ]}
-              />
+            <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
+              <div className="flex flex-col sm:flex-row gap-4 items-center">
+                <Input
+                  placeholder="ค้นหาด้วยชื่อหรืออีเมล"
+                  prefix={<HiOutlineSearch />}
+                  value={filters.search}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="sm:w-64"
+                />
+                <Select
+                  placeholder="เลือกอาชีพ"
+                  value={
+                    filters.jobClassId
+                      ? {
+                          value: filters.jobClassId,
+                          label: jobClasses?.find(
+                            (j: JobClassType) => j.id === filters.jobClassId,
+                          )?.name,
+                        }
+                      : null
+                  }
+                  onChange={(option) =>
+                    handleJobClassFilter(option?.value?.toString() ?? null)
+                  }
+                  className="sm:w-48"
+                  options={[
+                    { value: '', label: 'ทั้งหมด' },
+                    ...(jobClasses?.map((jobClass: JobClassType) => ({
+                      value: jobClass.id,
+                      label: jobClass.name,
+                    })) || []),
+                  ]}
+                />
+              </div>
+              
+              {/* Bulk Delete Controls */}
+              <div className="flex gap-2">
+                {isBulkDeleteMode && (
+                  <Button
+                    size="sm"
+                    variant="solid"
+                    color="red-600"
+                    onClick={handleBulkDelete}
+                    disabled={selectedCharacterIds.length === 0}
+                    loading={bulkDeleteCharacters.isPending}
+                  >
+                    <HiOutlineTrash className="mr-2" />
+                    ลบที่เลือก ({selectedCharacterIds.length})
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant={isBulkDeleteMode ? "solid" : "default"}
+                  color={isBulkDeleteMode ? "gray-600" : "red-600"}
+                  onClick={toggleBulkDeleteMode}
+                >
+                  {isBulkDeleteMode ? (
+                    <>
+                      <HiOutlineCheck className="mr-2" />
+                      เสร็จสิ้น
+                    </>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <HiOutlineTrash className="mr-2" />
+                      ลบแบบหลายคน
+                    </div>
+                  )}
+                </Button>
+              </div>
             </div>
           </Card>
 
@@ -565,6 +672,19 @@ const CharacterManagementPage = () => {
             <Table>
               <THead>
                 <Tr>
+                  {isBulkDeleteMode && (
+                    <Th className="w-12">
+                      <input
+                        type="checkbox"
+                        checked={
+                          getSortedCharacterData().length > 0 &&
+                          selectedCharacterIds.length === getSortedCharacterData().length
+                        }
+                        onChange={(e) => handleSelectAllCharacters(e.target.checked)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                    </Th>
+                  )}
                   <Th>บุคลากร</Th>
                   <Th>อาชีพ</Th>
                   <Th>ระดับอาชีพ</Th>
@@ -592,6 +712,16 @@ const CharacterManagementPage = () => {
               <TBody>
                 {getSortedCharacterData().map((character: CharacterType) => (
                   <Tr key={character.id}>
+                    {isBulkDeleteMode && (
+                      <Td>
+                        <input
+                          type="checkbox"
+                          checked={selectedCharacterIds.includes(character.id)}
+                          onChange={(e) => handleSelectCharacter(character.id, e.target.checked)}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                      </Td>
+                    )}
                     <Td>
                       <div className="flex items-center gap-3">
                         <Link
@@ -680,6 +810,15 @@ const CharacterManagementPage = () => {
                           <div className="flex items-center gap-2">
                             <HiOutlineMinus className="text-base" />
                             <span>หัก Xeny</span>
+                          </div>
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => handleDeleteCharacter(character)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <div className="flex items-center gap-2">
+                            <HiOutlineTrash className="text-base" />
+                            <span>ลบบุคลากร</span>
                           </div>
                         </Dropdown.Item>
                       </Dropdown>
@@ -1497,6 +1636,146 @@ const CharacterManagementPage = () => {
             )}
           </div>
         )}
+      </Dialog>
+
+      {/* Single Delete Confirmation Dialog */}
+      <Dialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => {
+          setIsDeleteDialogOpen(false)
+          setCharacterToDelete(null)
+        }}
+        onRequestClose={() => {
+          setIsDeleteDialogOpen(false)
+          setCharacterToDelete(null)
+        }}
+      >
+        <h5 className="mb-4 text-red-600">ยืนยันการลบบุคลากร</h5>
+        {characterToDelete && (
+          <div>
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div className="flex items-center gap-3 mb-2">
+                <Avatar
+                  src={
+                    characterToDelete.currentPortraitUrl ||
+                    characterToDelete.user.avatar ||
+                    ''
+                  }
+                  alt={characterToDelete.name}
+                  shape="circle"
+                  size={40}
+                />
+                <div>
+                  <div className="font-medium text-gray-900">
+                    {characterToDelete.name}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {characterToDelete.user.email}
+                  </div>
+                </div>
+              </div>
+              <p className="text-sm text-red-600 font-medium">
+                ⚠️ การดำเนินการนี้จะลบข้อมูลทั้งหมดของบุคลากรและผู้ใช้งานอย่างถาวร
+              </p>
+            </div>
+            
+            <p className="text-gray-700 mb-6">
+              คุณแน่ใจหรือไม่ที่จะลบบุคลากร <strong>{characterToDelete.name}</strong>? 
+              การดำเนินการนี้ไม่สามารถยกเลิกได้
+            </p>
+
+            <div className="flex gap-3">
+              <Button
+                className="flex-1"
+                variant="plain"
+                onClick={() => {
+                  setIsDeleteDialogOpen(false)
+                  setCharacterToDelete(null)
+                }}
+              >
+                ยกเลิก
+              </Button>
+              <Button
+                className="flex-1"
+                variant="solid"
+                color="red-600"
+                onClick={confirmDeleteCharacter}
+                loading={deleteCharacter.isPending}
+              >
+                ลบบุคลากร
+              </Button>
+            </div>
+          </div>
+        )}
+      </Dialog>
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <Dialog
+        isOpen={isConfirmBulkDeleteOpen}
+        onClose={() => setIsConfirmBulkDeleteOpen(false)}
+        onRequestClose={() => setIsConfirmBulkDeleteOpen(false)}
+      >
+        <h5 className="mb-4 text-red-600">ยืนยันการลบบุคลากรหลายคน</h5>
+        <div>
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-sm text-red-600 font-medium mb-2">
+              ⚠️ การดำเนินการนี้จะลบข้อมูลทั้งหมดของบุคลากรและผู้ใช้งานอย่างถาวร
+            </p>
+            <p className="text-sm text-gray-600">
+              จำนวนบุคลากรที่จะถูกลบ: <strong>{selectedCharacterIds.length}</strong> คน
+            </p>
+          </div>
+
+          <div className="mb-4 max-h-48 overflow-y-auto">
+            <p className="text-sm font-medium text-gray-700 mb-2">รายชื่อบุคลากรที่จะถูกลบ:</p>
+            <div className="space-y-2">
+              {getSortedCharacterData()
+                .filter(c => selectedCharacterIds.includes(c.id))
+                .map(character => (
+                  <div key={character.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                    <Avatar
+                      src={
+                        character.currentPortraitUrl ||
+                        character.user.avatar ||
+                        ''
+                      }
+                      alt={character.name}
+                      shape="circle"
+                      size={24}
+                    />
+                    <div className="text-sm">
+                      <span className="font-medium">{character.name}</span>
+                      <span className="text-gray-500 ml-2">({character.user.email})</span>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+          
+          <p className="text-gray-700 mb-6">
+            คุณแน่ใจหรือไม่ที่จะลบบุคลากรทั้งหมดที่เลือก? 
+            การดำเนินการนี้ไม่สามารถยกเลิกได้
+          </p>
+
+          <div className="flex gap-3">
+            <Button
+              className="flex-1"
+              variant="plain"
+              onClick={() => setIsConfirmBulkDeleteOpen(false)}
+            >
+              ยกเลิก
+            </Button>
+            <Button
+              className="flex-1"
+              variant="solid"
+              color="red-600"
+              onClick={confirmBulkDelete}
+              loading={bulkDeleteCharacters.isPending}
+            >
+              ลบบุคลากรทั้งหมด ({selectedCharacterIds.length})
+            </Button>
+          </div>
+        </div>
       </Dialog>
     </div>
   )

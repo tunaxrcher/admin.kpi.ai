@@ -130,3 +130,56 @@ export const useDeductXeny = () => {
     },
   })
 }
+
+// Delete single character
+export const useDeleteCharacter = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: number) => characterService.deleteCharacter(id),
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all })
+
+      toast.push(
+        <Notification title="สำเร็จ" type="success">
+          ลบบุคลากรเรียบร้อยแล้ว
+        </Notification>,
+      )
+    },
+    onError: (error: Error) => {
+      toast.push(
+        <Notification title="เกิดข้อผิดพลาด" type="danger">
+          {error.message || 'ไม่สามารถลบบุคลากรได้'}
+        </Notification>,
+      )
+    },
+  })
+}
+
+// Bulk delete characters
+export const useBulkDeleteCharacters = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (characterIds: number[]) =>
+      characterService.bulkDeleteCharacters(characterIds),
+    onSuccess: (data) => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all })
+
+      toast.push(
+        <Notification title="สำเร็จ" type="success">
+          {data.message || 'ลบบุคลากรเรียบร้อยแล้ว'}
+        </Notification>,
+      )
+    },
+    onError: (error: Error) => {
+      toast.push(
+        <Notification title="เกิดข้อผิดพลาด" type="danger">
+          {error.message || 'ไม่สามารถลบบุคลากรได้'}
+        </Notification>,
+      )
+    },
+  })
+}

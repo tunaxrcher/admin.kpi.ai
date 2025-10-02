@@ -28,3 +28,30 @@ export const GET = withErrorHandling(
     return NextResponse.json(character)
   },
 )
+
+export const DELETE = withErrorHandling(
+  async (
+    request: NextRequest,
+    context: { params: Promise<{ id: string }> },
+  ) => {
+    const { id } = await context.params
+    console.log(`[API] DELETE Character by ID: ${id}`)
+
+    const characterId = parseInt(id)
+
+    if (isNaN(characterId)) {
+      return NextResponse.json(
+        { error: 'Character ID ไม่ถูกต้อง' },
+        { status: 400 },
+      )
+    }
+
+    const result = await characterService.deleteCharacter(characterId)
+
+    return NextResponse.json({
+      success: true,
+      message: 'ลบบุคลากรเรียบร้อยแล้ว',
+      data: result,
+    })
+  },
+)
