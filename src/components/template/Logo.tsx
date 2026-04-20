@@ -2,6 +2,7 @@ import classNames from 'classnames'
 import { APP_NAME } from '../../constants/app.constant'
 import Image from 'next/image'
 import type { CommonProps } from '../../@types/common'
+import { getLogoSrc } from '../../lib/logo'
 
 interface LogoProps extends CommonProps {
   type?: 'full' | 'streamline'
@@ -10,8 +11,6 @@ interface LogoProps extends CommonProps {
   logoWidth?: number
   logoHeight?: number
 }
-
-const LOGO_SRC_PATH = '/img/logo/'
 
 const Logo = (props: LogoProps) => {
   const {
@@ -37,7 +36,7 @@ const Logo = (props: LogoProps) => {
               type === 'full' ? '' : 'hidden',
               imgClass,
             )}
-            src={`${LOGO_SRC_PATH}logo-light-full.png`}
+            src={getLogoSrc('light', 'full')}
             alt={`${APP_NAME} logo`}
             width={width}
             height={height}
@@ -49,7 +48,7 @@ const Logo = (props: LogoProps) => {
               type === 'streamline' ? '' : 'hidden',
               imgClass,
             )}
-            src={`${LOGO_SRC_PATH}logo-light-streamline.png`}
+            src={getLogoSrc('light', 'streamline')}
             alt={`${APP_NAME} logo`}
             width={width}
             height={height}
@@ -61,7 +60,7 @@ const Logo = (props: LogoProps) => {
         <>
           <Image
             className={classNames(type === 'full' ? '' : 'hidden', imgClass)}
-            src={`${LOGO_SRC_PATH}logo-dark-full.png`}
+            src={getLogoSrc('dark', 'full')}
             alt={`${APP_NAME} logo`}
             width={width}
             height={height}
@@ -72,7 +71,7 @@ const Logo = (props: LogoProps) => {
               type === 'streamline' ? '' : 'hidden',
               imgClass,
             )}
-            src={`${LOGO_SRC_PATH}logo-dark-streamline.png`}
+            src={getLogoSrc('dark', 'streamline')}
             alt={`${APP_NAME} logo`}
             width={width}
             height={height}
