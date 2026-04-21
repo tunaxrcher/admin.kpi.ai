@@ -49,10 +49,9 @@ export const useUpdateCharacterWorkSettings = () => {
       id: number
       data: UpdateCharacterWorkSettingsRequest
     }) => characterService.updateWorkSettings(id, data),
-    onSuccess: (data, variables) => {
+    onSuccess: () => {
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all })
-      queryClient.setQueryData(QUERY_KEYS.detail(variables.id), data)
 
       toast.push(
         <Notification title="สำเร็จ" type="success">
@@ -82,10 +81,9 @@ export const useUpdateCharacterJob = () => {
       id: number
       data: UpdateCharacterJobRequest
     }) => characterService.updateJob(id, data),
-    onSuccess: (data, variables) => {
+    onSuccess: () => {
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all })
-      queryClient.setQueryData(QUERY_KEYS.detail(variables.id), data)
 
       toast.push(
         <Notification title="สำเร็จ" type="success">
@@ -110,10 +108,9 @@ export const useDeductXeny = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: DeductXenyRequest }) =>
       characterService.deductXeny(id, data),
-    onSuccess: (data, variables) => {
+    onSuccess: () => {
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all })
-      queryClient.setQueryData(QUERY_KEYS.detail(variables.id), data)
 
       toast.push(
         <Notification title="สำเร็จ" type="success">

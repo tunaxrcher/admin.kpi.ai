@@ -525,7 +525,7 @@ const CharacterDetailPage: React.FC<CharacterDetailPageProps> = ({
         <div className="lg:col-span-1">
           <div className="flex flex-col items-center">
             <Avatar
-              src={character.currentPortraitUrl || character.user.avatar || ''}
+              src={character.currentPortraitUrl || character.user?.avatar || ''}
               alt={character.name}
               shape="circle"
               size={200}
@@ -536,7 +536,7 @@ const CharacterDetailPage: React.FC<CharacterDetailPageProps> = ({
                 {character.name}
               </h3>
               <p className="text-gray-400 mb-4 text-lg">
-                {character.user.email}
+                {character.user?.email}
               </p>
               <div className="space-y-2">
                 <p className="text-xl font-semibold text-blue-400">
@@ -591,13 +591,13 @@ const CharacterDetailPage: React.FC<CharacterDetailPageProps> = ({
                   </span>
                 </div>
                 <p
-                  className={`text-3xl font-bold mb-2 ${getXenyColor(character.user.userXeny?.currentXeny)}`}
+                  className={`text-3xl font-bold mb-2 ${getXenyColor(character.user?.userXeny?.currentXeny)}`}
                 >
-                  {formatXeny(character.user.userXeny?.currentXeny)}
+                  {formatXeny(character.user?.userXeny?.currentXeny)}
                 </p>
                 <p className="text-sm text-gray-500">
                   รวมได้รับ:{' '}
-                  {formatXeny(character.user.userXeny?.totalEarnedXeny)}
+                  {formatXeny(character.user?.userXeny?.totalEarnedXeny)}
                 </p>
               </div>
 
@@ -1480,7 +1480,7 @@ const CharacterDetailPage: React.FC<CharacterDetailPageProps> = ({
             </FormItem>
             <FormItem label="Xeny ปัจจุบัน" className="mb-4">
               <Input
-                value={`${formatXeny(selectedCharacter.user.userXeny?.currentXeny)} Xeny`}
+                value={`${formatXeny(selectedCharacter.user?.userXeny?.currentXeny)} Xeny`}
                 disabled
               />
             </FormItem>
