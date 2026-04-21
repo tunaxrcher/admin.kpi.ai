@@ -42,6 +42,8 @@ const validationSchema: ZodType<SignInFormSchema> = z.object({
     .min(1, { message: 'Please enter your password' }),
 })
 
+const isEvx = process.env.NEXT_PUBLIC_LOGO === 'evx'
+
 const SignInForm = (props: SignInFormProps) => {
   const [isSubmitting, setSubmitting] = useState<boolean>(false)
 
@@ -53,8 +55,8 @@ const SignInForm = (props: SignInFormProps) => {
     control,
   } = useForm<SignInFormSchema>({
     defaultValues: {
-      email: 'admin-01@mail.com',
-      password: '123Qwe',
+      email: isEvx ? 'admin-01@mail.com' : '',
+      password: isEvx ? '123Qwe' : '',
     },
     resolver: zodResolver(validationSchema),
   })
@@ -78,8 +80,8 @@ const SignInForm = (props: SignInFormProps) => {
             control={control}
             render={({ field }) => (
               <Input
-                type="email"
-                placeholder="Email"
+                type={isEvx ? 'email' : 'text'}
+                placeholder={isEvx ? 'Email' : 'ยูสเซอร์เนม'}
                 autoComplete="off"
                 {...field}
               />
